@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/birchwood
+birchwood.so
+birchwood.dylib
+birchwood.dll
+birchwood.a
+birchwood.lib
+birchwood-test-*
+*.exe
+*.o
+*.obj
+*.lst
