@@ -7,6 +7,7 @@ import std.container.slist : SList;
 import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
+import eventy;
 
 // TODO: Remove this import
 import std.stdio : writeln;
@@ -54,6 +55,7 @@ public struct ConnectionInfo
     /* TODO: Make final/const (find out difference) */
     private ulong bulkReadSize;
 
+    /* TODO: before publishing change this bulk size */
     private this(Address addrInfo, string nickname, ulong bulkReadSize = 20)
     {
         this.addrInfo = addrInfo;
@@ -137,6 +139,9 @@ public class Client
     private Mutex recvQueueLock, sendQueueLock;
     private Thread recvHandler, sendHandler;
 
+    /* Event engine */
+    private Engine engine;
+
     this(ConnectionInfo connInfo)
     {
         this.connInfo = connInfo;
@@ -145,6 +150,56 @@ public class Client
     ~this()
     {
         //TODO: Do something here, tare downs
+    }
+
+    class IRCEvent : Event
+        {
+            private string message;
+
+            this(ulong typeID, ubyte[] payload)
+            {
+                super(typeID, payload);
+
+                /* TODFO: actuially parse message here */
+                this.message = cast(string)payload;
+            }
+
+            public string getMessage()
+            {
+                return message;
+            }
+        }
+
+    private void initEvents()
+    {
+        /* TODO: For now we just register one signal type for all messages */
+        ulong signalDefault = 1;
+        engine.addQueue(signalDefault);
+
+        
+
+
+        /* TODO: We also add default signal handler which will just print stuff out */
+        class SignalHandler1 : Signal
+        {
+            this()
+            {
+                super([1]);
+            }
+            
+            public override void handler(Event e)
+            {
+                /* TODO: Insert cast here to our custoim type */
+                IRCEvent ircEvent = cast(IRCEvent)e;
+                assert(ircEvent); //Should never fail, unless some BOZO regged multiple handles for 1 - wait idk does eventy do that even mmm
+                import std.stdio;
+                writeln("IRCEvent (id): "~to!(string)(ircEvent.id));
+                writeln("IRCEvent (payload): "~to!(string)(ircEvent.getMessage));
+            }
+        }
+
+        Signal j = new SignalHandler1();
+        engine.addSignalHandler(j);
     }
 
     /**
@@ -164,12 +219,21 @@ public class Client
                 this.recvQueueLock = new Mutex();
                 this.sendQueueLock = new Mutex();
 
+                /* Start the event engine */
+                this.engine = new Engine();
+                this.engine.start();
+
+                /* Regsiter default handler */
+                initEvents();
+
                 /* TODO: Clean this up and place elsewhere */
                 this.recvHandler = new Thread(&recvHandlerFunc);
                 this.recvHandler.start();
 
                 this.sendHandler = new Thread(&sendHandlerFunc);
                 this.sendHandler.start();
+
+                
             }
             catch(SocketOSException e)
             {
@@ -223,7 +287,7 @@ public class Client
 
     private void defaultHandler(string from, string command, string params)
     {
-        
+
     }
 
     // private
@@ -239,6 +303,13 @@ public class Client
     /* TODO: Implement me */
     private void parseReceivedMessage(string message)
     {
+        /* TODO: testing */
+        Event eTest = new IRCEvent(1, cast(ubyte[])message);
+        engine.push(eTest);
+
+
+
+
         /* Command */
         string command;
 
@@ -593,7 +664,7 @@ public class Client
 
 
             
-
+            /* TODO: Yield here and in other places before continue */
 
         }
     }
