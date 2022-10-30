@@ -6,7 +6,7 @@
 	"dependencies": {
 		"eventy": "~>0.2.5"
 	},
-	"description": "An IRC library for easy usage",
+	"description": "A sane IRC framework for the D language",
 	"license": "LGPL-3.0",
 	"name": "birchwood",
 	"targetType": "library"
