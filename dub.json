@@ -1,13 +1,13 @@
 {
 	"authors": [
-		"Tristan B. V. Kildaire"
+		"Tristan B. Kildaire"
 	],
-	"copyright": "Copyright © 2022, Tristan B. V. Kildaire",
+	"copyright": "Copyright © 2022, Tristan B. Kildaire",
 	"dependencies": {
 		"eventy": "~>0.2.5"
 	},
-	"targetType": "library",
-	"description": "A straight-forward IRC library for D programmers",
+	"description": "An IRC library for easy usage",
 	"license": "proprietary",
-	"name": "birchwood"
+	"name": "birchwood",
+	"targetType": "library"
 }
