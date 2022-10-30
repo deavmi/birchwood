@@ -9,7 +9,7 @@
    id="svg5"
    inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
    sodipodi:docname="logo.svg"
-   inkscape:export-filename="logo.png"
+   inkscape:export-filename="logo.svg"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -29,7 +29,7 @@
      showgrid="false"
      inkscape:zoom="0.70710678"
      inkscape:cx="127.27922"
-     inkscape:cy="598.21233"
+     inkscape:cy="598.21234"
      inkscape:window-width="1916"
      inkscape:window-height="1033"
      inkscape:window-x="0"
@@ -56,7 +56,10 @@
        style="fill-rule:evenodd;stroke:none;stroke-linejoin:round;fill:#784421"
        inkscape:perspectiveID="#perspective2761"
        inkscape:corner0="1.0464315 : 0.2492059 : 0 : 1"
-       inkscape:corner7="-0.22542852 : 0.074842753 : 0.25 : 1">
+       inkscape:corner7="-0.22542852 : 0.074842753 : 0.25 : 1"
+       inkscape:export-filename="logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
       <path
          sodipodi:type="inkscape:box3dside"
          id="path2775"
