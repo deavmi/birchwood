@@ -1,17 +1,17 @@
-<center>
+<p align="center">
 <img src="logo.png" width=220>
-    
+</p>
+
 <br>
 
-birchwood
-=========
+<h1 align="center">birchwood</h1>
 
-### _**A sane IRC framework for the D language**_
+<h3 align="center"><i><b>A sane IRC framework for the D language</i></b></h3>
 
 ---
+
 <br>
 <br>
-</center>
 
 ## Installation
 
