@@ -24,3 +24,7 @@ dub add birchwood
 ## Usage
 
 TODO:
+
+## License
+
+See [LICENSE](LICENSE).
