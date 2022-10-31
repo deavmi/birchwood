@@ -8,6 +8,7 @@ import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
 import eventy;
+import birchwood.messages : Message;
 
 // TODO: Remove this import
 import std.stdio : writeln;
@@ -145,6 +146,9 @@ public class Client
     this(ConnectionInfo connInfo)
     {
         this.connInfo = connInfo;
+
+        /* Set the client inside IRCEvent so all can access it when handling events */
+        IRCEvent.client = this;
     }
 
     ~this()
@@ -153,22 +157,29 @@ public class Client
     }
 
     class IRCEvent : Event
+    {   
+        /* The client itself */
+        private static __gshared Client client;
+
+        private Message msg;
+
+        this(ulong typeID, Message msg)
         {
-            private string message;
+            super(typeID, null);
 
-            this(ulong typeID, ubyte[] payload)
-            {
-                super(typeID, payload);
-
-                /* TODFO: actuially parse message here */
-                this.message = cast(string)payload;
-            }
-
-            public string getMessage()
-            {
-                return message;
-            }
+            this.msg = msg;
         }
+
+        public Message getMessage()
+        {
+            return msg;
+        }
+
+        public override string toString()
+        {
+            return msg.toString();
+        }
+    }
 
     private void initEvents()
     {
@@ -192,9 +203,12 @@ public class Client
                 /* TODO: Insert cast here to our custoim type */
                 IRCEvent ircEvent = cast(IRCEvent)e;
                 assert(ircEvent); //Should never fail, unless some BOZO regged multiple handles for 1 - wait idk does eventy do that even mmm
-                import std.stdio;
+
                 writeln("IRCEvent (id): "~to!(string)(ircEvent.id));
-                writeln("IRCEvent (payload): "~to!(string)(ircEvent.getMessage));
+                writeln("IRCEvent "~ircEvent.getMessage().toString());
+
+
+                writeln(IRCEvent.client);
             }
         }
 
@@ -284,34 +298,24 @@ public class Client
         // return  null;
     }
 
-
-    private void defaultHandler(string from, string command, string params)
-    {
-
-    }
-
-    // private
-    private void function() getHandler()
-    {
-        /* The chosen handler */
-        void function() handlerPtr;
-
-
-        return handlerPtr;
-    }
-
     /* TODO: Implement me */
+    /* TODO: This should be a static method in `birchwood.messages.Message`
+    * which geneartes a Message object for us
+    */
     private void parseReceivedMessage(string message)
     {
         /* TODO: testing */
-        Event eTest = new IRCEvent(1, cast(ubyte[])message);
-        engine.push(eTest);
 
-
-
+        /* From */
+        string from;
 
         /* Command */
         string command;
+
+        /* Params */
+        string params;
+
+
 
         /* Check if there is a PREFIX (according to RFC 1459) */
         if(message[0] == ':')
@@ -323,7 +327,7 @@ public class Client
             /* TODO: double check the condition */
             if(firstSpace > 0)
             {
-                string from = message[1..firstSpace];
+                from = message[1..firstSpace];
 
                 writeln("from: "~from);
 
@@ -346,6 +350,18 @@ public class Client
                 /* Extract the command */
                 command = rem[0..idx];
                 writeln("command: "~command);
+
+                /* Params are everything till the end */
+                i = idx;
+                for(; i < rem.length; i++)
+                {
+                    if(rem[i] != ' ')
+                    {
+                        break;
+                    }
+                }
+                params = rem[i..rem.length];
+                writeln("params: "~params);
             }
             else
             {
@@ -356,6 +372,16 @@ public class Client
 
             
         }
+
+        import birchwood.messages;
+
+        Message msg = new Message(from, command, message);
+
+        /* TODO: Set static in IRCEvent field for access to Client (and hence socket) */
+        /* TODO: This should be done in reeive handler me thinks, or rather
+        shouild return something not yet TRIGGER an event */
+        Event eTest = new IRCEvent(1, msg);
+        engine.push(eTest);
     }
 
     /* TODO: Spawn a thread worker that reacts */
@@ -370,6 +396,8 @@ public class Client
     * It pays high priority to looking for a PING
     * message first and handling those and then doing
     * a second pass for other messages
+    *
+    * TODO: Do decode here and triggering of events here
     */
     private void recvHandlerFunc()
     {
@@ -398,6 +426,22 @@ public class Client
 
                 pos++;
             }
+
+
+            /**
+            * TODO: Plan of action
+            *
+            * 1. Firstly, we must run `parseReceivedMessage()` on the dequeued
+            *    ping message (if any)
+            * 2. Then (if there was a PING) trigger said PING handler
+            * 3. Normal message handling; `parseReceivedMessage()` on one of the messages
+            * (make the dequeue amount configurable possibly)
+            * 4. Trigger generic handler
+            * 5. We might need to also have a queue for commands ISSUED and command-replies
+            *    RECEIVED and then match those first and do something with them (tasky-esque)
+            * 6. We can just make a generic reply queue of these things - we have to maybe to this
+            * - we can cache or remember stuff when we get 353
+            */
 
 
 
@@ -495,6 +539,13 @@ public class Client
         sendQueueLock.unlock();
     }
 
+    /* TODO: For commands with an expected reply */
+    // private SList!()
+    private Object ask()
+    {
+        return  null;
+    }
+
 
     bool yes = true;
     bool hasJoined = false;
@@ -539,6 +590,11 @@ public class Client
                 Thread.sleep(dur!("seconds")(4));
                     this.socket.send((cast(ubyte[])"join #birchwoodtesting")~[cast(ubyte)13, cast(ubyte)10]);
                     hasJoined = true;
+
+                    import core.thread;
+                Thread.sleep(dur!("seconds")(2));
+
+                sendMessage("names");
                 }
             }
             
