@@ -64,6 +64,9 @@ public struct ConnectionInfo
     /* TODO: Make final/const (find out difference) */
     private ulong bulkReadSize;
 
+    /* Client behaviour (TODO: what is sleep(0), like nothing) */
+    private ulong fakeLag = 0;
+
     /* TODO: before publishing change this bulk size */
     private this(Address addrInfo, string nickname, ulong bulkReadSize = 20)
     {
@@ -140,6 +143,10 @@ public class Client
 {
     /* Connection information */
     private ConnectionInfo connInfo;
+
+    /* TODO: We should learn some info in here (or do we put it in connInfo)? */
+    private string serverName; //TODO: Make use of
+
 
     private Socket socket;
 
@@ -245,16 +252,12 @@ public class Client
                 IRCEvent ircEvent = cast(IRCEvent)e;
                 assert(ircEvent); //Should never fail, unless some BOZO regged multiple handles for 1 - wait idk does eventy do that even mmm
 
-                logger.log("IRCEvent (id): "~to!(string)(ircEvent.id));
-                logger.log("IRCEvent "~ircEvent.getMessage().toString());
-
-
-                logger.log(client);
+                logger.log("IRCEvent(message): "~ircEvent.getMessage().toString());
             }
         }
 
-        Signal j = new GenericSignal(this);
-        engine.addSignalHandler(j);
+        engine.addSignalHandler(new GenericSignal(this));
+
 
         /* TODO: Add Pong signal handler (make it id 2) */
         class PongSignal : BaseSignal
