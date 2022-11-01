@@ -575,7 +575,7 @@ public class Client
 
                 import core.thread;
                 Thread.sleep(dur!("seconds")(2));
-                this.socket.send((cast(ubyte[])"USER doggie doggie irc.freenode.net :Tristan B. Kildaire")~[cast(ubyte)13, cast(ubyte)10]);
+                this.socket.send((cast(ubyte[])"USER doggie doggie irc.frdeenode.net :Tristan B. Kildaire")~[cast(ubyte)13, cast(ubyte)10]);
 
                 yes=false;
             }

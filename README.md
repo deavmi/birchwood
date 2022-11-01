@@ -13,6 +13,11 @@
 <br>
 <br>
 
+```
+[13:51:00] <zh_> A sane IRC framework for the D language
+[13:51:11] <zh_> s/sane/professional
+```
+
 ## Installation
 
 To add birchwood to your project simply run:
@@ -27,7 +32,7 @@ TODO:
 
 ## TODO
 
-- [ ] Server name saving so it automatically uses it in replies where it needs to (currently hardcoded to freenode for testing reasons)
+- [ ] Automatic learning of things like server name, caps (if received etc)
 - [ ] Request-response support (waiting/promises)
 
 ## License
