@@ -4,6 +4,7 @@
 	],
 	"copyright": "Copyright © 2022, Tristan B. Kildaire",
 	"dependencies": {
+		"dlog": "~>0.0.6",
 		"eventy": "0.2.5"
 	},
 	"description": "A sane IRC framework for the D language",

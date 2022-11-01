@@ -12,6 +12,14 @@ import birchwood.messages : Message;
 
 // TODO: Remove this import
 import std.stdio : writeln;
+import dlog;
+
+__gshared Logger logger;
+__gshared static this()
+{
+    logger = new DefaultLogger();
+}
+
 
 public class BirchwoodException : Exception
 {
@@ -146,9 +154,6 @@ public class Client
     this(ConnectionInfo connInfo)
     {
         this.connInfo = connInfo;
-
-        /* Set the client inside IRCEvent so all can access it when handling events */
-        IRCEvent.client = this;
     }
 
     ~this()
@@ -156,16 +161,21 @@ public class Client
         //TODO: Do something here, tare downs
     }
 
+    private enum EventType : ulong
+    {
+        GENERIC_EVENT = 1,
+        PONG_EVENT
+    }
+
+
+    /* TODO: Move to an events.d class */
     class IRCEvent : Event
     {   
-        /* The client itself */
-        private static __gshared Client client;
-
         private Message msg;
 
-        this(ulong typeID, Message msg)
+        this(Message msg)
         {
-            super(typeID, null);
+            super(EventType.GENERIC_EVENT, null);
 
             this.msg = msg;
         }
@@ -181,21 +191,52 @@ public class Client
         }
     }
 
+    /* TODO: make PongEvent (id 2 buit-in) */
+    class PongEvent : Event
+    {
+        private string pingID;
+
+        this(string pingID)
+        {
+            super(EventType.PONG_EVENT);
+            this.pingID = pingID;
+        }
+
+        public string getID()
+        {
+            return pingID;
+        }
+    }
+
     private void initEvents()
     {
         /* TODO: For now we just register one signal type for all messages */
-        ulong signalDefault = 1;
-        engine.addQueue(signalDefault);
 
-        
+        /* Register all event types */
+        engine.addQueue(EventType.GENERIC_EVENT);
+        engine.addQueue(EventType.PONG_EVENT);
+
+
+        /* Base signal with IRC client in it */
+        abstract class BaseSignal : Signal
+        {
+            /* ICR client */
+            private Client client;
+
+            this(Client client, ulong[] eventIDs)
+            {
+                super(eventIDs);
+                this.client = client;
+            }
+        }
 
 
         /* TODO: We also add default signal handler which will just print stuff out */
-        class SignalHandler1 : Signal
+        class GenericSignal : BaseSignal
         {
-            this()
+            this(Client client)
             {
-                super([1]);
+                super(client, [EventType.GENERIC_EVENT]);
             }
             
             public override void handler(Event e)
@@ -204,16 +245,40 @@ public class Client
                 IRCEvent ircEvent = cast(IRCEvent)e;
                 assert(ircEvent); //Should never fail, unless some BOZO regged multiple handles for 1 - wait idk does eventy do that even mmm
 
-                writeln("IRCEvent (id): "~to!(string)(ircEvent.id));
-                writeln("IRCEvent "~ircEvent.getMessage().toString());
+                logger.log("IRCEvent (id): "~to!(string)(ircEvent.id));
+                logger.log("IRCEvent "~ircEvent.getMessage().toString());
 
 
-                writeln(IRCEvent.client);
+                logger.log(client);
             }
         }
 
-        Signal j = new SignalHandler1();
+        Signal j = new GenericSignal(this);
         engine.addSignalHandler(j);
+
+        /* TODO: Add Pong signal handler (make it id 2) */
+        class PongSignal : BaseSignal
+        {
+            this(Client client)
+            {
+                super(client, [EventType.PONG_EVENT]);
+            }
+
+            /* TODO: Implement me */
+            public override void handler(Event e)
+            {
+                PongEvent pongEvent = cast(PongEvent)e;
+                assert(pongEvent);
+
+                string messageToSend = "PONG "~pongEvent.getID();
+
+                client.sendMessage(messageToSend);
+
+                logger.log("Ponged");
+            }
+        }
+
+        engine.addSignalHandler(new PongSignal(this));
     }
 
     /**
@@ -298,92 +363,6 @@ public class Client
         // return  null;
     }
 
-    /* TODO: Implement me */
-    /* TODO: This should be a static method in `birchwood.messages.Message`
-    * which geneartes a Message object for us
-    */
-    private void parseReceivedMessage(string message)
-    {
-        /* TODO: testing */
-
-        /* From */
-        string from;
-
-        /* Command */
-        string command;
-
-        /* Params */
-        string params;
-
-
-
-        /* Check if there is a PREFIX (according to RFC 1459) */
-        if(message[0] == ':')
-        {
-            /* prefix ends after first space (we fetch servername, host/user) */
-            //TODO: make sure not -1
-            long firstSpace = indexOf(message, ' ');
-
-            /* TODO: double check the condition */
-            if(firstSpace > 0)
-            {
-                from = message[1..firstSpace];
-
-                writeln("from: "~from);
-
-                /* TODO: Find next space (what follows `from` is  `' ' { ' ' }`) */
-                ulong i = firstSpace;
-                for(; i < message.length; i++)
-                {
-                    if(message[i] != ' ')
-                    {
-                        break;
-                    }
-                }
-
-                // writeln("Yo");
-
-                string rem = message[i..message.length];
-                // writeln("Rem: "~rem);
-                long idx  = indexOf(rem, " "); //TOOD: -1 check
-
-                /* Extract the command */
-                command = rem[0..idx];
-                writeln("command: "~command);
-
-                /* Params are everything till the end */
-                i = idx;
-                for(; i < rem.length; i++)
-                {
-                    if(rem[i] != ' ')
-                    {
-                        break;
-                    }
-                }
-                params = rem[i..rem.length];
-                writeln("params: "~params);
-            }
-            else
-            {
-                //TODO: handle
-                writeln("Malformed message start after :");
-                assert(false);
-            }
-
-            
-        }
-
-        import birchwood.messages;
-
-        Message msg = new Message(from, command, message);
-
-        /* TODO: Set static in IRCEvent field for access to Client (and hence socket) */
-        /* TODO: This should be done in reeive handler me thinks, or rather
-        shouild return something not yet TRIGGER an event */
-        Event eTest = new IRCEvent(1, msg);
-        engine.push(eTest);
-    }
-
     /* TODO: Spawn a thread worker that reacts */
 
     /**
@@ -406,6 +385,8 @@ public class Client
             /* Lock the receieve queue */
             recvQueueLock.lock();
 
+            /* Message being analysed */
+            Message curMsg;
 
             /* Search for a PING */
             ubyte[] pingMessage;
@@ -443,24 +424,34 @@ public class Client
             * - we can cache or remember stuff when we get 353
             */
 
+            
 
 
             /* If we found a PING */
             if(pingMessage.length > 0)
             {
-                writeln("Found a ping: "~cast(string)pingMessage);
-                string ogMessage = cast(string)pingMessage;
-                long idxSigStart = indexOf(ogMessage, ":")+1;
-                long idxSigEnd = lastIndexOf(ogMessage, '\r');
+                /* Decode the message and parse it */
+                curMsg = Message.parseReceivedMessage(decodeMessage(pingMessage));
+                logger.log("Found a ping: "~curMsg.toString());
 
-                string pingID = ogMessage[idxSigStart..idxSigEnd];
+                // string ogMessage = cast(string)pingMessage;
+                // long idxSigStart = indexOf(ogMessage, ":")+1;
+                // long idxSigEnd = lastIndexOf(ogMessage, '\r');
+
+                // string pingID = ogMessage[idxSigStart..idxSigEnd];
+                string pingID = curMsg.getMessage();
 
 
                 // this.socket.send(encodeMessage("PONG "~pingID));
+                // string messageToSend = "PONG "~pingID;
 
-                string messageToSend = "PONG "~pingID;
+                // sendMessage(messageToSend);
 
-                sendMessage(messageToSend);
+                // logger.log("Ponged");
+
+                /* TODO: Implement */
+                Event pongEvent = new PongEvent(pingID);
+                engine.push(pongEvent);
             }
 
             /* Now let's go message by message */
@@ -473,12 +464,15 @@ public class Client
 
                 recvQueue.linearRemoveElement(recvQueue.front());
 
-                writeln("Normal message: "~messageNormal);
+                // writeln("Normal message: "~messageNormal);
 
                 
 
                 /* TODO: Parse message and call correct handler */
-                parseReceivedMessage(messageNormal);
+                curMsg = Message.parseReceivedMessage(messageNormal);
+
+                Event ircEvent = new IRCEvent(curMsg);
+                engine.push(ircEvent);
             }
 
 
@@ -553,8 +547,8 @@ public class Client
     private void processMessage(ubyte[] message)
     {
         // import std.stdio;
-        // writeln("Message length: "~to!(string)(message.length));
-        // writeln("InterpAsString: "~cast(string)message);
+        // logger.log("Message length: "~to!(string)(message.length));
+        // logger.log("InterpAsString: "~cast(string)message);
 
         receiveQ(message);
 
