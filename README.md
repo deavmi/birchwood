@@ -25,6 +25,11 @@ dub add birchwood
 
 TODO:
 
+## TODO
+
+- [ ] Server name saving so it automatically uses it in replies where it needs to (currently hardcoded to freenode for testing reasons)
+- [ ] Request-response support (waiting/promises)
+
 ## License
 
 See [LICENSE](LICENSE).
