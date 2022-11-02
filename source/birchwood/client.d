@@ -8,7 +8,7 @@ import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
 import eventy;
-import birchwood.messages : Message;
+import birchwood.messages : Message, encodeMessage, decodeMessage;
 
 // TODO: Remove this import
 import std.stdio : writeln;
@@ -168,7 +168,7 @@ public class Client
         //TODO: Do something here, tare downs
     }
 
-    private enum EventType : ulong
+    private final enum EventType : ulong
     {
         GENERIC_EVENT = 1,
         PONG_EVENT
@@ -176,7 +176,7 @@ public class Client
 
 
     /* TODO: Move to an events.d class */
-    class IRCEvent : Event
+    private final class IRCEvent : Event
     {   
         private Message msg;
 
@@ -199,7 +199,7 @@ public class Client
     }
 
     /* TODO: make PongEvent (id 2 buit-in) */
-    class PongEvent : Event
+    private final class PongEvent : Event
     {
         private string pingID;
 
@@ -215,6 +215,218 @@ public class Client
         }
     }
 
+    /**
+    * User overridable handler functions below
+    */
+    public void onChannelMessage(Message fullMessage, string channel, string msgBody)
+    {
+        /* Default implementation */
+    }
+    public void onDirectMessage(Message fullMessage, string nickname, string msgBody)
+    {
+        /* Default implementation */
+    }
+    public void onGenericCommand(Message message)
+    {
+        /* Default implementation */
+    }
+    public void onCommandReply(Reply commandReply)
+    {
+        /* Default implementation */
+    }
+
+    /* Reply object */
+    private enum ReplyType : ulong
+    {
+        /* Error replies */
+        ERR_NOSUCHNICK = 401,
+        ERR_NOSUCHSERVER = 402,
+        ERR_NOSUCHCHANNEL = 403,
+        ERR_CANNOTSENDTOCHAN = 404,
+        ERR_TOOMANYCHANNELS = 405,
+        ERR_WASNOSUCHNICK = 406,
+        ERR_TOOMANYTARGETS = 407,
+        ERR_NOORIGIN = 409,
+        ERR_NORECIPIENT = 411,
+        ERR_NOTEXTTOSEND = 412,
+        ERR_NOTOPLEVEL = 413,
+        ERR_WILDTOPLEVEL  = 414,
+        ERR_UNKNOWNCOMMAND = 421,
+        ERR_NOMOTD = 422,
+        ERR_NOADMININFO = 423,
+        ERR_FILEERROR = 424,
+        ERR_NONICKNAMEGIVEN = 431,
+        ERR_ERRONEUSNICKNAME = 432,
+        ERR_NICKNAMEINUSE = 433,
+        ERR_NICKCOLLISION = 436,
+        ERR_USERNOTINCHANNEL = 441,
+        ERR_NOTONCHANNEL = 442,
+        ERR_USERONCHANNEL = 443,
+        ERR_NOLOGIN = 444,
+        ERR_SUMMONDISABLED = 445,
+        ERR_USERSDISABLED = 446,
+        ERR_NOTREGISTERED = 451,
+        ERR_NEEDMOREPARAMS = 461,
+        ERR_ALREADYREGISTRED = 462,
+        ERR_NOPERMFORHOST = 463,
+        ERR_PASSWDMISMATCH = 464,
+        ERR_YOUREBANNEDCREEP = 465,
+        ERR_KEYSET = 467,
+        ERR_CHANNELISFULL = 471,
+        ERR_UNKNOWNMODE = 472,
+        ERR_INVITEONLYCHAN = 473,
+        ERR_BANNEDFROMCHAN = 474,
+        ERR_BADCHANNELKEY = 475,
+        ERR_NOPRIVILEGES = 481,
+        ERR_CHANOPRIVSNEEDED = 482,
+        ERR_CANTKILLSERVER = 483,
+        ERR_NOOPERHOST = 491,
+        ERR_UMODEUNKNOWNFLAG = 501,
+        ERR_USERSDONTMATCH = 502,
+
+        /* Command responses */
+        RPL_NONE = 300,
+        RPL_USERHOST = 302,
+        RPL_ISON = 303,
+        RPL_AWAY = 301,
+        RPL_UNAWAY = 305,
+        RPL_NOWAWAY = 306,
+        RPL_WHOISUSER = 311,
+        RPL_WHOISSERVER = 312,
+        RPL_WHOISOPERATOR = 313,
+        RPL_WHOISIDLE = 317,
+        RPL_ENDOFWHOIS = 318,
+        RPL_WHOISCHANNELS = 319,
+        RPL_WHOWASUSER = 314,
+        RPL_ENDOFWHOWAS = 369,
+        RPL_LISTSTART = 321,
+        RPL_LIST = 322,
+        RPL_LISTEND = 323,
+        RPL_CHANNELMODEIS = 324,
+        RPL_NOTOPIC = 331,
+        RPL_TOPIC = 332,
+        RPL_INVITING = 341,
+        RPL_SUMMONING = 342,
+        RPL_VERSION = 351,
+        RPL_WHOREPLY = 352,
+        RPL_ENDOFWHO = 315,
+        RPL_NAMREPLY = 353,
+        RPL_ENDOFNAMES = 366,
+        RPL_LINKS = 364,
+        RPL_ENDOFLINKS = 365,
+        RPL_BANLIST = 367,
+        RPL_ENDOFBANLIST = 368,
+        RPL_INFO = 371,
+        RPL_ENDOFINFO = 374,
+        RPL_MOTDSTART = 375,
+        RPL_MOTD = 372,
+        RPL_ENDOFMOTD = 376,
+        RPL_YOUREOPER = 381,
+        RPL_REHASHING = 382,
+        RPL_TIME = 391,
+        RPL_USERSSTART = 392,
+        RPL_USERS = 393,
+        RPL_ENDOFUSERS = 394,
+        RPL_NOUSERS = 395,
+        RPL_TRACELINK = 200,
+        RPL_TRACECONNECTING = 201,
+        RPL_TRACEHANDSHAKE = 202,
+        RPL_TRACEUNKNOWN = 203,
+        RPL_TRACEOPERATOR = 204,
+        RPL_TRACEUSER = 205,
+        RPL_TRACESERVER = 206,
+        RPL_TRACENEWTYPE = 208,
+        RPL_TRACELOG = 261,
+        RPL_STATSLINKINFO = 211,
+        RPL_STATSCOMMANDS = 212,
+        RPL_STATSCLINE = 213,
+        RPL_STATSNLINE = 214,
+        RPL_STATSILINE = 215,
+        RPL_STATSKLINE = 216,
+        RPL_STATSYLINE = 218,
+        RPL_ENDOFSTATS = 219,
+        RPL_STATSLLINE = 241,
+        RPL_STATSUPTIME = 242,
+        RPL_STATSOLINE = 243,
+        RPL_STATSHLINE = 244,
+        RPL_UMODEIS = 221,
+        RPL_LUSERCLIENT = 251,
+        RPL_LUSEROP = 252,
+        RPL_LUSERUNKNOWN = 253,
+        RPL_LUSERCHANNELS = 254,
+        RPL_LUSERME = 255,
+        RPL_ADMINME = 256,
+        RPL_ADMINLOC1 = 257,
+        RPL_ADMINLOC2 = 258,
+        RPL_ADMINEMAIL = 259,
+
+        /* Reserved Numerics (See section 6.3 in RFC 1459) */
+        RPL_TRACECLASS = 209,
+        RPL_SERVICEINFO = 231,
+        RPL_SERVICE = 233,
+        RPL_SERVLISTEND = 235,
+        RPL_WHOISCHANOP = 316,
+        RPL_CLOSING = 362,
+        RPL_INFOSTART = 372,
+        ERR_YOUWILLBEBANNED = 466,
+        ERR_NOSERVICEHOST = 492,
+        RPL_STATSQLINE = 217,
+        RPL_ENDOFSERVICES = 232,
+        RPL_SERVLIST = 234,
+        RPL_KILLDONE = 361,
+        RPL_CLOSEEND = 363,
+        RPL_MYPORTIS = 384,
+        ERR_BADCHANMASK = 476
+    }
+
+    private struct Reply
+    {
+        /* Whether this numeric reply is an error type */
+        public bool isError = false;
+
+        /* The numeric reply */
+        public ReplyType replyType;
+
+        /* Params */
+        public string params;
+    }
+
+
+    /* TODO: Decide on object to return */
+    // public string
+
+
+    /**
+    * User operations (request-response type)
+    */
+    public void joinChannel(string channel)
+    {
+        /* TODO: Expect a reply here with some queuing mechanism */
+
+        /* Join the channel */
+        sendMessage("JOIN "~channel);
+    }
+
+    // private void makeRequest()
+
+    /** 
+     * Issue a generic command
+     */
+    public void command(Message message)
+    {
+        /* Encode according to EBNF format */
+        // TODO: Validty check
+        // TODO: Make `Message.encode()` actually encode instead of empty string
+        string stringToSend = message.encode();
+
+        /* Send the message */
+        sendMessage(stringToSend);
+    }
+
+
+    /**
+    * Initialize the event handlers
+    */
     private void initEvents()
     {
         /* TODO: For now we just register one signal type for all messages */
@@ -238,7 +450,7 @@ public class Client
         }
 
 
-        /* TODO: We also add default signal handler which will just print stuff out */
+        /* Handles all IRC messages besides PING */
         class GenericSignal : BaseSignal
         {
             this(Client client)
@@ -253,13 +465,66 @@ public class Client
                 assert(ircEvent); //Should never fail, unless some BOZO regged multiple handles for 1 - wait idk does eventy do that even mmm
 
                 logger.log("IRCEvent(message): "~ircEvent.getMessage().toString());
+
+                /* TODO: We should use a switch statement, imagine how nice */
+                Message ircMessage = ircEvent.getMessage();
+                string command = ircMessage.getCommand();
+                string params = ircMessage.getParams();
+
+                if(cmp(command, "PRIVMSG") == 0)
+                {
+                    /* Split up into (channel/nick) and (message)*/
+                    long firstSpaceIdx = indexOf(command, " "); //TODO: validity check;
+                    string chanNick = params[0..firstSpaceIdx];
+
+                    /**
+                    * TODO: Implement message fetching here and decide whether isChannel message
+                    * or private message
+                    */
+                    string message;
+                }
+                // If the command is numeric then it is a reply of some sorts
+                else if(isNumeric(command))
+                {
+                    /* Reply */
+                    Reply reply;
+                    reply.params = params;
+                    
+                    /* Grab the code */
+                    ReplyType code = to!(ReplyType)(command);
+                    // TODO: Add validity check on range of values here, if bad throw exception
+                    // TODO: Add check for "6.3 Reserved numerics" or handling of SOME sorts atleast
+
+                    /* Error codes are in range of [401, 502] */
+                    if(code >= 401 && code <= 502)
+                    {
+                        // TODO: Call error handler
+                        reply.isError = true;
+                    }
+                    /* Command replies are in range of [259, 395] */
+                    else if(code >= 259 && code <= 395)
+                    {
+                        // TODO: Call command-reply handler
+                        reply.isError = false;
+                    }
+
+                    
+                    /* Call the command reply handler */
+                    onCommandReply(reply);
+                }
+                /* Generic handler */
+                else
+                {
+                    onGenericCommand(ircMessage);
+                }
+                
+                //TODO: add more commands
+
             }
         }
-
         engine.addSignalHandler(new GenericSignal(this));
 
-
-        /* TODO: Add Pong signal handler (make it id 2) */
+        /* Handles PING messages */
         class PongSignal : BaseSignal
         {
             this(Client client)
@@ -267,20 +532,17 @@ public class Client
                 super(client, [EventType.PONG_EVENT]);
             }
 
-            /* TODO: Implement me */
+            /* Send a PONG back with the received PING id */
             public override void handler(Event e)
             {
                 PongEvent pongEvent = cast(PongEvent)e;
                 assert(pongEvent);
 
                 string messageToSend = "PONG "~pongEvent.getID();
-
                 client.sendMessage(messageToSend);
-
                 logger.log("Ponged");
             }
         }
-
         engine.addSignalHandler(new PongSignal(this));
     }
 
@@ -349,21 +611,6 @@ public class Client
 
         /* Unlock queue */
         recvQueueLock.unlock();
-    }
-
-    private static ubyte[] encodeMessage(string messageIn)
-    {
-        ubyte[] messageOut = cast(ubyte[])messageIn;
-        messageOut~=[cast(ubyte)13, cast(ubyte)10];
-        return messageOut;
-    }
-
-    private static string decodeMessage(ubyte[] messageIn)
-    {
-        /* TODO: We could do a chekc to ESNURE it is well encoded */
-
-        return cast(string)messageIn[0..messageIn.length-2];
-        // return  null;
     }
 
     /* TODO: Spawn a thread worker that reacts */
@@ -442,7 +689,7 @@ public class Client
                 // long idxSigEnd = lastIndexOf(ogMessage, '\r');
 
                 // string pingID = ogMessage[idxSigStart..idxSigEnd];
-                string pingID = curMsg.getMessage();
+                string pingID = curMsg.getParams();
 
 
                 // this.socket.send(encodeMessage("PONG "~pingID));
@@ -497,6 +744,8 @@ public class Client
         {
 
             /* TODO: handle normal messages (xCount with fakeLagInBetween) */
+
+            /* Lock queue */
             sendQueueLock.lock();
 
             foreach(ubyte[] message; sendQueue[])
@@ -505,8 +754,10 @@ public class Client
                 Thread.sleep(dur!("seconds")(fakeLagInBetween));
             }
 
+            /* Empty the send queue */
             sendQueue.clear();
 
+            /* Unlock queue */
             sendQueueLock.unlock();
 
             /* TODO: Yield */
@@ -555,6 +806,11 @@ public class Client
 
         receiveQ(message);
 
+
+
+        /* FIXME: Move all the below code into a testing method !! */
+
+        
         j++;
 
         if(j >= 3)

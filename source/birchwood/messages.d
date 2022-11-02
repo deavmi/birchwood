@@ -25,6 +25,24 @@ __gshared static this()
     logger = new DefaultLogger();
 }
 
+/**
+* Encoding/decoding primitives
+*/
+public static ubyte[] encodeMessage(string messageIn)
+{
+    ubyte[] messageOut = cast(ubyte[])messageIn;
+    messageOut~=[cast(ubyte)13, cast(ubyte)10];
+    return messageOut;
+}
+
+public static string decodeMessage(ubyte[] messageIn)
+{
+    /* TODO: We could do a chekc to ESNURE it is well encoded */
+
+    return cast(string)messageIn[0..messageIn.length-2];
+    // return  null;
+}
+
 
 /**
  * Message types
@@ -33,13 +51,19 @@ public class Message
 {
     public string from;
     public string command;
-    public string message;
+    public string params;
 
-    this(string from, string command, string message)
+    this(string from, string command, string params)
     {
         this.from = from;
         this.command = command;
-        this.message = message;
+        this.params = params;
+    }
+
+    /* TODO: Implement encoder function */
+    public string encode()
+    {
+        return null;
     }
 
     public static Message parseReceivedMessage(string message)
@@ -138,11 +162,17 @@ public class Message
 
     public override string toString()
     {
-        return "(from: "~from~", command: "~command~", message: `"~message~"`)";
+        return "(from: "~from~", command: "~command~", message: `"~params~"`)";
     }
 
-    public string getMessage()
+    /* TODO: Rename to `getParams()` */
+    public string getParams()
     {
-        return message;
+        return params;
+    }
+
+    public string getCommand()
+    {
+        return command;
     }
 }
