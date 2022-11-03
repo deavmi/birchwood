@@ -3,7 +3,7 @@ module birchwood.messages;
 import dlog;
 
 import std.string;
-import std.conv : to;
+import std.conv : to, ConvException;
 
 // TODO: Before release we should remove this import
 import std.stdio : writeln;
@@ -185,7 +185,10 @@ public static string decodeMessage(ubyte[] messageIn)
         RPL_KILLDONE = 361,
         RPL_CLOSEEND = 363,
         RPL_MYPORTIS = 384,
-        ERR_BADCHANMASK = 476
+        ERR_BADCHANMASK = 476,
+
+
+        BIRCHWOOD_UNKNOWN_RESP_CODE = 0
 }
 
 /**
@@ -199,9 +202,11 @@ public class Message
 
     /* Whether this numeric reply is an error type */
     public bool isError = false;
+    /* Whether this is a response message */
+    public bool isResponse = false;
 
     /* The numeric reply */
-    public ReplyType replyType;
+    public ReplyType replyType = ReplyType.BIRCHWOOD_UNKNOWN_RESP_CODE;
 
     this(string from, string command, string params)
     {
@@ -212,22 +217,33 @@ public class Message
         /* Check if this is a command reply */
         if(isNumeric(command))
         {
-            /* Grab the code */
-            replyType = to!(ReplyType)(command);
-            // TODO: Add validity check on range of values here, if bad throw exception
-            // TODO: Add check for "6.3 Reserved numerics" or handling of SOME sorts atleast
+            isResponse = true;
+            
+            //FIXME: SOmething is tripping it u, elts' see
+            try
+            {
+                /* Grab the code */
+                replyType = to!(ReplyType)(to!(ulong)(command));
+                // TODO: Add validity check on range of values here, if bad throw exception
+                // TODO: Add check for "6.3 Reserved numerics" or handling of SOME sorts atleast
 
-            /* Error codes are in range of [401, 502] */
-            if(replyType >= 401 && replyType <= 502)
-            {
-                // TODO: Call error handler
-                isError = true;
+                /* Error codes are in range of [401, 502] */
+                if(replyType >= 401 && replyType <= 502)
+                {
+                    // TODO: Call error handler
+                    isError = true;
+                }
+                /* Command replies are in range of [259, 395] */
+                else if(replyType >= 259 && replyType <= 395)
+                {
+                    // TODO: Call command-reply handler
+                    isError = false;
+                }
             }
-            /* Command replies are in range of [259, 395] */
-            else if(replyType >= 259 && replyType <= 395)
+            catch(ConvException e)
             {
-                // TODO: Call command-reply handler
-                isError = false;
+                logger.log("<<< Unsupported response code (Error below) >>>");
+                logger.log(e);
             }
         }
     }
@@ -265,7 +281,7 @@ public class Message
             {
                 from = message[1..firstSpace];
 
-                logger.log("from: "~from);
+                // logger.log("from: "~from);
 
                 /* TODO: Find next space (what follows `from` is  `' ' { ' ' }`) */
                 ulong i = firstSpace;
@@ -285,7 +301,7 @@ public class Message
 
                 /* Extract the command */
                 command = rem[0..idx];
-                logger.log("command: "~command);
+                // logger.log("command: "~command);
 
                 /* Params are everything till the end */
                 i = idx;
@@ -297,7 +313,7 @@ public class Message
                     }
                 }
                 params = rem[i..rem.length];
-                logger.log("params: "~params);
+                // logger.log("params: "~params);
             }
             else
             {

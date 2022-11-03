@@ -221,18 +221,22 @@ public class Client
     public void onChannelMessage(Message fullMessage, string channel, string msgBody)
     {
         /* Default implementation */
+        logger.log("Channel("~channel~"): "~msgBody);
     }
     public void onDirectMessage(Message fullMessage, string nickname, string msgBody)
     {
         /* Default implementation */
+        logger.log("DirectMessage("~nickname~"): "~msgBody);
     }
     public void onGenericCommand(Message message)
     {
         /* Default implementation */
+        logger.log("Generic("~message.getCommand()~"): "~message.getParams());
     }
     public void onCommandReply(Message commandReply)
     {
         /* Default implementation */
+        logger.log("Response("~to!(string)(commandReply.replyType)~"): "~commandReply.toString());
     }
 
 
@@ -247,10 +251,16 @@ public class Client
     */
     public void joinChannel(string channel)
     {
-        /* TODO: Expect a reply here with some queuing mechanism */
-
         /* Join the channel */
         sendMessage("JOIN "~channel);
+    }
+    public void directMessage(string[] recipients)
+    {
+        //TODO: Implement
+    }
+    public void channelMessage(string channel)
+    {
+        //TODO: Implement
     }
 
     // private void makeRequest()
@@ -309,13 +319,14 @@ public class Client
                 /* TODO: Insert cast here to our custoim type */
                 IRCEvent ircEvent = cast(IRCEvent)e;
                 assert(ircEvent); //Should never fail, unless some BOZO regged multiple handles for 1 - wait idk does eventy do that even mmm
-
+    
                 logger.log("IRCEvent(message): "~ircEvent.getMessage().toString());
 
                 /* TODO: We should use a switch statement, imagine how nice */
                 Message ircMessage = ircEvent.getMessage();
                 string command = ircMessage.getCommand();
                 string params = ircMessage.getParams();
+
 
                 if(cmp(command, "PRIVMSG") == 0)
                 {
@@ -330,7 +341,7 @@ public class Client
                     string message;
                 }
                 // If the command is numeric then it is a reply of some sorts
-                else if(isNumeric(command))
+                else if(ircMessage.isResponse)
                 {
                     /* Call the command reply handler */
                     onCommandReply(ircMessage);
@@ -342,7 +353,6 @@ public class Client
                 }
                 
                 //TODO: add more commands
-
             }
         }
         engine.addSignalHandler(new GenericSignal(this));
