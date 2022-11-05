@@ -162,6 +162,8 @@ public final class Client : Thread
     /* Event engine */
     private Engine engine;
 
+    private bool running = false;
+
     this(ConnectionInfo connInfo)
     {
         super(&loop);
@@ -415,10 +417,11 @@ public final class Client : Thread
                 this.sendHandler = new Thread(&sendHandlerFunc);
                 this.sendHandler.start();
 
+                /* Set running sttaus to true */
+                running = true;
+
                 /* Start socket loop */
                 this.start();
-
-                
             }
             catch(SocketOSException e)
             {
@@ -471,7 +474,7 @@ public final class Client : Thread
     */
     private void recvHandlerFunc()
     {
-        while(true)
+        while(running)
         {
             /* Lock the receieve queue */
             recvQueueLock.lock();
@@ -581,7 +584,7 @@ public final class Client : Thread
         /* TODO: Hoist up into ConnInfo */
         ulong fakeLagInBetween = 1;
 
-        while(true)
+        while(running)
         {
 
             /* TODO: handle normal messages (xCount with fakeLagInBetween) */
@@ -633,6 +636,39 @@ public final class Client : Thread
         /* Generate the quit command using the custom quit message */
         Message quitCommand = new Message("", "QUIT", connInfo.quitMessage);
         sendMessage(quitCommand.encode());
+
+        /* TODO: I don't know how long we should wait here */
+        Thread.sleep(dur!("seconds")(1));
+
+        /* TODO: Tare down */
+        disconnect();
+    }
+
+    /* Attempt to tare down everything */
+    private void disconnect()
+    {
+        /* Set the state of running to false */
+        running = false;
+        logger.log("disconnect() begin");
+
+        /* TODO: Should we do this here? */
+        // FIXME: Catch any errors
+        socket.close();
+        logger.log("disconnect() socket closed");
+
+        /* Wait for reeceive handler to realise it needs to stop */
+        recvHandler.join();
+        logger.log("disconnect() recvHandler stopped");
+
+        /* Wait for the send handler to realise it needs to stop */
+        sendHandler.join();
+        logger.log("disconnect() sendHandler stopped");
+
+        /* TODO: Stop eventy (FIXME: I don't know if this is implemented in Eventy yet, do this!) */
+        engine.shutdown();
+        logger.log("disconnect() eventy stopped");
+
+        logger.log("disconnect() end");
     }
 
     private void processMessage(ubyte[] message)
@@ -670,8 +706,11 @@ public final class Client : Thread
 
         /** 
          * Message loop
+         *
+         * FIXME: We need to find a way to tare down this socket, we don't
+         * want to block forever after running quit
          */
-        while(true)
+        while(running)
         {
             /* Receieve at most 512 bytes (as per RFC) */
             ptrdiff_t bytesRead = socket.receive(currentData, SocketFlags.PEEK);
@@ -792,6 +831,9 @@ public final class Client : Thread
         // {
 
         // }
+
+        Thread.sleep(dur!("seconds")(15));
+        client.quit();
 
 
     }
