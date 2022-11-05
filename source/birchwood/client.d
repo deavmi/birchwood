@@ -632,7 +632,7 @@ public final class Client : Thread
     {
         /* Generate the quit command using the custom quit message */
         Message quitCommand = new Message("", "QUIT", connInfo.quitMessage);
-        sendMessage(quit.encode());
+        sendMessage(quitCommand.encode());
     }
 
     private void processMessage(ubyte[] message)
