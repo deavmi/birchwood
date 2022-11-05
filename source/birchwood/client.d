@@ -913,8 +913,8 @@ public final class Client : Thread
         // }
 
         // TODO: Don't forget to re-enable this when done testing!
-        // Thread.sleep(dur!("seconds")(15));
-        // client.quit();
+        Thread.sleep(dur!("seconds")(15));
+        client.quit();
 
 
     }
