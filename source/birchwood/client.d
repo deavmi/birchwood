@@ -157,7 +157,7 @@ public struct ConnectionInfo
     }
 }
 
-public final class Client : Thread
+public class Client : Thread
 {
     /* Connection information */
     private ConnectionInfo connInfo;
