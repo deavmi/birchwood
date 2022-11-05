@@ -370,8 +370,10 @@ public final class Client : Thread
                 if(cmp(command, "PRIVMSG") == 0)
                 {
                     /* Split up into (channel/nick) and (message)*/
-                    long firstSpaceIdx = indexOf(command, " "); //TODO: validity check;
+                    long firstSpaceIdx = indexOf(params, " "); //TODO: validity check;
                     string chanNick = params[0..firstSpaceIdx];
+
+                    logger.log("chanNick: "~chanNick);
 
                     /**
                     * TODO: Implement message fetching here and decide whether isChannel message
@@ -900,8 +902,9 @@ public final class Client : Thread
 
         // }
 
-        Thread.sleep(dur!("seconds")(15));
-        client.quit();
+        // TODO: Don't forget to re-enable this when done testing!
+        // Thread.sleep(dur!("seconds")(15));
+        // client.quit();
 
 
     }
