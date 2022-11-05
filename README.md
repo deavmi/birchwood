@@ -30,6 +30,13 @@ dub add birchwood
 
 You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.Client.html).
 
+## Compatibiloty
+
+- [ ] rfc1459
+    * Should be more or less stable in supporting this standard
+
+More standards will be added within the next month or so, mostly relating to new response codes that just need to be added.
+
 ## License
 
 See [LICENSE](LICENSE).
