@@ -28,12 +28,7 @@ dub add birchwood
 
 ## Usage
 
-TODO:
-
-## TODO
-
-- [ ] Automatic learning of things like server name, caps (if received etc)
-- [ ] Request-response support (waiting/promises)
+You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/v0.0.7/birchwood.client.Client.html).
 
 ## License
 
