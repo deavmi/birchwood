@@ -28,7 +28,7 @@ dub add birchwood
 
 ## Usage
 
-You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/v0.0.7/birchwood.client.Client.html).
+You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.Client.html).
 
 ## License
 
