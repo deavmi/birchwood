@@ -28,7 +28,8 @@ public class BirchwoodException : Exception
     {
         INVALID_CONN_INFO,
         ALREADY_CONNECTED,
-        CONNECT_ERROR
+        CONNECT_ERROR,
+        EMPTY_PARAMS
     }
 
     private ErrorType errType;
@@ -273,6 +274,67 @@ public final class Client : Thread
     {
         /* Join the channel */
         sendMessage("JOIN "~channel);
+    }
+
+    /** 
+     * Parts from a list of channel(s) in one go
+     *
+     * Params:
+     *   channels = the list of channels to part from
+     * Throws:
+     *   BirchwoodException if the list is empty
+     */
+    public void leaveChannel(string[] channels)
+    {
+        // TODO: Add check for valid and non-empty channel names
+
+        /* If single channel */
+        if(channels.length == 1)
+        {
+            /* Leave the channel */
+            leaveChannel(channels[0]);
+        }
+        /* If multiple channels */
+        else if(channels.length > 1)
+        {
+            string channelLine = channels[0];
+            for(ulong i = 1; i < channels.length; i++)
+            {
+                string currentChannel = channels[i];
+
+                if(i == channels.length-1)
+                {
+                    channelLine~=currentChannel;
+                }
+                else
+                {
+                    channelLine~=currentChannel~",";
+                }
+            }
+
+            /* Leave multiple channels */
+            sendMessage("PART "~channelLine);
+        }
+        /* If no channels provided at all (error) */
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
+        }
+        
+    }
+
+    /** 
+     * Part from a single channel
+     *
+     * Params:
+     *   channel = the channel to leave
+     */
+    public void leaveChannel(string channel)
+    {
+        // TODO: Add check for valid and non-empty channel names
+
+        /* Leave the channel */
+        sendMessage("PART "~channel);
     }
 
     /** 
