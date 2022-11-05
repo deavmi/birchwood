@@ -251,12 +251,12 @@ public final class Client : Thread
     public void onGenericCommand(Message message)
     {
         /* Default implementation */
-        logger.log("Generic("~message.getCommand()~"): "~message.getParams());
+        logger.log("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
     }
     public void onCommandReply(Message commandReply)
     {
         /* Default implementation */
-        logger.log("Response("~to!(string)(commandReply.getReplyType())~"): "~commandReply.toString());
+        logger.log("Response("~to!(string)(commandReply.getReplyType())~", "~commandReply.getFrom()~"): "~commandReply.toString());
     }
 
     /**
@@ -359,7 +359,8 @@ public final class Client : Thread
                 IRCEvent ircEvent = cast(IRCEvent)e;
                 assert(ircEvent); //Should never fail, unless some BOZO regged multiple handles for 1 - wait idk does eventy do that even mmm
     
-                logger.log("IRCEvent(message): "~ircEvent.getMessage().toString());
+                // NOTE: Enable this when debugging
+                // logger.log("IRCEvent(message): "~ircEvent.getMessage().toString());
 
                 /* TODO: We should use a switch statement, imagine how nice */
                 Message ircMessage = ircEvent.getMessage();
@@ -373,13 +374,22 @@ public final class Client : Thread
                     long firstSpaceIdx = indexOf(params, " "); //TODO: validity check;
                     string chanNick = params[0..firstSpaceIdx];
 
-                    logger.log("chanNick: "~chanNick);
+                    /* Extract the message from params */
+                    long firstColonIdx = indexOf(params, ":"); //TODO: validity check
+                    string message = params[firstColonIdx+1..params.length];
 
-                    /**
-                    * TODO: Implement message fetching here and decide whether isChannel message
-                    * or private message
-                    */
-                    string message;
+                    /* If it starts with `#` then channel */
+                    if(chanNick[0] == '#')
+                    {
+                        /* Call the channel message handler */
+                        onChannelMessage(ircMessage, chanNick, message);
+                    } 
+                    /* Else, direct message */
+                    else
+                    {
+                        /* Call the direct message handler */
+                        onDirectMessage(ircMessage, chanNick, message);
+                    }
                 }
                 // If the command is numeric then it is a reply of some sorts
                 else if(ircMessage.isResponseMessage())
