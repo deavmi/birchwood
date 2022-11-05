@@ -246,34 +246,53 @@ public final class Client : Thread
         logger.log("Response("~to!(string)(commandReply.replyType)~"): "~commandReply.toString());
     }
 
-
-
-
-    /* TODO: Decide on object to return */
-    // public string
-
-
     /**
     * User operations (request-response type)
     */
+
+    /** 
+     * Joins the requested channel
+     *
+     * Params:
+     *   channel = the channel to join
+     */
     public void joinChannel(string channel)
     {
         /* Join the channel */
         sendMessage("JOIN "~channel);
     }
-    public void directMessage(string[] recipients)
-    {
-        //TODO: Implement
-    }
-    public void channelMessage(string channel)
-    {
-        //TODO: Implement
-    }
-
-    // private void makeRequest()
 
     /** 
-     * Issue a generic command
+     * Sends a direct message to the intended recipients
+     *
+     * Params:
+     *   message = The message to send
+     *   recipients = The receipients of the message
+     */
+    @disable
+    public void directMessage(string message, string[] recipients)
+    {
+        //TODO: Implement
+    }
+
+    /** 
+     * Sends a message to a given channel
+     *
+     * Params:
+     *   message = The message to send
+     *   channel = The channel to send the message to
+     */
+    @disable
+    public void channelMessage(string message, string channel)
+    {
+        //TODO: Implement
+    }
+
+    /** 
+     * Issues a command to the server
+     *
+     * Params:
+     *   message = the Message object containing the command to issue
      */
     public void command(Message message)
     {
@@ -389,6 +408,12 @@ public final class Client : Thread
     /**
     * Connects to the server
     */
+
+    /** 
+     * Connects to the server
+     *
+     * Throws: BirchwoodException
+     */
     public void connect()
     {
         if(socket is null)
@@ -435,16 +460,13 @@ public final class Client : Thread
     }
 
 
-    ulong j = 0;
-    // bool f = true;
-
-    /**
-    * We need to create a queue of messages and then have a seperate thread
-    * go through them, such as replying to pings etc.
-    *
-    * We should maybe have two quues, urgent ones (for pings coming in)
-    * of which we check first and then everything else into another queue
-    */
+    /** 
+     * Adds a given message onto the receieve queue for
+     * later processing by the receieve queue worker thread
+     *
+     * Params:
+     *   message = the message to enqueue to the receieve queue
+     */
     private void receiveQ(ubyte[] message)
     {
         /* Lock queue */
@@ -472,6 +494,17 @@ public final class Client : Thread
     *
     * TODO: Do decode here and triggering of events here
     */
+
+    /** 
+     * The receive queue worker function
+     *
+     * This has the job of dequeuing messages
+     * in the receive queue, decoding them
+     * into Message objects and then emitting
+     * an event depending on the type of message
+     *
+     * Handles PINGs along with normal messages
+     */
     private void recvHandlerFunc()
     {
         while(running)
@@ -579,6 +612,9 @@ public final class Client : Thread
         }
     }
 
+    /** 
+     * The send queue worker function
+     */
     private void sendHandlerFunc()
     {
         /* TODO: Hoist up into ConnInfo */
@@ -616,6 +652,14 @@ public final class Client : Thread
     * This allows us to intrpoduce fakelag and also prioritse pongs (we should
     * send them via here)
     */
+    
+    /** 
+     * Sends a message to the server by enqueuing it on
+     * the client-side send queue
+     *
+     * Params:
+     *   messageOut = the message to send
+     */
     private void sendMessage(string messageOut)
     {
         /* Encode the mesage */
@@ -677,6 +721,13 @@ public final class Client : Thread
         logger.log("disconnect() end");
     }
 
+    /** 
+     * Called by the main loop thread to process the received
+     * and CRLF-delimited message
+     *
+     * Params:
+     *   message = the message to add to the receive queue
+     */
     private void processMessage(ubyte[] message)
     {
         // import std.stdio;
@@ -687,10 +738,8 @@ public final class Client : Thread
     }
 
     /** 
-     * TODO: Determine how we want to do this
-     *
-     * This simply receives messages from the server,
-     * parses them and puts them into the receive queue
+     * The main loop for the Client thread which receives data
+     * sent from the server
      */
     private void loop()
     {
