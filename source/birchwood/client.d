@@ -1,6 +1,6 @@
 module birchwood.client;
 
-import std.socket : Socket, SocketException, Address, parseAddress, SocketType, ProtocolType, SocketOSException;
+import std.socket : Socket, SocketException, Address, getAddress, SocketType, ProtocolType, SocketOSException;
 import std.socket : SocketFlags;
 import std.conv : to;
 import std.container.slist : SList;
@@ -89,12 +89,23 @@ public struct ConnectionInfo
         return addrInfo;
     }
 
+    /** 
+     * Creates a ConnectionInfo struct representing a client configuration which
+     * can be provided to the Client class to create a new connection based on its
+     * parameters
+     *
+     * Params:
+     *   hostname = hostname of the server
+     *   port = server port
+     *   nickname = nickname to use
+     * Returns: ConnectionInfo for this server
+     */
     public static ConnectionInfo newConnection(string hostname, ushort port, string nickname)
     {
         try
         {
-            /* Attempt to parse address (may throw SocketException) */
-            Address addrInfo = parseAddress(hostname, port);
+            /* Attempt to resolve the address (may throw SocketException) */
+            Address[] addrInfo = getAddress(hostname, port);
 
             /* Username check */
             if(!nickname.length)
@@ -102,9 +113,10 @@ public struct ConnectionInfo
                 throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CONN_INFO);
             }
 
+            /* TODO: Add feature to choose which address to use, prefer v4 or v6 type of thing */
+            Address chosenAddress = addrInfo[0];
 
-
-            return ConnectionInfo(addrInfo, nickname);
+            return ConnectionInfo(chosenAddress, nickname);
         }
         catch(SocketException e)
         {
@@ -860,7 +872,7 @@ public final class Client : Thread
         //freenode: 149.28.246.185
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
-        ConnectionInfo connInfo = ConnectionInfo.newConnection("149.28.246.185", 6667, "testBirchwood");
+        ConnectionInfo connInfo = ConnectionInfo.newConnection("irc.freenode.net", 6667, "testBirchwood");
         Client client = new Client(connInfo);
 
         client.connect();
