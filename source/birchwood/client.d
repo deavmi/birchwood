@@ -628,19 +628,6 @@ public final class Client : Thread
         sendQueueLock.unlock();
     }
 
-    /* TODO: For commands with an expected reply */
-    // private SList!()
-    private Object ask()
-    {
-        return  null;
-    }
-
-
-
-
-    bool yes = true;
-    bool hasJoined = false;
-
     private void processMessage(ubyte[] message)
     {
         // import std.stdio;
