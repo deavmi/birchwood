@@ -631,6 +631,9 @@ public final class Client : Thread
         sendQueueLock.unlock();
     }
 
+    /** 
+     * Disconnect from the IRC server gracefully
+     */
     public void quit()
     {
         /* Generate the quit command using the custom quit message */
@@ -640,19 +643,22 @@ public final class Client : Thread
         /* TODO: I don't know how long we should wait here */
         Thread.sleep(dur!("seconds")(1));
 
-        /* TODO: Tare down */
+        /* Tare down the client */
         disconnect();
     }
 
-    /* Attempt to tare down everything */
+    /** 
+     * Tare down the client by setting the run state
+     * to false, closing the socket, stopping the
+     * receieve and send handlers and the event engine
+     */
     private void disconnect()
     {
         /* Set the state of running to false */
         running = false;
         logger.log("disconnect() begin");
 
-        /* TODO: Should we do this here? */
-        // FIXME: Catch any errors
+        /* Close the socket */
         socket.close();
         logger.log("disconnect() socket closed");
 
