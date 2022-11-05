@@ -18,8 +18,6 @@
 [13:51:11] <zh_> s/sane/professional
 ```
 
-**Note**: This is still alpha quality software but a stable release is due within the next 2 weeks!
-
 ## Installation
 
 To add birchwood to your project simply run:
