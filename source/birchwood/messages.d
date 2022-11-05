@@ -251,7 +251,8 @@ public class Message
     /* TODO: Implement encoder function */
     public string encode()
     {
-        return null;
+        string fullLine = from~" "~command~" "~params;
+        return fullLine;
     }
 
     public static Message parseReceivedMessage(string message)

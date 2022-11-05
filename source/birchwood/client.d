@@ -67,12 +67,16 @@ public struct ConnectionInfo
     /* Client behaviour (TODO: what is sleep(0), like nothing) */
     private ulong fakeLag = 0;
 
+    /* The quit message */
+    public const string quitMessage;
+
     /* TODO: before publishing change this bulk size */
-    private this(Address addrInfo, string nickname, ulong bulkReadSize = 20)
+    private this(Address addrInfo, string nickname, ulong bulkReadSize = 20, string quitMessage = "birchwood client disconnecting...")
     {
         this.addrInfo = addrInfo;
         this.nickname = nickname;
         this.bulkReadSize = bulkReadSize;
+        this.quitMessage = quitMessage;
     }
 
     public ulong getBulkReadSize()
@@ -139,7 +143,7 @@ public struct ConnectionInfo
     }
 }
 
-public class Client
+public final class Client : Thread
 {
     /* Connection information */
     private ConnectionInfo connInfo;
@@ -160,6 +164,7 @@ public class Client
 
     this(ConnectionInfo connInfo)
     {
+        super(&loop);
         this.connInfo = connInfo;
     }
 
@@ -410,6 +415,9 @@ public class Client
                 this.sendHandler = new Thread(&sendHandlerFunc);
                 this.sendHandler.start();
 
+                /* Start socket loop */
+                this.start();
+
                 
             }
             catch(SocketOSException e)
@@ -628,6 +636,8 @@ public class Client
     }
 
 
+
+
     bool yes = true;
     bool hasJoined = false;
 
@@ -638,62 +648,6 @@ public class Client
         // logger.log("InterpAsString: "~cast(string)message);
 
         receiveQ(message);
-
-
-
-        /* FIXME: Move all the below code into a testing method !! */
-
-        
-        j++;
-
-        if(j >= 3)
-        {
-            // import core.thread;
-            //  Thread.sleep(dur!("seconds")(10));
-
-            
-
-            
-            if(yes)
-            {
-                // this.socket.send((cast(ubyte[])"CAP LS")~[cast(ubyte)13, cast(ubyte)10]);
-                import core.thread;
-                Thread.sleep(dur!("seconds")(2));
-
-                this.socket.send((cast(ubyte[])"NICK birchwood")~[cast(ubyte)13, cast(ubyte)10]);
-
-                import core.thread;
-                Thread.sleep(dur!("seconds")(2));
-                this.socket.send((cast(ubyte[])"USER doggie doggie irc.frdeenode.net :Tristan B. Kildaire")~[cast(ubyte)13, cast(ubyte)10]);
-
-                yes=false;
-            }
-            else
-            {
-                if(hasJoined == false)
-                {
-                     import core.thread;
-                Thread.sleep(dur!("seconds")(4));
-                    this.socket.send((cast(ubyte[])"join #birchwoodtesting")~[cast(ubyte)13, cast(ubyte)10]);
-                    hasJoined = true;
-
-                    import core.thread;
-                Thread.sleep(dur!("seconds")(2));
-
-                sendMessage("names");
-                }
-            }
-            
-
-            //  this.socket.send((cast(ubyte[])"PONG irc.freenode.net")~[cast(ubyte)13, cast(ubyte)10]);
-
-            // import core.thread;
-            //  Thread.sleep(dur!("seconds")(2));
-                // this.socket.send((cast(ubyte[])"join #birchwoodtesting")~[cast(ubyte)13, cast(ubyte)10]);
-
-                // yes=false;
-        }
-        
     }
 
     /** 
@@ -702,7 +656,7 @@ public class Client
      * This simply receives messages from the server,
      * parses them and puts them into the receive queue
      */
-    public void loop()
+    private void loop()
     {
         /* TODO: We could do below but nah for now as we know max 512 bytes */
         /* TODO: Make the read bulk size a configurable parameter */
@@ -823,7 +777,27 @@ public class Client
 
         client.connect();
 
-        client.loop();
+
+        import core.thread;
+        Thread.sleep(dur!("seconds")(2));
+        client.command(new Message("", "NICK", "birchwood"));
+
+        Thread.sleep(dur!("seconds")(2));
+        client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
+        
+        Thread.sleep(dur!("seconds")(4));
+        client.command(new Message("", "JOIN", "#birchwoodtesting"));
+        
+        Thread.sleep(dur!("seconds")(2));
+        client.command(new Message("", "NAMES", ""));
+
+
+        /* TODO: Add a check here to make sure the above worked I guess? */
+        /* TODO: Make this end */
+        // while(true)
+        // {
+
+        // }
 
 
     }
