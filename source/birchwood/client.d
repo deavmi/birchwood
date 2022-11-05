@@ -8,7 +8,8 @@ import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
 import eventy;
-import birchwood.messages : Message, encodeMessage, decodeMessage, ReplyType;
+import birchwood.messages : Message, encodeMessage, decodeMessage;
+import birchwood.constants : ReplyType;
 
 // TODO: Remove this import
 import std.stdio : writeln;
@@ -255,7 +256,7 @@ public final class Client : Thread
     public void onCommandReply(Message commandReply)
     {
         /* Default implementation */
-        logger.log("Response("~to!(string)(commandReply.replyType)~"): "~commandReply.toString());
+        logger.log("Response("~to!(string)(commandReply.getReplyType())~"): "~commandReply.toString());
     }
 
     /**
@@ -379,7 +380,7 @@ public final class Client : Thread
                     string message;
                 }
                 // If the command is numeric then it is a reply of some sorts
-                else if(ircMessage.isResponse)
+                else if(ircMessage.isResponseMessage())
                 {
                     /* Call the command reply handler */
                     onCommandReply(ircMessage);
