@@ -628,6 +628,13 @@ public final class Client : Thread
         sendQueueLock.unlock();
     }
 
+    public void quit()
+    {
+        /* Generate the quit command using the custom quit message */
+        Message quitCommand = new Message("", "QUIT", connInfo.quitMessage);
+        sendMessage(quit.encode());
+    }
+
     private void processMessage(ubyte[] message)
     {
         // import std.stdio;
