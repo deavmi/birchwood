@@ -380,6 +380,13 @@ public class Client : Thread
         }
     }
 
+    /** 
+     * Sends a direct message to the intended recipient
+     *
+     * Params:
+     *   message = The message to send
+     *   recipients = The receipient of the message
+     */
     public void directMessage(string message, string recipient)
     {
         //TODO: Add check on recipient
@@ -389,16 +396,63 @@ public class Client : Thread
     }
 
     /** 
+     * Sends a channel message to the intended recipients
+     *
+     * Params:
+     *   message = The message to send
+     *   recipients = The receipients of the message
+     * Throws:
+     *   BirchwoodException if the channels list is empty
+     */
+    public void channelMessage(string message, string[] channels)
+    {
+        /* If single channel */
+        if(channels.length == 1)
+        {
+            /* Send to a single channel */
+            leaveChannel(channels[0]);
+        }
+        /* If multiple channels */
+        else if(channels.length > 1)
+        {
+            string channelLine = channels[0];
+            for(ulong i = 1; i < channels.length; i++)
+            {
+                string currentChannel = channels[i];
+
+                if(i == channels.length-1)
+                {
+                    channelLine~=currentChannel;
+                }
+                else
+                {
+                    channelLine~=currentChannel~",";
+                }
+            }
+
+            /* Send to multiple channels */
+            sendMessage("PRIVMSG "~channelLine~" "~message);
+        }
+        /* If no channels provided at all (error) */
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
+        }
+    }
+
+    /** 
      * Sends a message to a given channel
      *
      * Params:
      *   message = The message to send
      *   channel = The channel to send the message to
      */
-    @disable
     public void channelMessage(string message, string channel)
     {
+        //TODO: Add check on recipient
+
         //TODO: Implement
+        sendMessage("PRIVMSG "~channel~" "~message);
     }
 
     /** 
