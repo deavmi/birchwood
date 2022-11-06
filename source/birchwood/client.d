@@ -282,7 +282,7 @@ public class Client : Thread
      * Params:
      *   channels = the list of channels to part from
      * Throws:
-     *   BirchwoodException if the list is empty
+     *   BirchwoodException if the channels list is empty
      */
     public void leaveChannel(string[] channels)
     {
@@ -320,7 +320,6 @@ public class Client : Thread
         {
             throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
         }
-        
     }
 
     /** 
@@ -343,11 +342,50 @@ public class Client : Thread
      * Params:
      *   message = The message to send
      *   recipients = The receipients of the message
+     * Throws:
+     *   BirchwoodException if the recipients list is empty
      */
-    @disable
     public void directMessage(string message, string[] recipients)
     {
-        //TODO: Implement
+        //TODO: Add check on recipients
+
+        /* Single recipient */
+        if(recipients.length == 1)
+        {
+            /* Send a direct message */
+            directMessage(message, recipients[0]);
+        }
+        /* Multiple recipients */
+        else if(recipients.length > 1)
+        {
+            string recipientLine = recipients[0];
+            for(ulong i = 1; i < recipients.length; i++)
+            {
+                string currentRecipient = recipients[i];
+
+                if(i == recipients.length-1)
+                {
+                    recipientLine~=currentRecipient;
+                }
+                else
+                {
+                    recipientLine~=currentRecipient~",";
+                }
+            }
+        }
+        /* If no recipients provided at all (error) */
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
+        }
+    }
+
+    public void directMessage(string message, string recipient)
+    {
+        //TODO: Add check on recipient
+
+        /* Send the message */
+        sendMessage("PRIVMSG "~recipient~" "~message);
     }
 
     /** 
