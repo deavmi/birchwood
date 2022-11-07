@@ -45,6 +45,28 @@ public static string decodeMessage(ubyte[] messageIn)
     // return  null;
 }
 
+/** 
+ * Checks if the provided message is valid (i.e.)
+ * does not contain any CR or LF characters in it
+ *
+ * Params:
+ *   message = the message to test
+ * Returns: <code>true</code> if the message is valid,
+ * <code>false</code> false otherwise
+ */
+public static bool isValidText(string message)
+{
+    foreach(char character; message)
+    {
+        if(character == 13 || character == 10)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 /**
  * Message types
  */
