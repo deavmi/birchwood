@@ -26,6 +26,13 @@ To add birchwood to your project simply run:
 dub add birchwood
 ```
 
+### Dependencies
+
+Birchwood dependends on the following D libraries:
+
+* `eventy` (0.2.5)
+* `dlog` (0.0.6)
+
 ## Usage
 
 You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.Client.html).
