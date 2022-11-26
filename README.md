@@ -30,7 +30,7 @@ dub add birchwood
 
 Birchwood dependends on the following D libraries:
 
-* `eventy` (0.2.5)
+* `eventy` (0.3.2)
 * `dlog` (0.0.6)
 
 ## Usage
