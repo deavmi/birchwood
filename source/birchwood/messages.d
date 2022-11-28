@@ -54,6 +54,7 @@ public static string decodeMessage(ubyte[] messageIn)
  * Returns: <code>true</code> if the message is valid,
  * <code>false</code> false otherwise
  */
+ //TODO: Should we add an emptiness check here
 public static bool isValidText(string message)
 {
     foreach(char character; message)

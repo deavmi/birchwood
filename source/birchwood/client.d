@@ -8,7 +8,7 @@ import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
 import eventy;
-import birchwood.messages : Message, encodeMessage, decodeMessage;
+import birchwood.messages : Message, encodeMessage, decodeMessage, isValidText;
 import birchwood.constants : ReplyType;
 
 // TODO: Remove this import
@@ -29,7 +29,10 @@ public class BirchwoodException : Exception
         INVALID_CONN_INFO,
         ALREADY_CONNECTED,
         CONNECT_ERROR,
-        EMPTY_PARAMS
+        EMPTY_PARAMS,
+        INVALID_CHANNEL_NAME,
+        INVALID_NICK_NAME,
+        ILLEGAL_CHARACTERS
     }
 
     private ErrorType errType;
@@ -189,7 +192,7 @@ public class Client : Thread
         //TODO: Do something here, tare downs
     }
 
-    private final enum EventType : ulong
+    private final enum IRCEventType : ulong
     {
         GENERIC_EVENT = 1,
         PONG_EVENT
@@ -203,7 +206,7 @@ public class Client : Thread
 
         this(Message msg)
         {
-            super(EventType.GENERIC_EVENT, null);
+            super(IRCEventType.GENERIC_EVENT);
 
             this.msg = msg;
         }
@@ -226,7 +229,7 @@ public class Client : Thread
 
         this(string pingID)
         {
-            super(EventType.PONG_EVENT);
+            super(IRCEventType.PONG_EVENT);
             this.pingID = pingID;
         }
 
@@ -269,11 +272,29 @@ public class Client : Thread
      *
      * Params:
      *   channel = the channel to join
+     * Throws:
+     *   BirchwoodException on invalid channel name
      */
     public void joinChannel(string channel)
     {
-        /* Join the channel */
-        sendMessage("JOIN "~channel);
+        /* Ensure no illegal characters in channel name */
+        if(isValidText(channel))
+        {
+            /* Channel name must start with a `#` */
+            if(channel[0] == '#')
+            {
+                /* Join the channel */
+                sendMessage("JOIN "~channel);
+            }
+            else
+            {
+                throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CHANNEL_NAME);
+            }
+        }
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+        }
     }
 
     /** 
@@ -298,22 +319,43 @@ public class Client : Thread
         else if(channels.length > 1)
         {
             string channelLine = channels[0];
-            for(ulong i = 1; i < channels.length; i++)
+
+            /* Ensure valid characters in first channel */
+            if(isValidText(channelLine))
             {
-                string currentChannel = channels[i];
+                //TODO: Add check for #
 
-                if(i == channels.length-1)
+                for(ulong i = 1; i < channels.length; i++)
                 {
-                    channelLine~=currentChannel;
+                    string currentChannel = channels[i];
+
+                    /* Ensure the character channel is valid */
+                    if(isValidText(currentChannel))
+                    {
+                        //TODO: Add check for #
+                        
+                        if(i == channels.length-1)
+                        {
+                            channelLine~=currentChannel;
+                        }
+                        else
+                        {
+                            channelLine~=currentChannel~",";
+                        }
+                    }
+                    else
+                    {
+                        throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                    }
                 }
-                else
-                {
-                    channelLine~=currentChannel~",";
-                }
+
+                /* Leave multiple channels */
+                sendMessage("PART "~channelLine);
             }
-
-            /* Leave multiple channels */
-            sendMessage("PART "~channelLine);
+            else
+            {
+                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+            }
         }
         /* If no channels provided at all (error) */
         else
@@ -347,8 +389,6 @@ public class Client : Thread
      */
     public void directMessage(string message, string[] recipients)
     {
-        //TODO: Add check on recipients
-
         /* Single recipient */
         if(recipients.length == 1)
         {
@@ -358,20 +398,48 @@ public class Client : Thread
         /* Multiple recipients */
         else if(recipients.length > 1)
         {
-            string recipientLine = recipients[0];
-            for(ulong i = 1; i < recipients.length; i++)
+            /* Ensure message is valid */
+            if(isValidText(message))
             {
-                string currentRecipient = recipients[i];
+                string recipientLine = recipients[0];
 
-                if(i == recipients.length-1)
+                /* Ensure valid characters in first recipient */
+                if(isValidText(recipientLine))
                 {
-                    recipientLine~=currentRecipient;
+                    for(ulong i = 1; i < recipients.length; i++)
+                    {
+                        string currentRecipient = recipients[i];
+
+                        /* Ensure valid characters in the current recipient */
+                        if(isValidText(currentRecipient))
+                        {
+                            if(i == recipients.length-1)
+                            {
+                                recipientLine~=currentRecipient;
+                            }
+                            else
+                            {
+                                recipientLine~=currentRecipient~",";
+                            }
+                        }
+                        else
+                        {
+                            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                        }
+                    }
+
+                    /* Send the message */
+                    sendMessage("PRIVMSG "~recipientLine~" "~message);
                 }
                 else
                 {
-                    recipientLine~=currentRecipient~",";
+                    throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
                 }
             }
+            else
+            {
+                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+            }          
         }
         /* If no recipients provided at all (error) */
         else
@@ -391,8 +459,24 @@ public class Client : Thread
     {
         //TODO: Add check on recipient
 
-        /* Send the message */
-        sendMessage("PRIVMSG "~recipient~" "~message);
+        /* Ensure the message and recipient are valid text */
+        if(isValidText(message) && isValidText(recipient))
+        {
+            /* Ensure the recipient does NOT start with a # (as that is reserved for channels) */
+            if(recipient[0] != '#')
+            {
+                /* Send the message */
+                sendMessage("PRIVMSG "~recipient~" "~message);
+            }
+            else
+            {
+                throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_NICK_NAME);
+            }
+        }
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+        }
     }
 
     /** 
@@ -415,23 +499,48 @@ public class Client : Thread
         /* If multiple channels */
         else if(channels.length > 1)
         {
-            string channelLine = channels[0];
-            for(ulong i = 1; i < channels.length; i++)
+            /* Ensure message is valid */
+            if(isValidText(message))
             {
-                string currentChannel = channels[i];
+                string channelLine = channels[0];    
 
-                if(i == channels.length-1)
+                /* Ensure valid characters in first channel */
+                if(isValidText(channelLine))
                 {
-                    channelLine~=currentChannel;
+                    for(ulong i = 1; i < channels.length; i++)
+                    {
+                        string currentChannel = channels[i];
+
+                        /* Ensure valid characters in current channel */
+                        if(isValidText(currentChannel))
+                        {
+                            if(i == channels.length-1)
+                            {
+                                channelLine~=currentChannel;
+                            }
+                            else
+                            {
+                                channelLine~=currentChannel~",";
+                            }
+                        }
+                        else
+                        {
+                            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                        }
+                    }
+
+                    /* Send to multiple channels */
+                    sendMessage("PRIVMSG "~channelLine~" "~message);
                 }
                 else
                 {
-                    channelLine~=currentChannel~",";
+                    throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
                 }
             }
-
-            /* Send to multiple channels */
-            sendMessage("PRIVMSG "~channelLine~" "~message);
+            else
+            {
+                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+            }
         }
         /* If no channels provided at all (error) */
         else
@@ -450,9 +559,25 @@ public class Client : Thread
     public void channelMessage(string message, string channel)
     {
         //TODO: Add check on recipient
-
-        //TODO: Implement
-        sendMessage("PRIVMSG "~channel~" "~message);
+        //TODO: Add emptiness check
+        if(isValidText(message) && isValidText(channel))
+        {
+            if(channel[0] == '#')
+            {
+                /* Send the channel message */
+                sendMessage("PRIVMSG "~channel~" "~message);
+            }
+            else
+            {
+                //TODO: Invalid channel name
+                throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CHANNEL_NAME);
+            }
+        }
+        else
+        {
+            //TODO: Illegal characters
+            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+        }
     }
 
     /** 
@@ -481,8 +606,8 @@ public class Client : Thread
         /* TODO: For now we just register one signal type for all messages */
 
         /* Register all event types */
-        engine.addQueue(EventType.GENERIC_EVENT);
-        engine.addQueue(EventType.PONG_EVENT);
+        engine.addEventType(new EventType(IRCEventType.GENERIC_EVENT));
+        engine.addEventType(new EventType(IRCEventType.PONG_EVENT));
 
 
         /* Base signal with IRC client in it */
@@ -504,7 +629,7 @@ public class Client : Thread
         {
             this(Client client)
             {
-                super(client, [EventType.GENERIC_EVENT]);
+                super(client, [IRCEventType.GENERIC_EVENT]);
             }
             
             public override void handler(Event e)
@@ -567,7 +692,7 @@ public class Client : Thread
         {
             this(Client client)
             {
-                super(client, [EventType.PONG_EVENT]);
+                super(client, [IRCEventType.PONG_EVENT]);
             }
 
             /* Send a PONG back with the received PING id */
@@ -609,7 +734,6 @@ public class Client : Thread
 
                 /* Start the event engine */
                 this.engine = new Engine();
-                this.engine.start();
 
                 /* Regsiter default handler */
                 initEvents();
@@ -1039,7 +1163,7 @@ public class Client : Thread
         //freenode: 149.28.246.185
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
-        ConnectionInfo connInfo = ConnectionInfo.newConnection("irc.freenode.net", 6667, "testBirchwood");
+        ConnectionInfo connInfo = ConnectionInfo.newConnection("fd08:8441:e254::5", 6667, "testBirchwood");
         Client client = new Client(connInfo);
 
         client.connect();
@@ -1053,11 +1177,16 @@ public class Client : Thread
         client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
         
         Thread.sleep(dur!("seconds")(4));
-        client.command(new Message("", "JOIN", "#birchwoodtesting"));
+        client.command(new Message("", "JOIN", "#birchwood"));
         
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "NAMES", ""));
 
+        Thread.sleep(dur!("seconds")(2));
+        client.command(new Message("", "PRIVMSG", "#birchwood naai"));
+
+        Thread.sleep(dur!("seconds")(2));
+        client.command(new Message("", "PRIVMSG", "deavmi naai"));
 
         /* TODO: Add a check here to make sure the above worked I guess? */
         /* TODO: Make this end */
