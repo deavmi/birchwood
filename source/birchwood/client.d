@@ -1163,7 +1163,7 @@ public class Client : Thread
         //freenode: 149.28.246.185
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
-        ConnectionInfo connInfo = ConnectionInfo.newConnection("fd08:8441:e254::5", 6667, "testBirchwood");
+        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.deavmi.crxn", 6667, "testBirchwood");
         Client client = new Client(connInfo);
 
         client.connect();
