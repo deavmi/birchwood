@@ -4,7 +4,7 @@
 	],
 	"copyright": "Copyright © 2023, Tristan B. Kildaire",
 	"dependencies": {
-		"dlog": "0.1.1",
+		"dlog": "0.3.19",
 		"eventy": "0.4.0",
 		"libsnooze": "~>0.2.9"
 	},
