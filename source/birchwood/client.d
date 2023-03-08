@@ -807,6 +807,10 @@ public class Client : Thread
      * an event depending on the type of message
      *
      * Handles PINGs along with normal messages
+     *
+     * TODO: Our high load average is from here
+     * ... it is getting lock a lot and spinning here
+     * ... we should use libsnooze to avoid this
      */
     private void recvHandlerFunc()
     {
@@ -880,7 +884,7 @@ public class Client : Thread
                 // logger.log("Ponged");
 
                 /* TODO: Implement */
-                // TODO: Remove the Eventy push and replace with a handler call
+                // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
                 Event pongEvent = new PongEvent(pingID);
                 engine.push(pongEvent);
             }
@@ -902,7 +906,7 @@ public class Client : Thread
                 /* TODO: Parse message and call correct handler */
                 curMsg = Message.parseReceivedMessage(messageNormal);
 
-                // TODO: Remove the Eventy push and replace with a handler call
+                // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
                 Event ircEvent = new IRCEvent(curMsg);
                 engine.push(ircEvent);
             }
@@ -919,6 +923,9 @@ public class Client : Thread
 
     /** 
      * The send queue worker function
+     *
+     * TODO: Same issue as recvHandlerFunc
+     * ... we should I/O wait (sleep) here
      */
     private void sendHandlerFunc()
     {
