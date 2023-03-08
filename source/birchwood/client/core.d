@@ -496,7 +496,7 @@ public class Client : Thread
         if(channels.length == 1)
         {
             /* Send to a single channel */
-            leaveChannel(channels[0]);
+            channelMessage(message, channels[0]);
         }
         /* If multiple channels */
         else if(channels.length > 1)
