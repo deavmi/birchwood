@@ -1,0 +1,2 @@
+module birchwood.client.sender;
+
