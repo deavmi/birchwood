@@ -880,6 +880,7 @@ public class Client : Thread
                 // logger.log("Ponged");
 
                 /* TODO: Implement */
+                // TODO: Remove the Eventy push and replace with a handler call
                 Event pongEvent = new PongEvent(pingID);
                 engine.push(pongEvent);
             }
@@ -901,6 +902,7 @@ public class Client : Thread
                 /* TODO: Parse message and call correct handler */
                 curMsg = Message.parseReceivedMessage(messageNormal);
 
+                // TODO: Remove the Eventy push and replace with a handler call
                 Event ircEvent = new IRCEvent(curMsg);
                 engine.push(ircEvent);
             }
