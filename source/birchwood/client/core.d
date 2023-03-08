@@ -1,4 +1,4 @@
-module birchwood.client;
+module birchwood.client.core;
 
 import std.socket : Socket, SocketException, Address, getAddress, SocketType, ProtocolType, SocketOSException;
 import std.socket : SocketFlags;
