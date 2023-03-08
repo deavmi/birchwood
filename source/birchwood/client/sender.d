@@ -8,5 +8,10 @@ import libsnooze;
 
 public final class SenderThread : Thread
 {
-
+    /** 
+     * The libsnooze event to await on which
+     * when we wake up signals a new message
+     * to be processed and sent
+     */
+    private Event receiveEvent;
 }
