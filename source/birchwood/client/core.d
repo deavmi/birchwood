@@ -1188,7 +1188,10 @@ public class Client : Thread
         client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
         
         Thread.sleep(dur!("seconds")(4));
-        client.command(new Message("", "JOIN", "#birchwood"));
+        // client.command(new Message("", "JOIN", "#birchwood"));
+        client.joinChannel("#birchwood");
+        // TODO: Add a joinChannels(string[])
+        client.joinChannel("#birchwood2");
         
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "NAMES", ""));
@@ -1204,6 +1207,11 @@ public class Client : Thread
          * Test sending a message to a channel
          */
         client.channelMessage("This is a test message sent to a channel", ["#birchwood"]);
+
+        /**
+         * Test sending a message to multiple channels
+         */
+        client.channelMessage("This is a message sent to multiple channels one-shot", ["#birchwood", "#birchwood2"]);
 
         /* TODO: Add a check here to make sure the above worked I guess? */
         /* TODO: Make this end */
