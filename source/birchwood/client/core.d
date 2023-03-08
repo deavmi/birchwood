@@ -160,6 +160,8 @@ public struct ConnectionInfo
     }
 }
 
+// TODO: Make abstract and for unit tests make a `DefaultClient`
+// ... which logs outputs for the `onX()` handler functions
 public class Client : Thread
 {
     /* Connection information */
@@ -1196,6 +1198,12 @@ public class Client : Thread
 
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "PRIVMSG", "deavmi naai"));
+
+
+        /**
+         * Test sending a message to a channel
+         */
+        client.channelMessage("This is a test message sent to a channel", ["#birchwood"]);
 
         /* TODO: Add a check here to make sure the above worked I guess? */
         /* TODO: Make this end */
