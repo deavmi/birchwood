@@ -14,6 +14,7 @@ import libsnooze;
 import birchwood.client;
 import birchwood.protocol.messages : Message, decodeMessage;
 import std.string : indexOf;
+import birchwood.client.events : PongEvent, IRCEvent;
 
 public final class ReceiverThread : Thread
 {
