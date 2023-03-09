@@ -24,7 +24,7 @@ public final class SenderThread : Thread
      * when we wake up signals a new message
      * to be processed and sent
      */
-    private Event receiveEvent;
+    private Event sendEvent;
 
     /** 
      * The associated IRC client
