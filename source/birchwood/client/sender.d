@@ -40,7 +40,10 @@ public final class SenderThread : Thread
      */
     this(Client client)
     {
+        super(&sendHandlerFunc);
         this.client = client;
+        this.sendEvent = new Event(); // TODO: Catch any libsnooze error here
+        this.sendQueueLock = new Mutex();
     }
 
     /** 
@@ -54,7 +57,7 @@ public final class SenderThread : Thread
         /* TODO: Hoist up into ConnInfo */
         ulong fakeLagInBetween = 1;
 
-        while(running)
+        while(client.running)
         {
             // TODO: Insert libsnooze wait here
 
@@ -70,7 +73,7 @@ public final class SenderThread : Thread
 
             foreach(ubyte[] message; sendQueue[])
             {
-                this.socket.send(message);
+                client.socket.send(message);
                 Thread.sleep(dur!("seconds")(fakeLagInBetween));
             }
 

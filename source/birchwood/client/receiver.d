@@ -5,11 +5,15 @@ import core.thread : Thread, dur;
 import std.container.slist : SList;
 import core.sync.mutex : Mutex;
 
+import eventy : EventyEvent = Event;
+
 // TODO: Examine the below import which seemingly fixes stuff for libsnooze
 import libsnooze.clib;
 import libsnooze;
 
 import birchwood.client;
+import birchwood.protocol.messages : Message, decodeMessage;
+import std.string : indexOf;
 
 public final class ReceiverThread : Thread
 {
@@ -40,7 +44,10 @@ public final class ReceiverThread : Thread
      */
     this(Client client)
     {
+        super(&recvHandlerFunc);
         this.client = client;
+        this.receiveEvent = new Event(); // TODO: Catch any libsnooze error here
+        this.recvQueueLock = new Mutex();
     }
 
     /** 
@@ -59,7 +66,7 @@ public final class ReceiverThread : Thread
      */
     private void recvHandlerFunc()
     {
-        while(running)
+        while(client.running)
         {
             // TODO: Insert libsnooze wait here
 
@@ -137,8 +144,8 @@ public final class ReceiverThread : Thread
 
                 /* TODO: Implement */
                 // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
-                Event pongEvent = new PongEvent(pingID);
-                engine.push(pongEvent);
+                EventyEvent pongEvent = new PongEvent(pingID);
+                client.engine.push(pongEvent);
             }
 
             /* Now let's go message by message */
@@ -159,8 +166,8 @@ public final class ReceiverThread : Thread
                 curMsg = Message.parseReceivedMessage(messageNormal);
 
                 // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
-                Event ircEvent = new IRCEvent(curMsg);
-                engine.push(ircEvent);
+                EventyEvent ircEvent = new IRCEvent(curMsg);
+                client.engine.push(ircEvent);
             }
 
 

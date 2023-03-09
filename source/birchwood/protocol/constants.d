@@ -1,4 +1,4 @@
-module birchwood.constants;
+module birchwood.protocol.constants;
 
 /* Reply object */
     public enum ReplyType : ulong

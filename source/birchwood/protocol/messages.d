@@ -1,10 +1,10 @@
-module birchwood.messages;
+module birchwood.protocol.messages;
 
 import dlog;
 
 import std.string;
 import std.conv : to, ConvException;
-import birchwood.constants : ReplyType;
+import birchwood.protocol.constants : ReplyType;
 
 // TODO: Before release we should remove this import
 import std.stdio : writeln;
