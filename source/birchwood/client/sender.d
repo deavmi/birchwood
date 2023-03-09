@@ -9,7 +9,7 @@ import core.sync.mutex : Mutex;
 import libsnooze.clib;
 import libsnooze;
 
-import birchwood.client.core : Client;
+import birchwood.client;
 
 public final class SenderThread : Thread
 {
@@ -41,5 +41,47 @@ public final class SenderThread : Thread
     this(Client client)
     {
         this.client = client;
+    }
+
+    /** 
+     * The send queue worker function
+     *
+     * TODO: Same issue as recvHandlerFunc
+     * ... we should I/O wait (sleep) here
+     */
+    private void sendHandlerFunc()
+    {
+        /* TODO: Hoist up into ConnInfo */
+        ulong fakeLagInBetween = 1;
+
+        while(running)
+        {
+            // TODO: Insert libsnooze wait here
+
+            // TODO: Add a for-loop here which one can configure which is
+            // ... a "per iteration" how much to process and act on
+
+            // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
+
+            /* TODO: handle normal messages (xCount with fakeLagInBetween) */
+
+            /* Lock queue */
+            sendQueueLock.lock();
+
+            foreach(ubyte[] message; sendQueue[])
+            {
+                this.socket.send(message);
+                Thread.sleep(dur!("seconds")(fakeLagInBetween));
+            }
+
+            /* Empty the send queue */
+            sendQueue.clear();
+
+            /* Unlock queue */
+            sendQueueLock.unlock();
+
+            /* TODO: Yield */
+            Thread.yield();
+        }
     }
 }
