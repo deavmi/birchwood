@@ -509,7 +509,7 @@ public class Client : Thread
                 {
                     /* Append on a trailing `,` */
                     channelLine ~= ",";
-                    
+
                     for(ulong i = 1; i < channels.length; i++)
                     {
                         string currentChannel = channels[i];
@@ -1196,12 +1196,17 @@ public class Client : Thread
 
 
         /**
-         * Test sending a message to a channel
+         * Test sending a message to a single channel (singular)
          */
-        client.channelMessage("This is a test message sent to a channel", ["#birchwood"]);
+        client.channelMessage("This is a test message sent to a channel 1", ["#birchwood"]);
 
         /**
-         * Test sending a message to multiple channels
+         * Test sending a message to a single channel (multi)
+         */
+        client.channelMessage("This is a test message sent to a channel 2", "#birchwood");
+
+        /**
+         * Test sending a message to multiple channels (multi)
          */
         client.channelMessage("This is a message sent to multiple channels one-shot", ["#birchwood", "#birchwood2"]);
 
