@@ -277,6 +277,9 @@ public class Client : Thread
                 /* Ensure valid characters in first recipient */
                 if(isValidText(recipientLine))
                 {
+                    /* Append on a trailing `,` */
+                    recipientLine ~= ",";
+
                     for(ulong i = 1; i < recipients.length; i++)
                     {
                         string currentRecipient = recipients[i];
@@ -1103,7 +1106,19 @@ public class Client : Thread
         /**
          * Test sending a message to myself (singular)
          */
-        client.directMessage("Message to myself", "birchwood");
+        client.directMessage("(1) Message to myself", "birchwood");
+
+        /**
+         * Test sending a message to myself (multi)
+         */
+        client.directMessage("(2) Message to myself (multi)", ["birchwood"]);
+
+        /**
+         * Test sending a message to myself 2x (multi)
+         */
+        client.directMessage("(3) Message to myself (multi)", ["birchwood", "birchwood"]);
+
+        
 
         
         /**
