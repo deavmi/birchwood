@@ -30,4 +30,16 @@ public final class SenderThread : Thread
      * The associated IRC client
      */
     private Client client;
+
+    /** 
+     * Constructs a new sender thread with the associated
+     * client
+     *
+     * Params:
+     *   client = the Client to associate with
+     */
+    this(Client client)
+    {
+        this.client = client;
+    }
 }
