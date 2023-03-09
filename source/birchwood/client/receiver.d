@@ -50,6 +50,21 @@ public final class ReceiverThread : Thread
         this.recvQueueLock = new Mutex();
     }
 
+    // TODO: Rename to `receiveQ`
+    public void rq(ubyte[] encodedMessage)
+    {
+        /* Lock queue */
+        recvQueueLock.lock();
+
+        /* Add to queue */
+        recvQueue.insertAfter(recvQueue[], encodedMessage);
+
+        /* Unlock queue */
+        recvQueueLock.unlock();
+
+        // TODO: Add libsnooze event wake up
+    }
+
     /** 
      * The receive queue worker function
      *

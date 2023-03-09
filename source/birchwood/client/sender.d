@@ -46,6 +46,22 @@ public final class SenderThread : Thread
         this.sendQueueLock = new Mutex();
     }
 
+    // TODO: Rename to `sendQ`
+    public void sq(ubyte[] encodedMessage)
+    {
+        /* Lock queue */
+        sendQueueLock.lock();
+
+        /* Add to queue */
+        sendQueue.insertAfter(sendQueue[], encodedMessage);
+
+        /* Unlock queue */
+        sendQueueLock.unlock();
+
+        // TODO: Add libsnooze event wake up
+    }
+
+
     /** 
      * The send queue worker function
      *
