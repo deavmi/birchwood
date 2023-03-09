@@ -1,4 +1,4 @@
-module birchwood.client.core;
+module birchwood.client.client;
 
 import std.socket : Socket, SocketException, Address, getAddress, SocketType, ProtocolType, SocketOSException;
 import std.socket : SocketFlags;
@@ -8,6 +8,8 @@ import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
 import eventy;
+import birchwood.client.conninfo : ConnectionInfo;
+import birchwood.client.exceptions : BirchwoodException;
 import birchwood.messages : Message, encodeMessage, decodeMessage, isValidText;
 import birchwood.constants : ReplyType;
 
@@ -22,143 +24,7 @@ __gshared static this()
 }
 
 
-public class BirchwoodException : Exception
-{
-    public enum ErrorType
-    {
-        INVALID_CONN_INFO,
-        ALREADY_CONNECTED,
-        CONNECT_ERROR,
-        EMPTY_PARAMS,
-        INVALID_CHANNEL_NAME,
-        INVALID_NICK_NAME,
-        ILLEGAL_CHARACTERS
-    }
 
-    private ErrorType errType;
-
-    /* Auxillary error information */
-    /* TODO: Make these actually Object */
-    private string auxInfo;
-
-    this(ErrorType errType)
-    {
-        super("BirchwoodError("~to!(string)(errType)~")"~(auxInfo.length == 0 ? "" : " "~auxInfo));
-        this.errType = errType;
-    }
-
-    this(ErrorType errType, string auxInfo)
-    {
-        this(errType);
-        this.auxInfo = auxInfo;
-    }
-
-    public ErrorType getType()
-    {
-        return errType;
-    }
-}
-
-public struct ConnectionInfo
-{
-    /* Server address information */
-    private Address addrInfo;
-    private string nickname;
-
-    /* Misc. */
-    /* TODO: Make final/const (find out difference) */
-    private ulong bulkReadSize;
-
-    /* Client behaviour (TODO: what is sleep(0), like nothing) */
-    private ulong fakeLag = 0;
-
-    /* The quit message */
-    public const string quitMessage;
-
-    /* TODO: before publishing change this bulk size */
-    private this(Address addrInfo, string nickname, ulong bulkReadSize = 20, string quitMessage = "birchwood client disconnecting...")
-    {
-        this.addrInfo = addrInfo;
-        this.nickname = nickname;
-        this.bulkReadSize = bulkReadSize;
-        this.quitMessage = quitMessage;
-    }
-
-    public ulong getBulkReadSize()
-    {
-        return this.bulkReadSize;
-    }
-
-    public Address getAddr()
-    {
-        return addrInfo;
-    }
-
-    /** 
-     * Creates a ConnectionInfo struct representing a client configuration which
-     * can be provided to the Client class to create a new connection based on its
-     * parameters
-     *
-     * Params:
-     *   hostname = hostname of the server
-     *   port = server port
-     *   nickname = nickname to use
-     * Returns: ConnectionInfo for this server
-     */
-    public static ConnectionInfo newConnection(string hostname, ushort port, string nickname)
-    {
-        try
-        {
-            /* Attempt to resolve the address (may throw SocketException) */
-            Address[] addrInfo = getAddress(hostname, port);
-
-            /* Username check */
-            if(!nickname.length)
-            {
-                throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CONN_INFO);
-            }
-
-            /* TODO: Add feature to choose which address to use, prefer v4 or v6 type of thing */
-            Address chosenAddress = addrInfo[0];
-
-            return ConnectionInfo(chosenAddress, nickname);
-        }
-        catch(SocketException e)
-        {
-            throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CONN_INFO);
-        }
-    }
-
-    /**
-    * Tests invalid conneciton information
-    *
-    * 1. Invalid hostnames
-    * 2. Invalid usernames
-    */
-    unittest
-    {
-        try
-        {
-            newConnection("1.", 21, "deavmi");
-            assert(false);
-        }
-        catch(BirchwoodException e)
-        {
-            assert(e.getType() == BirchwoodException.ErrorType.INVALID_CONN_INFO);
-        }
-
-        try
-        {
-            newConnection("1.1.1.1", 21, "");
-            assert(false);
-        }
-        catch(BirchwoodException e)
-        {
-            assert(e.getType() == BirchwoodException.ErrorType.INVALID_CONN_INFO);
-        }
-        
-    }
-}
 
 // TODO: Make abstract and for unit tests make a `DefaultClient`
 // ... which logs outputs for the `onX()` handler functions

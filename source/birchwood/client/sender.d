@@ -1,6 +1,6 @@
 module birchwood.client.sender;
 
-import core.thread : Thread;
+import core.thread : Thread, dur;
 
 import std.container.slist : SList;
 import core.sync.mutex : Mutex;
