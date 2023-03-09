@@ -325,6 +325,9 @@ public class Client : Thread
             {
                 //TODO: Add check for #
 
+                /* Append on a trailing `,` */
+                channelLine ~= ",";
+
                 for(ulong i = 1; i < channels.length; i++)
                 {
                     string currentChannel = channels[i];
@@ -1184,6 +1187,9 @@ public class Client : Thread
         client.joinChannel("#birchwood");
         // TODO: Add a joinChannels(string[])
         client.joinChannel("#birchwood2");
+        client.joinChannel("#birchwoodLeave1");
+        client.joinChannel("#birchwoodLeave2");
+        client.joinChannel("#birchwoodLeave3");
         
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "NAMES", ""));
@@ -1221,6 +1227,23 @@ public class Client : Thread
          * Test sending a message to myself (singular)
          */
         client.directMessage("Message to myself", "birchwood");
+
+        
+        /**
+         * Test leaving multiple channels (multi)
+         */
+        Thread.sleep(dur!("seconds")(2));
+        client.leaveChannel(["#birchwood", "#birchwood2"]);
+
+        /**
+         * Test leaving a single channel (singular)
+         */
+        client.leaveChannel("#birchwoodLeave1");
+
+        /**
+         * Test leaving a single channel (multi)
+         */
+        client.leaveChannel(["#birchwoodLeave2"]);
 
         // TODO: Don't forget to re-enable this when done testing!
         Thread.sleep(dur!("seconds")(15));
