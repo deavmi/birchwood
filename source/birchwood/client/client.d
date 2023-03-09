@@ -105,6 +105,12 @@ public class Client : Thread
     {
         super(&loop);
         this.connInfo = connInfo;
+
+        /** 
+         * Setups the receiver and sender queue managers
+         */
+        this.receiver = new ReceiverThread(this);
+        this.sender = new SenderThread(this);
     }
 
     ~this()
@@ -659,6 +665,7 @@ public class Client : Thread
         /* Lock queue */
         recvQueueLock.lock();
 
+        // TODO: Update the below to call `receiver.newRecv()`
         /* Add to queue */
         recvQueue.insertAfter(recvQueue[], message);
 
@@ -864,6 +871,7 @@ public class Client : Thread
         /* Lock queue */
         sendQueueLock.lock();
 
+        // TODO: Update the below to call `sender.newSend()`
         /* Add to queue */
         sendQueue.insertAfter(sendQueue[], encodedMessage);
 

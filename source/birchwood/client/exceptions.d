@@ -4,6 +4,7 @@ import std.conv : to;
 
 public class BirchwoodException : Exception
 {
+    // TODO: Move outside one level
     public enum ErrorType
     {
         INVALID_CONN_INFO,
