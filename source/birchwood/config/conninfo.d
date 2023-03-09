@@ -1,4 +1,4 @@
-module birchwood.client.conninfo;
+module birchwood.config.conninfo;
 
 import std.socket : SocketException, Address, getAddress;
 import birchwood.client.exceptions : BirchwoodException;
