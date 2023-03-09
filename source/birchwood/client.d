@@ -1196,12 +1196,12 @@ public class Client : Thread
 
 
         /**
-         * Test sending a message to a single channel (singular)
+         * Test sending a message to a single channel (multi)
          */
         client.channelMessage("This is a test message sent to a channel 1", ["#birchwood"]);
 
         /**
-         * Test sending a message to a single channel (multi)
+         * Test sending a message to a single channel (singular)
          */
         client.channelMessage("This is a test message sent to a channel 2", "#birchwood");
 
