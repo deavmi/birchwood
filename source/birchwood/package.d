@@ -1,4 +1,5 @@
 module birchwood;
 
 public import birchwood.client;
-public import birchwood.messages;
+public import birchwood.config;
+public import birchwood.protocol;

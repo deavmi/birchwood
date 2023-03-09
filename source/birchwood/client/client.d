@@ -7,11 +7,14 @@ import std.container.slist : SList;
 import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
-import eventy;
-import birchwood.client.conninfo : ConnectionInfo;
+import eventy : EventyEvent = Event, Engine, EventType, Signal;
+import birchwood.config : ConnectionInfo;
 import birchwood.client.exceptions : BirchwoodException;
-import birchwood.messages : Message, encodeMessage, decodeMessage, isValidText;
-import birchwood.constants : ReplyType;
+import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
+// import birchwood.protocol.constants : ReplyType;
+import birchwood.client.receiver : ReceiverThread;
+import birchwood.client.sender : SenderThread;
+
 
 // TODO: Remove this import
 import std.stdio : writeln;
@@ -24,7 +27,52 @@ __gshared static this()
 }
 
 
+public final enum IRCEventType : ulong
+{
+    GENERIC_EVENT = 1,
+    PONG_EVENT
+}
 
+
+/* TODO: Move to an events.d class */
+public final class IRCEvent : EventyEvent
+{   
+    private Message msg;
+
+    this(Message msg)
+    {
+        super(IRCEventType.GENERIC_EVENT);
+
+        this.msg = msg;
+    }
+
+    public Message getMessage()
+    {
+        return msg;
+    }
+
+    public override string toString()
+    {
+        return msg.toString();
+    }
+}
+
+/* TODO: make PongEvent (id 2 buit-in) */
+public final class PongEvent : EventyEvent
+{
+    private string pingID;
+
+    this(string pingID)
+    {
+        super(IRCEventType.PONG_EVENT);
+        this.pingID = pingID;
+    }
+
+    public string getID()
+    {
+        return pingID;
+    }
+}
 
 // TODO: Make abstract and for unit tests make a `DefaultClient`
 // ... which logs outputs for the `onX()` handler functions
@@ -37,17 +85,21 @@ public class Client : Thread
     private string serverName; //TODO: Make use of
 
 
-    private Socket socket;
+    package Socket socket;
 
     /* Message queues (and handlers) */
     private SList!(ubyte[]) recvQueue, sendQueue;
     private Mutex recvQueueLock, sendQueueLock;
     private Thread recvHandler, sendHandler;
 
-    /* Event engine */
-    private Engine engine;
+    private ReceiverThread receiver;
+    private SenderThread sender;
 
-    private bool running = false;
+
+    /* Event engine */
+    package Engine engine;
+
+    package bool running = false;
 
     this(ConnectionInfo connInfo)
     {
@@ -60,52 +112,7 @@ public class Client : Thread
         //TODO: Do something here, tare downs
     }
 
-    private final enum IRCEventType : ulong
-    {
-        GENERIC_EVENT = 1,
-        PONG_EVENT
-    }
-
-
-    /* TODO: Move to an events.d class */
-    private final class IRCEvent : Event
-    {   
-        private Message msg;
-
-        this(Message msg)
-        {
-            super(IRCEventType.GENERIC_EVENT);
-
-            this.msg = msg;
-        }
-
-        public Message getMessage()
-        {
-            return msg;
-        }
-
-        public override string toString()
-        {
-            return msg.toString();
-        }
-    }
-
-    /* TODO: make PongEvent (id 2 buit-in) */
-    private final class PongEvent : Event
-    {
-        private string pingID;
-
-        this(string pingID)
-        {
-            super(IRCEventType.PONG_EVENT);
-            this.pingID = pingID;
-        }
-
-        public string getID()
-        {
-            return pingID;
-        }
-    }
+    
 
     /**
     * User overridable handler functions below
@@ -509,7 +516,7 @@ public class Client : Thread
                 super(client, [IRCEventType.GENERIC_EVENT]);
             }
             
-            public override void handler(Event e)
+            public override void handler(EventyEvent e)
             {
                 /* TODO: Insert cast here to our custoim type */
                 IRCEvent ircEvent = cast(IRCEvent)e;
@@ -573,7 +580,7 @@ public class Client : Thread
             }
 
             /* Send a PONG back with the received PING id */
-            public override void handler(Event e)
+            public override void handler(EventyEvent e)
             {
                 PongEvent pongEvent = cast(PongEvent)e;
                 assert(pongEvent);
@@ -762,7 +769,7 @@ public class Client : Thread
 
                 /* TODO: Implement */
                 // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
-                Event pongEvent = new PongEvent(pingID);
+                EventyEvent pongEvent = new PongEvent(pingID);
                 engine.push(pongEvent);
             }
 
@@ -784,7 +791,7 @@ public class Client : Thread
                 curMsg = Message.parseReceivedMessage(messageNormal);
 
                 // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
-                Event ircEvent = new IRCEvent(curMsg);
+                EventyEvent ircEvent = new IRCEvent(curMsg);
                 engine.push(ircEvent);
             }
 
