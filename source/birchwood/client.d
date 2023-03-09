@@ -1217,6 +1217,11 @@ public class Client : Thread
 
         // }
 
+        /**
+         * Test sending a message to myself (singular)
+         */
+        client.directMessage("Message to myself", "birchwood");
+
         // TODO: Don't forget to re-enable this when done testing!
         Thread.sleep(dur!("seconds")(15));
         client.quit();
