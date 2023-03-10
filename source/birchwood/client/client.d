@@ -16,9 +16,6 @@ import birchwood.client.receiver : ReceiverThread;
 import birchwood.client.sender : SenderThread;
 import birchwood.client.events;
 
-
-// TODO: Remove this import
-import std.stdio : writeln;
 import dlog;
 
 __gshared Logger logger;
