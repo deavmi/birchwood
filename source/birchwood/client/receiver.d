@@ -110,10 +110,6 @@ public final class ReceiverThread : Thread
                     break;
                 }
 
-                
-
-
-
                 pos++;
             }
 
@@ -164,8 +160,11 @@ public final class ReceiverThread : Thread
                 client.engine.push(pongEvent);
             }
 
-            /* Now let's go message by message */
-            if(!recvQueue.empty())
+            /** 
+             * Process each message remaining in the queue now
+             * till it is empty
+             */
+            while(!recvQueue.empty())
             {
                 ubyte[] message = recvQueue.front();
 
@@ -185,6 +184,7 @@ public final class ReceiverThread : Thread
                 EventyEvent ircEvent = new IRCEvent(curMsg);
                 client.engine.push(ircEvent);
             }
+        
 
 
 
