@@ -63,7 +63,15 @@ public final class ReceiverThread : Thread
         /* Unlock queue */
         recvQueueLock.unlock();
 
-        // TODO: Add libsnooze event wake up
+        // TODO: Add a "register" function which can initialize pipes
+        // ... without needing a wait, we'd need a ready flag though
+        // ... for receiver's thread start
+
+        /** 
+         * Wake up all threads waiting on this event
+         * (if any, and if so it would only be the receiver)
+         */
+        receiveEvent.notifyAll();
     }
 
     /** 
@@ -90,6 +98,10 @@ public final class ReceiverThread : Thread
             // ... a "per iteration" how much to process and act on
 
             // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
+
+            // TODO: See above notes about libsnooze behaviour due
+            // ... to usage in our context
+            receiveEvent.wait(); // TODO: Catch any exceptions from libsnooze
 
             /* Lock the receieve queue */
             recvQueueLock.lock();
@@ -185,14 +197,15 @@ public final class ReceiverThread : Thread
                 client.engine.push(ircEvent);
             }
         
-
-
-
             /* Unlock the receive queue */
             recvQueueLock.unlock();
-
-            /* TODO: Threading yield here */
-            Thread.yield();
         }
+    }
+
+    public void end()
+    {
+        // TODO: See above notes about libsnooze behaviour due
+        // ... to usage in our context
+        receiveEvent.notifyAll();
     }
 }

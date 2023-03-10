@@ -661,6 +661,12 @@ public class Client : Thread
         socket.close();
         logger.log("disconnect() socket closed");
 
+        // TODO: See libsnooze notes in `receiver.d` and `sender.d`, we could technically in some
+        // ... teribble situation have a unregistered situaion which would then have a fallthrough
+        // ... notify and a wait which never wakes up (the solution is mentioned in `receiver.d`/`sender.d`)
+        receiver.end();
+        sender.end();
+
         /* Wait for receive queue manager to realise it needs to stop */
         receiver.join();
         logger.log("disconnect() recvQueue manager stopped");
