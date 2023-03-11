@@ -25,6 +25,7 @@ public final class SenderThread : Thread
      * to be processed and sent
      */
     private Event sendEvent;
+    // private bool hasEnsured;
 
     /** 
      * The associated IRC client
@@ -83,10 +84,17 @@ public final class SenderThread : Thread
 
         while(client.running)
         {
-            // TODO: Insert libsnooze wait here
-
-            // TODO: Add a for-loop here which one can configure which is
-            // ... a "per iteration" how much to process and act on
+            // // Do a once-off call to `ensure()` here which then only runs once and
+            // // ... sets a `ready` flag for the Client to spin on. This ensures that
+            // // ... when the first sent messages will be able to cause a wait
+            // // ... to immediately unblock rather than letting wait() register itself
+            // // ... and then require another sendQ call to wake it up and process
+            // // ... the initial n messages + m new ones resulting in the second call
+            // if(hasEnsured == false)
+            // {
+            //     sendEvent.ensure();
+            //     hasEnsured = true;
+            // }
 
             // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
 
@@ -95,6 +103,10 @@ public final class SenderThread : Thread
             // TODO: See above notes about libsnooze behaviour due
             // ... to usage in our context
             sendEvent.wait(); // TODO: Catch any exceptions from libsnooze
+
+            // TODO: After the above call have a once-off call to `ensure()` here
+            // ... which then only runs once and sets a `ready` flag for the Client
+            // ... to spin on
 
 
             /* Lock queue */
@@ -120,4 +132,9 @@ public final class SenderThread : Thread
         // ... to usage in our context
         sendEvent.notifyAll();
     }
+
+    // public bool isReady()
+    // {
+    //     return hasEnsured;
+    // }
 }

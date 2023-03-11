@@ -30,6 +30,7 @@ public final class ReceiverThread : Thread
      * to be processed and received
      */
     private Event receiveEvent;
+    // private bool hasEnsured;
 
     /** 
      * The associated IRC client
@@ -48,7 +49,7 @@ public final class ReceiverThread : Thread
         super(&recvHandlerFunc);
         this.client = client;
         this.receiveEvent = new Event(); // TODO: Catch any libsnooze error here
-        this.recvQueueLock = new Mutex();
+        this.recvQueueLock = new Mutex();        
     }
 
     // TODO: Rename to `receiveQ`
@@ -92,16 +93,26 @@ public final class ReceiverThread : Thread
     {
         while(client.running)
         {
-            // TODO: Insert libsnooze wait here
-
-            // TODO: Add a for-loop here which one can configure which is
-            // ... a "per iteration" how much to process and act on
-
             // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
+
+
+            // // Do a once-off call to `ensure()` here which then only runs once and
+            // // ... sets a `ready` flag for the Client to spin on. This ensures that
+            // // ... when the first received messages will be able to cause a wait
+            // // ... to immediately unblock rather than letting wait() register itself
+            // // ... and then require another receiveQ call to wake it up and process
+            // // ... the initial n messages + m new ones resulting in the second call
+            // if(hasEnsured == false)
+            // {
+            //     receiveEvent.ensure();
+            //     hasEnsured = true;
+            // }
 
             // TODO: See above notes about libsnooze behaviour due
             // ... to usage in our context
             receiveEvent.wait(); // TODO: Catch any exceptions from libsnooze
+
+            
 
             /* Lock the receieve queue */
             recvQueueLock.lock();
@@ -208,4 +219,9 @@ public final class ReceiverThread : Thread
         // ... to usage in our context
         receiveEvent.notifyAll();
     }
+
+    // public bool isReady()
+    // {
+    //     return hasEnsured;
+    // }
 }

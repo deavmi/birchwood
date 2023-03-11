@@ -11,7 +11,7 @@ import eventy : EventyEvent = Event, Engine, EventType, Signal;
 import birchwood.config : ConnectionInfo;
 import birchwood.client.exceptions : BirchwoodException;
 import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
-// import birchwood.protocol.constants : ReplyType;
+
 import birchwood.client.receiver : ReceiverThread;
 import birchwood.client.sender : SenderThread;
 import birchwood.client.events;
@@ -570,13 +570,19 @@ public class Client : Thread
                 /* Register default handler */
                 initEvents();
 
-                /**
-                 * Start the receive and send queue manager
-                 */
+                // /**
+                //  * Initialize the ready events for both the
+                //  * receive and send queue managers, then after
+                //  * doing so start both managers and spin for
+                //  * both of them to enter a ready state (i.e.
+                //  * they have ensured a waiting-pipe pair for
+                //  * libsnooze exists)
+                //  */
                 this.receiver.start();
                 this.sender.start();
+                // while(!receiver.isReady() || !sender.isReady()) {}
 
-                /* Set running sttaus to true */
+                /* Set running status to true */
                 running = true;
 
                 /* Start socket loop */
@@ -587,6 +593,7 @@ public class Client : Thread
                 throw new BirchwoodException(BirchwoodException.ErrorType.CONNECT_ERROR);
             }
         }
+        // TODO: Do actual liveliness check here
         else
         {
             throw new BirchwoodException(BirchwoodException.ErrorType.ALREADY_CONNECTED);
