@@ -546,7 +546,7 @@ public class Client : Thread
 
                 string messageToSend = "PONG "~pongEvent.getID();
                 client.sendMessage(messageToSend);
-                logger.log("Ponged");
+                logger.log("Ponged back with "~pongEvent.getID());
             }
         }
         engine.addSignalHandler(new PongSignal(this));
