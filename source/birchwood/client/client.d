@@ -586,17 +586,15 @@ public class Client : Thread
                 //  * libsnooze exists)
                 //  */
 
-                /**
-                 * Start the receive queue and send queue managers
-                 */
+                /* Start the receive queue and send queue managers */
                 this.receiver.start();
                 this.sender.start();
                 // while(!receiver.isReady() || !sender.isReady()) {}
 
-                /* Set running status to true */
+                /* Set the running status to true */
                 running = true;
 
-                /* Start socket loop */
+                /* Start the socket read-decode loop */
                 this.start();
             }
             catch(SocketOSException e)
