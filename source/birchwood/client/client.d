@@ -586,13 +586,13 @@ public class Client : Thread
                 //  * libsnooze exists)
                 //  */
 
+                /* Set the running status to true */
+                running = true;
+
                 /* Start the receive queue and send queue managers */
                 this.receiver.start();
                 this.sender.start();
                 // while(!receiver.isReady() || !sender.isReady()) {}
-
-                /* Set the running status to true */
-                running = true;
 
                 /* Start the socket read-decode loop */
                 this.start();
