@@ -28,21 +28,28 @@ __gshared static this()
 // ... which logs outputs for the `onX()` handler functions
 public class Client : Thread
 {
-    /* Connection information */
+    /** 
+     * Connection information
+     */
     private ConnectionInfo connInfo;
 
     /* TODO: We should learn some info in here (or do we put it in connInfo)? */
     private string serverName; //TODO: Make use of
 
-
+    /** 
+     * Underlying connection to the server
+     */
     package Socket socket;
 
-
+    /** 
+     * Receive queue and send queue managers
+     */
     private ReceiverThread receiver;
     private SenderThread sender;
 
-
-    /* Event engine */
+    /** 
+     * Eventy event engine
+     */
     package Engine engine;
 
     package bool running = false;
@@ -578,6 +585,10 @@ public class Client : Thread
                 //  * they have ensured a waiting-pipe pair for
                 //  * libsnooze exists)
                 //  */
+
+                /**
+                 * Start the receive queue and send queue managers
+                 */
                 this.receiver.start();
                 this.sender.start();
                 // while(!receiver.isReady() || !sender.isReady()) {}
