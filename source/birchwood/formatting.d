@@ -1,4 +1,4 @@
-module birchwood.formatting
+module birchwood.formatting;
 
 import std.string;
 
