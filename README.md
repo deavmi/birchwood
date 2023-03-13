@@ -38,7 +38,7 @@ Birchwood dependends on the following D libraries:
 
 You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.Client.html).
 
-## Compatibiloty
+## Compatibility
 
 - [ ] rfc1459
     * Should be more or less stable in supporting this standard
