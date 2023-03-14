@@ -622,13 +622,6 @@ public class Client : Thread
         /* Enqueue the message to the receive queue */
         receiver.rq(message);
     }
-
-    /**
-    * TODO: Make send queue which is used on another thread to send messages
-    *
-    * This allows us to intrpoduce fakelag and also prioritse pongs (we should
-    * send them via here)
-    */
     
     /** 
      * Sends a message to the server by enqueuing it on
@@ -639,6 +632,9 @@ public class Client : Thread
      */
     private void sendMessage(string messageOut)
     {
+        // TODO: Do message splits here
+
+
         /* Encode the mesage */
         ubyte[] encodedMessage = encodeMessage(messageOut);
 
