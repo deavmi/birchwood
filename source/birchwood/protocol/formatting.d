@@ -3,7 +3,7 @@ module birchwood.protocol.formatting;
 import std.string;
 
 // Reset character; resets all formatting
-enum reset = '\x0F';
+enum reset_code = '\x0F';
 
 // Toggle characters
 enum bold_code = '\x02';
@@ -39,6 +39,7 @@ enum simple_colors: string {
 }
 
 // Return the hex control character if color is a hexadecimal color code, the ASCII control character if color is two ASCII digits, and throw an exception if it's neither
+// This function might be useless now that set_fg and set_fg_bg have been changed, but I'll keep it in case it's needed later.
 char generate_color_control_char(string color) {
     if (color.length == 6) {
         return hex_color_code;
@@ -64,9 +65,12 @@ string set_foreground(string color) {
 // Generate a string that sets the foreground and background color
 string set_foreground_background(string fg, string bg) {
     char[1] control_char;
-    if (color.length == 6) {
+    if (fg.length != bg.length) {
+        throw new StringException("Invalid color code (cannot mix hex and ASCII)");
+    }
+    if (fg.length == 6) {
         control_char[0] = hex_color_code;
-    } else if (color.length == 2) {
+    } else if (fg.length == 2) {
         control_char[0] = ascii_color_code;
     } else {
         throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
@@ -76,7 +80,7 @@ string set_foreground_background(string fg, string bg) {
 
 // Generate a string that resets the foreground and background colors
 pragma(inline)
-string reset_fg_bg() {return "\x03";}
+string reset_fg_bg() {return ascii_color_code;}
 
 // Format strings with functions
 pragma(inline)
