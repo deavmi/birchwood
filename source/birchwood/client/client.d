@@ -524,6 +524,9 @@ public class Client : Thread
                 // If the command is numeric then it is a reply of some sorts
                 else if(ircMessage.isResponseMessage())
                 {
+                    // TODO: Add numeric response check here for CERTAIN ones which add to client
+                    // ... state
+                    
                     /* Call the command reply handler */
                     onCommandReply(ircMessage);
                 }
