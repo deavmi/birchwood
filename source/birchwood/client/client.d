@@ -71,6 +71,10 @@ public class Client : Thread
         //TODO: Do something here, tare downs
     }
 
+    public ConnectionInfo getConnInfo()
+    {
+        return connInfo;
+    }
     
 
     /**
@@ -875,6 +879,11 @@ public class Client : Thread
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
         ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "testBirchwood");
+
+        // // Set the fakelag to 1 second
+        // connInfo.setFakeLag(1);
+
+        // Create a new Client
         Client client = new Client(connInfo);
 
         client.connect();

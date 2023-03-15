@@ -14,7 +14,7 @@ public struct ConnectionInfo
     private ulong bulkReadSize;
 
     /* Client behaviour (TODO: what is sleep(0), like nothing) */
-    private ulong fakeLag = 0;
+    private ulong fakeLag;
 
     /* The quit message */
     public const string quitMessage;
@@ -26,6 +26,9 @@ public struct ConnectionInfo
         this.nickname = nickname;
         this.bulkReadSize = bulkReadSize;
         this.quitMessage = quitMessage;
+
+        // Set the default fakelag to 1
+        this.fakeLag = 1;
     }
 
     public ulong getBulkReadSize()
@@ -36,6 +39,16 @@ public struct ConnectionInfo
     public Address getAddr()
     {
         return addrInfo;
+    }
+
+    public ulong getFakeLag()
+    {
+        return fakeLag;
+    }
+
+    public void setFakeLag(ulong fakeLag)
+    {
+        this.fakeLag = fakeLag;
     }
 
     /** 
