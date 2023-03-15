@@ -144,5 +144,10 @@ module birchwood.protocol.constants;
         ERR_BADCHANMASK = 476,
 
 
+        /** 
+         * ircv3
+         */
+        RPL_LOCALUSERS = 265,
+
         BIRCHWOOD_UNKNOWN_RESP_CODE = 0
 }
