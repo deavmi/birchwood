@@ -899,10 +899,10 @@ public class Client : Thread
         client.command(new Message("", "NAMES", "")); // TODO: add names commdn
 
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "PRIVMSG", "#birchwood naai")); // TODO: use channel mesge
+        client.channelMessage("naai", "#birchwood");
 
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "PRIVMSG", "deavmi naai")); // TODO: use direct message
+        client.directMessage("naai", "deavmi");
 
 
         /**
