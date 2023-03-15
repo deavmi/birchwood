@@ -101,6 +101,8 @@ public class Client : Thread
     * User operations (request-response type)
     */
 
+    // TODO: Add joinChannels(strung[])
+
     /** 
      * Joins the requested channel
      *
@@ -118,7 +120,8 @@ public class Client : Thread
             if(channel[0] == '#')
             {
                 /* Join the channel */
-                sendMessage("JOIN "~channel);
+                Message joinMessage = new Message("", "JOIN", channel);
+                sendMessage(joinMessage);
             }
             else
             {
@@ -187,7 +190,8 @@ public class Client : Thread
                 }
 
                 /* Leave multiple channels */
-                sendMessage("PART "~channelLine);
+                Message leaveMessage = new Message("", "PART", channelLine);
+                sendMessage(leaveMessage);
             }
             else
             {
@@ -212,7 +216,8 @@ public class Client : Thread
         // TODO: Add check for valid and non-empty channel names
 
         /* Leave the channel */
-        sendMessage("PART "~channel);
+        Message leaveMessage = new Message("", "PART", channel);
+        sendMessage(leaveMessage);
     }
 
     /** 
@@ -651,6 +656,8 @@ public class Client : Thread
      */
     private void sendMessage(Message message)
     {
+        // TODO: Do message splits here
+        
         /* Encode the message */
         ubyte[] encodedMessage = encodeMessage(message.encode());
 
