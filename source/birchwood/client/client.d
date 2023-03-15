@@ -873,7 +873,7 @@ public class Client : Thread
 
         import core.thread;
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "NICK", "birchwood"));
+        client.command(new Message("", "NICK", "birchwood")); // TODO: add nickcommand
 
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
@@ -888,13 +888,13 @@ public class Client : Thread
         client.joinChannel("#birchwoodLeave3");
         
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "NAMES", ""));
+        client.command(new Message("", "NAMES", "")); // TODO: add names commdn
 
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "PRIVMSG", "#birchwood naai"));
+        client.command(new Message("", "PRIVMSG", "#birchwood naai")); // TODO: use channel mesge
 
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "PRIVMSG", "deavmi naai"));
+        client.command(new Message("", "PRIVMSG", "deavmi naai")); // TODO: use direct message
 
 
         /**
