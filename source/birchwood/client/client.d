@@ -652,10 +652,19 @@ public class Client : Thread
     private void sendMessage(Message message)
     {
         /* Encode the message */
-        ubyte[] encodedMessage = message.encode();
+        ubyte[] encodedMessage = encodeMessage(message.encode());
 
-        /* Enqueue the message to the send queue */
-        sender.sq(encodedMessage);
+        /* If the message is 512 bytes or less then send */
+        if(encodedMessage.length <= 512)
+        {
+            /* Enqueue the message to the send queue */
+            sender.sq(encodedMessage);
+        }
+        /* If above then throw an exception */
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.COMMAND_TOO_LONG);
+        }
     }
 
     /** 
