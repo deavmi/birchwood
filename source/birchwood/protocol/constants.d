@@ -148,6 +148,9 @@ module birchwood.protocol.constants;
          * ircv3
          */
         RPL_LOCALUSERS = 265,
+        RPL_GLOBALUSERS = 266,
+        RPL_WHOISCERTFP = 276,
+        
 
         BIRCHWOOD_UNKNOWN_RESP_CODE = 0
 }
