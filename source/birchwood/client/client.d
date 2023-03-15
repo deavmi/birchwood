@@ -649,7 +649,10 @@ public class Client : Thread
     
     /** 
      * Sends a message to the server by enqueuing it on
-     * the client-side send queue
+     * the client-side send queue.
+     *
+     * A BirchwoodException is thrown if the messages
+     * final length exceeds 512 bytes
      *
      * Params:
      *   message = the message to send
