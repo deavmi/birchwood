@@ -80,21 +80,51 @@ public class Client : Thread
     /**
     * User overridable handler functions below
     */
+
+    // TODO: comment
+    /** 
+     * 
+     * Params:
+     *   fullMessage = 
+     *   channel = 
+     *   msgBody = 
+     */
     public void onChannelMessage(Message fullMessage, string channel, string msgBody)
     {
         /* Default implementation */
         logger.log("Channel("~channel~"): "~msgBody);
     }
+
+    // TODO: comment
+    /** 
+     * 
+     * Params:
+     *   message = 
+     */
     public void onDirectMessage(Message fullMessage, string nickname, string msgBody)
     {
         /* Default implementation */
         logger.log("DirectMessage("~nickname~"): "~msgBody);
     }
+
+    // TODO: comment
+    /** 
+     * 
+     * Params:
+     *   commandReply = 
+     */
     public void onGenericCommand(Message message)
     {
         /* Default implementation */
         logger.log("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
     }
+
+    // TODO: comment
+    /** 
+     * 
+     * Params:
+     *   commandReply = 
+     */
     public void onCommandReply(Message commandReply)
     {
         /* Default implementation */
