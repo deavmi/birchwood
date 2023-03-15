@@ -274,7 +274,8 @@ public class Client : Thread
                     }
 
                     /* Send the message */
-                    sendMessage("PRIVMSG "~recipientLine~" "~message);
+                    Message privMessage = new Message("", "PRIVMSG", recipientLine~" "~message);
+                    sendMessage(privMessage);
                 }
                 else
                 {
@@ -311,7 +312,8 @@ public class Client : Thread
             if(recipient[0] != '#')
             {
                 /* Send the message */
-                sendMessage("PRIVMSG "~recipient~" "~message);
+                Message privMessage = new Message("", "PRIVMSG", recipient~" "~message);
+                sendMessage(privMessage);
             }
             else
             {
