@@ -102,6 +102,7 @@ public class Client : Thread
      *   fullMessage = 
      *   nickname = 
      *   msgBody = 
+     *   message = 
      */
     public void onDirectMessage(Message fullMessage, string nickname, string msgBody)
     {
@@ -114,6 +115,7 @@ public class Client : Thread
      * 
      * Params:
      *   message = 
+     *   commandReply = 
      */
     public void onGenericCommand(Message message)
     {
@@ -124,6 +126,12 @@ public class Client : Thread
 
     // TODO: Hook certain ones default style with an implemenation
     // ... for things that the client can learn from
+    // TODO: comment
+    /** 
+     * 
+     * Params:
+     *   commandReply = 
+     */
     public void onCommandReply(Message commandReply)
     {
         // TODO: Add numeric response check here for CERTAIN ones which add to client
