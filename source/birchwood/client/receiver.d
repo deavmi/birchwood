@@ -126,10 +126,14 @@ public final class ReceiverThread : Thread
             ulong pos = 0;
             foreach(ubyte[] message; recvQueue[])
             {
+                // FIXME: Holy shit this is funny (see https://github.com/deavmi/birchwood/issues/13)
                 if(indexOf(cast(string)message, "PING") > -1)
                 {
                     pingMessage = message;
                     recvQueue.linearRemoveElement(message);
+
+                    import std.stdio;
+                    writeln("\n\nHOLY SHIT\n: "~cast(string)(message)~"\n\n");
                     break;
                 }
 
