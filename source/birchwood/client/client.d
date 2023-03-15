@@ -380,7 +380,8 @@ public class Client : Thread
                     }
 
                     /* Send to multiple channels */
-                    sendMessage("PRIVMSG "~channelLine~" "~message);
+                    Message privMessage = new Message("", "PRIVMSG", channelLine~" "~message);
+                    sendMessage(privMessage);
                 }
                 else
                 {
@@ -415,7 +416,8 @@ public class Client : Thread
             if(channel[0] == '#')
             {
                 /* Send the channel message */
-                sendMessage("PRIVMSG "~channel~" "~message);
+                Message privMessage = new Message("", "PRIVMSG", channel~" "~message);
+                sendMessage(privMessage);
             }
             else
             {
