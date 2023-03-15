@@ -158,6 +158,7 @@ public enum ReplyType : ulong
     RPL_CREATED = 003,
     RPL_MYINFO = 004,
     RPL_BOUNCE = 005, // TODO: We care about the key-value pairs here in RPL_BOUNCE
+    ERR_NOCHANMODES = 477,
 
 
 
