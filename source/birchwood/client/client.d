@@ -440,13 +440,8 @@ public class Client : Thread
      */
     public void command(Message message)
     {
-        /* Encode according to EBNF format */
-        // TODO: Validty check
-        // TODO: Make `Message.encode()` actually encode instead of empty string
-        string stringToSend = message.encode();
-
         /* Send the message */
-        sendMessage(stringToSend);
+        sendMessage(message);
     }
 
 
@@ -553,8 +548,9 @@ public class Client : Thread
                 PongEvent pongEvent = cast(PongEvent)e;
                 assert(pongEvent);
 
-                string messageToSend = "PONG "~pongEvent.getID();
-                client.sendMessage(messageToSend);
+                // string messageToSend = "PONG "~pongEvent.getID();
+                Message pongMessage = new Message("", "PONG", pongEvent.getID());
+                client.sendMessage(pongMessage);
                 logger.log("Ponged back with "~pongEvent.getID());
             }
         }
@@ -632,24 +628,24 @@ public class Client : Thread
         receiver.rq(message);
     }
     
-    /** 
-     * Sends a message to the server by enqueuing it on
-     * the client-side send queue
-     *
-     * Params:
-     *   messageOut = the message to send
-     */
-    private void sendMessage(string messageOut)
-    {
-        // TODO: Do message splits here
+    // /** 
+    //  * Sends a message to the server by enqueuing it on
+    //  * the client-side send queue
+    //  *
+    //  * Params:
+    //  *   messageOut = the message to send
+    //  */
+    // private void sendMessage(string messageOut)
+    // {
+    //     // TODO: Do message splits here
 
 
-        /* Encode the mesage */
-        ubyte[] encodedMessage = encodeMessage(messageOut);
+    //     /* Encode the mesage */
+    //     ubyte[] encodedMessage = encodeMessage(messageOut);
 
-        /* Enqueue the message to the send queue */
-        sender.sq(encodedMessage);
-    }
+    //     /* Enqueue the message to the send queue */
+    //     sender.sq(encodedMessage);
+    // }
     
     /** 
      * Sends a message to the server by enqueuing it on
@@ -685,7 +681,7 @@ public class Client : Thread
     {
         /* Generate the quit command using the custom quit message */
         Message quitCommand = new Message("", "QUIT", connInfo.quitMessage);
-        sendMessage(quitCommand.encode());
+        sendMessage(quitCommand);
 
         /* TODO: I don't know how long we should wait here */
         Thread.sleep(dur!("seconds")(1));
