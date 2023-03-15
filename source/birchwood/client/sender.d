@@ -79,9 +79,6 @@ public final class SenderThread : Thread
      */
     private void sendHandlerFunc()
     {
-        /* TODO: Hoist up into ConnInfo */
-        ulong fakeLagInBetween = 1;
-
         while(client.running)
         {
             // // Do a once-off call to `ensure()` here which then only runs once and
@@ -115,7 +112,7 @@ public final class SenderThread : Thread
             foreach(ubyte[] message; sendQueue[])
             {
                 client.socket.send(message);
-                Thread.sleep(dur!("seconds")(fakeLagInBetween));
+                Thread.sleep(dur!("seconds")(client.getConnInfo().getFakeLag()));
             }
 
             /* Empty the send queue */

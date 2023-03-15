@@ -30,7 +30,16 @@ __gshared static this()
 /**
 * Encoding/decoding primitives
 */
-public static ubyte[] encodeMessage(string messageIn)
+
+/** 
+ * Encodes the provided message into a CRLF
+ * terminated byte array
+ *
+ * Params:
+ *   messageIn = the message to encode
+ * Returns: the encoded message
+ */
+public ubyte[] encodeMessage(string messageIn)
 {
     ubyte[] messageOut = cast(ubyte[])messageIn;
     messageOut~=[cast(ubyte)13, cast(ubyte)10];

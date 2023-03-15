@@ -71,6 +71,10 @@ public class Client : Thread
         //TODO: Do something here, tare downs
     }
 
+    public ConnectionInfo getConnInfo()
+    {
+        return connInfo;
+    }
     
 
     /**
@@ -101,6 +105,8 @@ public class Client : Thread
     * User operations (request-response type)
     */
 
+    // TODO: Add joinChannels(strung[])
+
     /** 
      * Joins the requested channel
      *
@@ -118,7 +124,8 @@ public class Client : Thread
             if(channel[0] == '#')
             {
                 /* Join the channel */
-                sendMessage("JOIN "~channel);
+                Message joinMessage = new Message("", "JOIN", channel);
+                sendMessage(joinMessage);
             }
             else
             {
@@ -187,7 +194,8 @@ public class Client : Thread
                 }
 
                 /* Leave multiple channels */
-                sendMessage("PART "~channelLine);
+                Message leaveMessage = new Message("", "PART", channelLine);
+                sendMessage(leaveMessage);
             }
             else
             {
@@ -212,7 +220,8 @@ public class Client : Thread
         // TODO: Add check for valid and non-empty channel names
 
         /* Leave the channel */
-        sendMessage("PART "~channel);
+        Message leaveMessage = new Message("", "PART", channel);
+        sendMessage(leaveMessage);
     }
 
     /** 
@@ -269,7 +278,8 @@ public class Client : Thread
                     }
 
                     /* Send the message */
-                    sendMessage("PRIVMSG "~recipientLine~" "~message);
+                    Message privMessage = new Message("", "PRIVMSG", recipientLine~" "~message);
+                    sendMessage(privMessage);
                 }
                 else
                 {
@@ -306,7 +316,8 @@ public class Client : Thread
             if(recipient[0] != '#')
             {
                 /* Send the message */
-                sendMessage("PRIVMSG "~recipient~" "~message);
+                Message privMessage = new Message("", "PRIVMSG", recipient~" "~message);
+                sendMessage(privMessage);
             }
             else
             {
@@ -373,7 +384,8 @@ public class Client : Thread
                     }
 
                     /* Send to multiple channels */
-                    sendMessage("PRIVMSG "~channelLine~" "~message);
+                    Message privMessage = new Message("", "PRIVMSG", channelLine~" "~message);
+                    sendMessage(privMessage);
                 }
                 else
                 {
@@ -408,7 +420,8 @@ public class Client : Thread
             if(channel[0] == '#')
             {
                 /* Send the channel message */
-                sendMessage("PRIVMSG "~channel~" "~message);
+                Message privMessage = new Message("", "PRIVMSG", channel~" "~message);
+                sendMessage(privMessage);
             }
             else
             {
@@ -431,13 +444,8 @@ public class Client : Thread
      */
     public void command(Message message)
     {
-        /* Encode according to EBNF format */
-        // TODO: Validty check
-        // TODO: Make `Message.encode()` actually encode instead of empty string
-        string stringToSend = message.encode();
-
         /* Send the message */
-        sendMessage(stringToSend);
+        sendMessage(message);
     }
 
 
@@ -544,8 +552,9 @@ public class Client : Thread
                 PongEvent pongEvent = cast(PongEvent)e;
                 assert(pongEvent);
 
-                string messageToSend = "PONG "~pongEvent.getID();
-                client.sendMessage(messageToSend);
+                // string messageToSend = "PONG "~pongEvent.getID();
+                Message pongMessage = new Message("", "PONG", pongEvent.getID());
+                client.sendMessage(pongMessage);
                 logger.log("Ponged back with "~pongEvent.getID());
             }
         }
@@ -622,28 +631,54 @@ public class Client : Thread
         /* Enqueue the message to the receive queue */
         receiver.rq(message);
     }
+    
+    // /** 
+    //  * Sends a message to the server by enqueuing it on
+    //  * the client-side send queue
+    //  *
+    //  * Params:
+    //  *   messageOut = the message to send
+    //  */
+    // private void sendMessage(string messageOut)
+    // {
+    //     // TODO: Do message splits here
 
-    /**
-    * TODO: Make send queue which is used on another thread to send messages
-    *
-    * This allows us to intrpoduce fakelag and also prioritse pongs (we should
-    * send them via here)
-    */
+
+    //     /* Encode the mesage */
+    //     ubyte[] encodedMessage = encodeMessage(messageOut);
+
+    //     /* Enqueue the message to the send queue */
+    //     sender.sq(encodedMessage);
+    // }
     
     /** 
      * Sends a message to the server by enqueuing it on
-     * the client-side send queue
+     * the client-side send queue.
+     *
+     * A BirchwoodException is thrown if the messages
+     * final length exceeds 512 bytes
      *
      * Params:
-     *   messageOut = the message to send
+     *   message = the message to send
      */
-    private void sendMessage(string messageOut)
+    private void sendMessage(Message message)
     {
-        /* Encode the mesage */
-        ubyte[] encodedMessage = encodeMessage(messageOut);
+        // TODO: Do message splits here
+        
+        /* Encode the message */
+        ubyte[] encodedMessage = encodeMessage(message.encode());
 
-        /* Enqueue the message to the send queue */
-        sender.sq(encodedMessage);
+        /* If the message is 512 bytes or less then send */
+        if(encodedMessage.length <= 512)
+        {
+            /* Enqueue the message to the send queue */
+            sender.sq(encodedMessage);
+        }
+        /* If above then throw an exception */
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.COMMAND_TOO_LONG);
+        }
     }
 
     /** 
@@ -653,7 +688,7 @@ public class Client : Thread
     {
         /* Generate the quit command using the custom quit message */
         Message quitCommand = new Message("", "QUIT", connInfo.quitMessage);
-        sendMessage(quitCommand.encode());
+        sendMessage(quitCommand);
 
         /* TODO: I don't know how long we should wait here */
         Thread.sleep(dur!("seconds")(1));
@@ -830,6 +865,12 @@ public class Client : Thread
         }
     }
 
+
+    version(unittest)
+    {
+        import core.thread;
+    }
+
     unittest
     {
         /* FIXME: Get domaina name resolution support */
@@ -837,15 +878,19 @@ public class Client : Thread
         //freenode: 149.28.246.185
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
-        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.deavmi.crxn", 6667, "testBirchwood");
+        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "testBirchwood");
+
+        // // Set the fakelag to 1 second
+        // connInfo.setFakeLag(1);
+
+        // Create a new Client
         Client client = new Client(connInfo);
 
         client.connect();
 
 
-        import core.thread;
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "NICK", "birchwood"));
+        client.command(new Message("", "NICK", "birchwood")); // TODO: add nickcommand
 
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
@@ -860,13 +905,13 @@ public class Client : Thread
         client.joinChannel("#birchwoodLeave3");
         
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "NAMES", ""));
+        client.command(new Message("", "NAMES", "")); // TODO: add names commdn
 
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "PRIVMSG", "#birchwood naai"));
+        client.channelMessage("naai", "#birchwood");
 
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "PRIVMSG", "deavmi naai"));
+        client.directMessage("naai", "deavmi");
 
 
         /**

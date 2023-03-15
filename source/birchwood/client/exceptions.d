@@ -13,7 +13,8 @@ public class BirchwoodException : Exception
         EMPTY_PARAMS,
         INVALID_CHANNEL_NAME,
         INVALID_NICK_NAME,
-        ILLEGAL_CHARACTERS
+        ILLEGAL_CHARACTERS,
+        COMMAND_TOO_LONG
     }
 
     private ErrorType errType;
