@@ -80,23 +80,55 @@ public class Client : Thread
     /**
     * User overridable handler functions below
     */
+
+    // TODO: comment
+    /** 
+     * 
+     * Params:
+     *   fullMessage = 
+     *   channel = 
+     *   msgBody = 
+     */
     public void onChannelMessage(Message fullMessage, string channel, string msgBody)
     {
         /* Default implementation */
         logger.log("Channel("~channel~"): "~msgBody);
     }
+
+    // TODO: comment
+    /** 
+     * 
+     * Params:
+     *   fullMessage = 
+     *   nickname = 
+     *   msgBody = 
+     */
     public void onDirectMessage(Message fullMessage, string nickname, string msgBody)
     {
         /* Default implementation */
         logger.log("DirectMessage("~nickname~"): "~msgBody);
     }
+
+    // TODO: comment
+    /** 
+     * 
+     * Params:
+     *   message = 
+     */
     public void onGenericCommand(Message message)
     {
         /* Default implementation */
         logger.log("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
     }
+
+
+    // TODO: Hook certain ones default style with an implemenation
+    // ... for things that the client can learn from
     public void onCommandReply(Message commandReply)
     {
+        // TODO: Add numeric response check here for CERTAIN ones which add to client
+        // ... state
+
         /* Default implementation */
         logger.log("Response("~to!(string)(commandReply.getReplyType())~", "~commandReply.getFrom()~"): "~commandReply.toString());
     }
@@ -526,7 +558,7 @@ public class Client : Thread
                 {
                     // TODO: Add numeric response check here for CERTAIN ones which add to client
                     // ... state
-                    
+
                     /* Call the command reply handler */
                     onCommandReply(ircMessage);
                 }
