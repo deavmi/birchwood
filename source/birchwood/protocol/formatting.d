@@ -49,11 +49,30 @@ char generate_color_control_char(string color) {
     }
 }
 
-// Generate a string that sets the foreground color
-string set_fg(string color) {return [generate_color_control_char(color)] ~ color;}
+// Generates a string that changes the foreground color
+string set_foreground(string color) {
+    char[1] control_char;
+    if (color.length == 6) {
+        control_char[0] = hex_color_code;
+    } else if (color.length == 2) {
+        control_char[0] = ascii_color_code;
+    } else {
+        throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
+    }
+    return control_char ~ color;
 
 // Generate a string that sets the foreground and background color
-string set_fg_bg(string color) {return [generate_color_control_char(color)] ~ color ~ "," ~ color;}
+string set_foreground_background(string fg, string bg) {
+    char[1] control_char;
+    if (color.length == 6) {
+        control_char[0] = hex_color_code;
+    } else if (color.length == 2) {
+        control_char[0] = ascii_color_code;
+    } else {
+        throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
+    }
+    return control_char ~ fg ~ "," ~ bg;
+}
 
 // Generate a string that resets the foreground and background colors
 pragma(inline)
