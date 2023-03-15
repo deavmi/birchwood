@@ -641,6 +641,22 @@ public class Client : Thread
         /* Enqueue the message to the send queue */
         sender.sq(encodedMessage);
     }
+    
+    /** 
+     * Sends a message to the server by enqueuing it on
+     * the client-side send queue
+     *
+     * Params:
+     *   message = the message to send
+     */
+    private void sendMessage(Message message)
+    {
+        /* Encode the message */
+        ubyte[] encodedMessage = message.encode();
+
+        /* Enqueue the message to the send queue */
+        sender.sq(encodedMessage);
+    }
 
     /** 
      * Disconnect from the IRC server gracefully
