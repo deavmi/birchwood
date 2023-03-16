@@ -40,8 +40,10 @@ You can take a look at the `Client` API documentation on [DUB](https://birchwood
 
 ## Compatibiloty
 
-- [ ] rfc1459
-    * Should be more or less stable in supporting this standard
+- [x] [rfc1459](https://www.rfc-editor.org/rfc/rfc1459)
+   * Supports all the numeric codes
+- [x] [rfc2812](https://www.rfc-editor.org/rfc/rfc2812)
+   * Supports all the numeric codes
 
 More standards will be added within the next month or so, mostly relating to new response codes that just need to be added.
 
