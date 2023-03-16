@@ -152,11 +152,11 @@ public enum ReplyType : ulong
     /**
      * rfc 2812
      */
-    RPL_WELCOME = 001,
-    RPL_YOURHOST = 002,
-    RPL_CREATED = 003,
-    RPL_MYINFO = 004,
-    RPL_BOUNCE = 010, // In ircv3 this changed from 005 to 010
+    RPL_WELCOME = 1,
+    RPL_YOURHOST = 2,
+    RPL_CREATED = 3,
+    RPL_MYINFO = 4,
+    RPL_BOUNCE = 10, // In ircv3 this changed from 005 to 010
     ERR_NOCHANMODES = 477,
 
     /**
@@ -165,7 +165,7 @@ public enum ReplyType : ulong
     RPL_LOCALUSERS = 265,
     RPL_GLOBALUSERS = 266,
     RPL_WHOISCERTFP = 276,
-    RPL_ISUPPORT = 005, // This overrides the old rfc2812 RPL_BOUNCE code (we can only support one of these)
+    RPL_ISUPPORT = 5, // This overrides the old rfc2812 RPL_BOUNCE code (we can only support one of these)
 
 
 
