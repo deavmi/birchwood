@@ -609,6 +609,9 @@ public class Client : Thread
 
                 if(cmp(command, "PRIVMSG") == 0)
                 {
+                    logger.debug_("PrivMessage parser (kv-pairs): ", ircMessage.getKVPairs());
+                    logger.debug_("PrivMessage parser (trailing): ", ircMessage.getTrailing());
+
                     /* Split up into (channel/nick) and (message)*/
                     long firstSpaceIdx = indexOf(params, " "); //TODO: validity check;
                     string chanNick = params[0..firstSpaceIdx];
