@@ -139,6 +139,13 @@ public class Client : Thread
 
         /* Default implementation */
         logger.log("Response("~to!(string)(commandReply.getReplyType())~", "~commandReply.getFrom()~"): "~commandReply.toString());
+
+        import birchwood.protocol.constants : ReplyType;
+
+        if(commandReply.getReplyType() == ReplyType.RPL_BOUNCE)
+        {
+            logger.log("Take a look:\n\n"~commandReply.getParams());
+        }
     }
 
     /**
