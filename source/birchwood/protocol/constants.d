@@ -150,6 +150,7 @@ module birchwood.protocol.constants;
         RPL_LOCALUSERS = 265,
         RPL_GLOBALUSERS = 266,
         RPL_WHOISCERTFP = 276,
+        RPL_ISUPPORT = 005, // THis overrides the old rfc2812 RPL_BOUNCE code (we can only support one of these)
         
 
         BIRCHWOOD_UNKNOWN_RESP_CODE = 0
