@@ -48,6 +48,13 @@ public final class SenderThread : Thread
     }
 
     // TODO: Rename to `sendQ`
+    /** 
+     * Enqueues the raw message into the send queue
+     * for eventual sending
+     *
+     * Params:
+     *   encodedMessage = the message to enqueue
+     */
     public void sq(ubyte[] encodedMessage)
     {
         /* Lock queue */

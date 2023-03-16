@@ -71,23 +71,19 @@ public class Client : Thread
         //TODO: Do something here, tare downs
     }
 
+    // TODO: Investigate
     public ConnectionInfo getConnInfo()
     {
         return connInfo;
     }
     
-
-    /**
-    * User overridable handler functions below
-    */
-
-    // TODO: comment
     /** 
-     * 
+     * Called on reception of a channel message
+     *
      * Params:
-     *   fullMessage = 
-     *   channel = 
-     *   msgBody = 
+     *   fullMessage = the channel message in its entirety
+     *   channel = the channel
+     *   msgBody = the body of the message
      */
     public void onChannelMessage(Message fullMessage, string channel, string msgBody)
     {
@@ -95,11 +91,13 @@ public class Client : Thread
         logger.log("Channel("~channel~"): "~msgBody);
     }
 
-    // TODO: comment
     /** 
-     * 
+     * Called on reception of a direct message
+     *
      * Params:
-     *   message = 
+     *   fullMessage = the direct message in its entirety
+     *   nickname = the sender
+     *   msgBody = the body of the message
      */
     public void onDirectMessage(Message fullMessage, string nickname, string msgBody)
     {
@@ -107,11 +105,11 @@ public class Client : Thread
         logger.log("DirectMessage("~nickname~"): "~msgBody);
     }
 
-    // TODO: comment
     /** 
-     * 
+     * Called on generic commands
+     *
      * Params:
-     *   commandReply = 
+     *   commandReply = the generic message
      */
     public void onGenericCommand(Message message)
     {
@@ -119,11 +117,11 @@ public class Client : Thread
         logger.log("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
     }
 
-    // TODO: comment
     /** 
-     * 
+     * Called on command replies
+     *
      * Params:
-     *   commandReply = 
+     *   commandReply = the command's reply
      */
     public void onCommandReply(Message commandReply)
     {
@@ -134,8 +132,6 @@ public class Client : Thread
     /**
     * User operations (request-response type)
     */
-
-    // TODO: Add joinChannels(strung[])
 
     /** 
      * Joins the requested channel
@@ -165,6 +161,75 @@ public class Client : Thread
         else
         {
             throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+        }
+    }
+
+    /** 
+     * Joins the requested channels
+     *
+     * Params:
+     *   channels = the channels to join
+     * Throws:
+     *   BirchwoodException on invalid channel name
+     */
+    public void joinChannel(string[] channels)
+    {
+        /* If single channel */
+        if(channels.length == 1)
+        {
+            /* Join the channel */
+            joinChannel(channels[0]);
+        }
+        /* If multiple channels */
+        else if(channels.length > 1)
+        {
+            string channelLine = channels[0];
+
+            /* Ensure valid characters in first channel */
+            if(isValidText(channelLine))
+            {
+                //TODO: Add check for #
+
+                /* Append on a trailing `,` */
+                channelLine ~= ",";
+
+                for(ulong i = 1; i < channels.length; i++)
+                {
+                    string currentChannel = channels[i];
+
+                    /* Ensure the character channel is valid */
+                    if(isValidText(currentChannel))
+                    {
+                        //TODO: Add check for #
+                        
+                        if(i == channels.length-1)
+                        {
+                            channelLine~=currentChannel;
+                        }
+                        else
+                        {
+                            channelLine~=currentChannel~",";
+                        }
+                    }
+                    else
+                    {
+                        throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                    }
+                }
+
+                /* Join multiple channels */
+                Message joinMessage = new Message("", "JOIN", channelLine);
+                sendMessage(joinMessage);
+            }
+            else
+            {
+                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+            }
+        }
+        /* If no channels provided at all (error) */
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
         }
     }
 
@@ -662,25 +727,6 @@ public class Client : Thread
         receiver.rq(message);
     }
     
-    // /** 
-    //  * Sends a message to the server by enqueuing it on
-    //  * the client-side send queue
-    //  *
-    //  * Params:
-    //  *   messageOut = the message to send
-    //  */
-    // private void sendMessage(string messageOut)
-    // {
-    //     // TODO: Do message splits here
-
-
-    //     /* Encode the mesage */
-    //     ubyte[] encodedMessage = encodeMessage(messageOut);
-
-    //     /* Enqueue the message to the send queue */
-    //     sender.sq(encodedMessage);
-    // }
-    
     /** 
      * Sends a message to the server by enqueuing it on
      * the client-side send queue.
@@ -930,9 +976,11 @@ public class Client : Thread
         client.joinChannel("#birchwood");
         // TODO: Add a joinChannels(string[])
         client.joinChannel("#birchwood2");
-        client.joinChannel("#birchwoodLeave1");
-        client.joinChannel("#birchwoodLeave2");
-        client.joinChannel("#birchwoodLeave3");
+
+        client.joinChannel(["#birchwoodLeave1", "#birchwoodLeave2", "#birchwoodLeave3"]);
+        // client.joinChannel("#birchwoodLeave1");
+        // client.joinChannel("#birchwoodLeave2");
+        // client.joinChannel("#birchwoodLeave3");
         
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "NAMES", "")); // TODO: add names commdn
