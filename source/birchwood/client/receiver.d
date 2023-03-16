@@ -53,6 +53,13 @@ public final class ReceiverThread : Thread
     }
 
     // TODO: Rename to `receiveQ`
+    /** 
+     * Enqueues the raw message into the receieve queue
+     * for eventual processing
+     *
+     * Params:
+     *   encodedMessage = the message to enqueue
+     */
     public void rq(ubyte[] encodedMessage)
     {
         /* Lock queue */
