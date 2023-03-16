@@ -138,6 +138,9 @@ public final class Message
                 logger.log(e);
             }
         }
+
+        /* Parse the parameters into key-value pairs (if any) and trailing text (if any) */
+        parameterParse();
     }
 
     /* TODO: Implement encoder function */
@@ -274,6 +277,62 @@ public final class Message
     public string getParams()
     {
         return params;
+    }
+
+
+    private string ppTrailing;
+    private string[string] ppKVPairs;
+
+    private void parameterParse()
+    {
+        /* Only parse if there are params */
+        if(params.length)
+        {
+            logger.debug_("Message: ", this);
+            logger.debug_("ParamsSTring in: ", params);
+
+            /* Key-value pairs */
+            string kvPairs;
+
+            /* Trailing text */
+            string trailing;
+
+            /* Find the first (and should be only) : (if any) */
+            long trailingIdx = indexOf(params, ":");
+
+            /* If there is trailing */
+            if(trailingIdx > -1)
+            {
+                /* Then read till (and not including the `:` indicator) */
+                kvPairs = params[0..trailingIdx];
+
+                /* Save the trailing text */
+                trailing = params[trailingIdx+1..params.length];
+            }
+            /* If there is no trailing */
+            else
+            {
+                /* Read the entire parameter string */
+                kvPairs = params;
+            }
+
+            /* Generate the key-value pairs */
+            string[] pairs = split(kvPairs, " ");
+            logger.debug_("Pairs: ", pairs);
+            foreach(string pair; pairs)
+            {
+                /* Only do this if we have an `=` in the current pair */
+                if(indexOf(pair, "=") > -1)
+                {
+                    string key = split(pair, "=")[0];
+                    string value = split(pair, "=")[1];
+                    ppKVPairs[key] = value;
+                }
+            }
+
+            /* Save the trailing */
+            ppTrailing = trailing;
+        }
     }
 
     /** 
