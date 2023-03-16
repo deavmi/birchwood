@@ -139,7 +139,8 @@ public class Client : Thread
 
         if(commandReply.getReplyType() == ReplyType.RPL_ISUPPORT)
         {
-            logger.log("Take a look:\n\n"~commandReply.getParams());
+            string params = commandReply.getParams();
+            logger.log("RPL_ISUPPORT_PARAMS:\n\n"~params);
         }
     }
 
