@@ -156,7 +156,7 @@ public enum ReplyType : ulong
     RPL_YOURHOST = 002,
     RPL_CREATED = 003,
     RPL_MYINFO = 004,
-    // RPL_BOUNCE = 005, // TODO: We care about the key-value pairs here in RPL_BOUNCE
+    RPL_BOUNCE = 010, // In ircv3 this changed from 005 to 010
     ERR_NOCHANMODES = 477,
 
     /**
