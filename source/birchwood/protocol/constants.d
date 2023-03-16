@@ -153,11 +153,11 @@ public enum ReplyType : ulong
     /**
      * rfc 2812
      */
-    RPL_WELCOME = 001,
-    RPL_YOURHOST = 002,
-    RPL_CREATED = 003,
-    RPL_MYINFO = 004,
-    RPL_BOUNCE = 005, // TODO: We care about the key-value pairs here in RPL_BOUNCE
+    RPL_WELCOME = 1,
+    RPL_YOURHOST = 2,
+    RPL_CREATED = 3,
+    RPL_MYINFO = 4,
+    RPL_BOUNCE = 5, // TODO: We care about the key-value pairs here in RPL_BOUNCE
     ERR_NOCHANMODES = 477,
 
 
