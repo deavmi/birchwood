@@ -137,7 +137,7 @@ public class Client : Thread
 
         import birchwood.protocol.constants : ReplyType;
 
-        if(commandReply.getReplyType() == ReplyType.RPL_BOUNCE)
+        if(commandReply.getReplyType() == ReplyType.RPL_ISUPPORT)
         {
             logger.log("Take a look:\n\n"~commandReply.getParams());
         }
