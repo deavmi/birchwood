@@ -280,6 +280,16 @@ public final class Message
     }
 
 
+    public string getTrailing()
+    {
+        return ppTrailing;
+    }
+
+    public string[string] getKVPairs()
+    {
+        return ppKVPairs;
+    }
+
     private string ppTrailing;
     private string[string] ppKVPairs;
 
