@@ -609,6 +609,11 @@ public class Client : Thread
 
                 if(cmp(command, "PRIVMSG") == 0)
                 {
+                    // TODO: We will need a non kv pair thing as well to see (in the
+                    // ... case of channel messages) the singular pair <channel>
+                    // ... name.
+                    //
+                    // Then our message will be in `getTrailing()`
                     logger.debug_("PrivMessage parser (kv-pairs): ", ircMessage.getKVPairs());
                     logger.debug_("PrivMessage parser (trailing): ", ircMessage.getTrailing());
 
