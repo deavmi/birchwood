@@ -133,8 +133,6 @@ public class Client : Thread
     * User operations (request-response type)
     */
 
-    // TODO: Add joinChannels(strung[])
-
     /** 
      * Joins the requested channel
      *
@@ -163,6 +161,75 @@ public class Client : Thread
         else
         {
             throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+        }
+    }
+
+    /** 
+     * Joins the requested channels
+     *
+     * Params:
+     *   channels = the channels to join
+     * Throws:
+     *   BirchwoodException on invalid channel name
+     */
+    public void joinChannel(string[] channels)
+    {
+        /* If single channel */
+        if(channels.length == 1)
+        {
+            /* Join the channel */
+            joinChannel(channels[0]);
+        }
+        /* If multiple channels */
+        else if(channels.length > 1)
+        {
+            string channelLine = channels[0];
+
+            /* Ensure valid characters in first channel */
+            if(isValidText(channelLine))
+            {
+                //TODO: Add check for #
+
+                /* Append on a trailing `,` */
+                channelLine ~= ",";
+
+                for(ulong i = 1; i < channels.length; i++)
+                {
+                    string currentChannel = channels[i];
+
+                    /* Ensure the character channel is valid */
+                    if(isValidText(currentChannel))
+                    {
+                        //TODO: Add check for #
+                        
+                        if(i == channels.length-1)
+                        {
+                            channelLine~=currentChannel;
+                        }
+                        else
+                        {
+                            channelLine~=currentChannel~",";
+                        }
+                    }
+                    else
+                    {
+                        throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                    }
+                }
+
+                /* Join multiple channels */
+                Message joinMessage = new Message("", "JOIN", channelLine);
+                sendMessage(joinMessage);
+            }
+            else
+            {
+                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+            }
+        }
+        /* If no channels provided at all (error) */
+        else
+        {
+            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
         }
     }
 
@@ -902,11 +969,11 @@ public class Client : Thread
     unittest
     {
         /* FIXME: Get domaina name resolution support */
-        ConnectionInfo connInfo = ConnectionInfo.newConnection("irc.freenode.net", 6667, "testBirchwood");
+        // ConnectionInfo connInfo = ConnectionInfo.newConnection("irc.freenode.net", 6667, "testBirchwood");
         //freenode: 149.28.246.185
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
-        // ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "testBirchwood");
+        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "testBirchwood");
 
         // // Set the fakelag to 1 second
         // connInfo.setFakeLag(1);
@@ -928,9 +995,11 @@ public class Client : Thread
         client.joinChannel("#birchwood");
         // TODO: Add a joinChannels(string[])
         client.joinChannel("#birchwood2");
-        client.joinChannel("#birchwoodLeave1");
-        client.joinChannel("#birchwoodLeave2");
-        client.joinChannel("#birchwoodLeave3");
+
+        client.joinChannel(["#birchwoodLeave1", "#birchwoodLeave2", "#birchwoodLeave3"]);
+        // client.joinChannel("#birchwoodLeave1");
+        // client.joinChannel("#birchwoodLeave2");
+        // client.joinChannel("#birchwoodLeave3");
         
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "NAMES", "")); // TODO: add names commdn
