@@ -744,25 +744,6 @@ public class Client : Thread
         receiver.rq(message);
     }
     
-    // /** 
-    //  * Sends a message to the server by enqueuing it on
-    //  * the client-side send queue
-    //  *
-    //  * Params:
-    //  *   messageOut = the message to send
-    //  */
-    // private void sendMessage(string messageOut)
-    // {
-    //     // TODO: Do message splits here
-
-
-    //     /* Encode the mesage */
-    //     ubyte[] encodedMessage = encodeMessage(messageOut);
-
-    //     /* Enqueue the message to the send queue */
-    //     sender.sq(encodedMessage);
-    // }
-    
     /** 
      * Sends a message to the server by enqueuing it on
      * the client-side send queue.
