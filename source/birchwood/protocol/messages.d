@@ -293,6 +293,12 @@ public final class Message
     private string ppTrailing;
     private string[string] ppKVPairs;
 
+    /** 
+     * NOTE: This needs more work with trailing support
+     * we must make sure we only look for lastInex of `:`
+     * where it is first cyaracter after space but NOT within
+     * an active parameter
+     */
     private void parameterParse()
     {
         /* Only parse if there are params */
@@ -308,7 +314,10 @@ public final class Message
             string trailing;
 
             /* Find the first (and should be only) : (if any) */
-            long trailingIdx = indexOf(params, ":");
+            // TODO: Maybe i misunderstoof it as it appears in
+            // some key-value pairs as the value
+            // ... therefore let's just look for the last one
+            long trailingIdx = lastIndexOf(params, ":");
 
             /* If there is trailing */
             if(trailingIdx > -1)
@@ -318,6 +327,8 @@ public final class Message
 
                 /* Save the trailing text */
                 trailing = params[trailingIdx+1..params.length];
+
+                logger.debug_("Look at this trailing '"~trailing~"'");
             }
             /* If there is no trailing */
             else
@@ -325,6 +336,8 @@ public final class Message
                 /* Read the entire parameter string */
                 kvPairs = params;
             }
+
+            // TODO: strip whitespace on either side of `kvPairs`
 
             /* Generate the key-value pairs */
             string[] pairs = split(kvPairs, " ");

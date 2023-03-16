@@ -140,6 +140,9 @@ public class Client : Thread
         if(commandReply.getReplyType() == ReplyType.RPL_BOUNCE)
         {
             logger.log("Take a look:\n\n"~commandReply.getParams());
+
+            logger.log("And here is key-value pairs: ", commandReply.getKVPairs());
+            logger.log("And here is everything: ", commandReply.getTrailing());
         }
     }
 
