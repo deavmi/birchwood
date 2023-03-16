@@ -71,23 +71,19 @@ public class Client : Thread
         //TODO: Do something here, tare downs
     }
 
+    // TODO: Investigate
     public ConnectionInfo getConnInfo()
     {
         return connInfo;
     }
     
-
-    /**
-    * User overridable handler functions below
-    */
-
-    // TODO: comment
     /** 
-     * 
+     * Called on reception of a channel message
+     *
      * Params:
-     *   fullMessage = 
-     *   channel = 
-     *   msgBody = 
+     *   fullMessage = the channel message in its entirety
+     *   channel = the channel
+     *   msgBody = the body of the message
      */
     public void onChannelMessage(Message fullMessage, string channel, string msgBody)
     {
@@ -95,11 +91,13 @@ public class Client : Thread
         logger.log("Channel("~channel~"): "~msgBody);
     }
 
-    // TODO: comment
     /** 
-     * 
+     * Called on reception of a direct message
+     *
      * Params:
-     *   message = 
+     *   fullMessage = the direct message in its entirety
+     *   nickname = the sender
+     *   msgBody = the body of the message
      */
     public void onDirectMessage(Message fullMessage, string nickname, string msgBody)
     {
@@ -107,11 +105,11 @@ public class Client : Thread
         logger.log("DirectMessage("~nickname~"): "~msgBody);
     }
 
-    // TODO: comment
     /** 
-     * 
+     * Called on generic commands
+     *
      * Params:
-     *   commandReply = 
+     *   commandReply = the generic message
      */
     public void onGenericCommand(Message message)
     {
@@ -119,11 +117,11 @@ public class Client : Thread
         logger.log("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
     }
 
-    // TODO: comment
     /** 
-     * 
+     * Called on command replies
+     *
      * Params:
-     *   commandReply = 
+     *   commandReply = the command's reply
      */
     public void onCommandReply(Message commandReply)
     {
