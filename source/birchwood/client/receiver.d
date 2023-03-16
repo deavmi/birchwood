@@ -124,28 +124,61 @@ public final class ReceiverThread : Thread
             /* Lock the receieve queue */
             recvQueueLock.lock();
 
-            /* Message being analysed */
-            Message curMsg;
+            /* Parsed messages */
+            SList!(Message) currentMessageQueue;
 
-            /* Search for a PING */
-            ubyte[] pingMessage;
-
-            ulong pos = 0;
+            /** 
+             * Parse all messages and save them
+             * into the above array
+             */
             foreach(ubyte[] message; recvQueue[])
             {
-                // FIXME: Holy shit this is funny (see https://github.com/deavmi/birchwood/issues/13)
-                if(indexOf(cast(string)message, "PING") > -1)
-                {
-                    pingMessage = message;
-                    recvQueue.linearRemoveElement(message);
+                /* Decode the message */
+                string decodedMessage = decodeMessage(message);
 
-                    import std.stdio;
-                    writeln("\n\nHOLY SHIT\n: "~cast(string)(message)~"\n\n");
+                /* Parse the message */
+                Message parsedMessage = Message.parseReceivedMessage(decodedMessage);
+
+                /* Save it */
+                currentMessageQueue.insertAfter(currentMessageQueue[], parsedMessage);
+            }
+
+
+            /** 
+             * Search for any PING messages, then store it if so
+             * and remove it so it isn't processed again later
+             */
+            Message pingMessage;
+            foreach(Message curMsg; currentMessageQueue[])
+            {
+                import std.string : cmp;
+                if(cmp(curMsg.getCommand(), "PING") == 0)
+                {
+                    currentMessageQueue.linearRemoveElement(curMsg);
+                    pingMessage = curMsg;
                     break;
                 }
-
-                pos++;
             }
+
+            /** 
+             * If we have a PING then respond with a PONG
+             */
+            if(pingMessage !is null)
+            {
+                logger.log("Found a ping: "~pingMessage.toString());
+
+                /* Extract the PING ID */
+                string pingID = pingMessage.getParams();
+
+                /* Spawn a PONG event */
+                EventyEvent pongEvent = new PongEvent(pingID);
+                client.engine.push(pongEvent);
+            }
+
+
+
+
+           
 
 
             /**
@@ -163,61 +196,25 @@ public final class ReceiverThread : Thread
             * - we can cache or remember stuff when we get 353
             */
 
-            
-
-
-            /* If we found a PING */
-            if(pingMessage.length > 0)
-            {
-                /* Decode the message and parse it */
-                curMsg = Message.parseReceivedMessage(decodeMessage(pingMessage));
-                logger.log("Found a ping: "~curMsg.toString());
-
-                // string ogMessage = cast(string)pingMessage;
-                // long idxSigStart = indexOf(ogMessage, ":")+1;
-                // long idxSigEnd = lastIndexOf(ogMessage, '\r');
-
-                // string pingID = ogMessage[idxSigStart..idxSigEnd];
-                string pingID = curMsg.getParams();
-
-
-                // this.socket.send(encodeMessage("PONG "~pingID));
-                // string messageToSend = "PONG "~pingID;
-
-                // sendMessage(messageToSend);
-
-                // logger.log("Ponged");
-
-                /* TODO: Implement */
-                // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
-                EventyEvent pongEvent = new PongEvent(pingID);
-                client.engine.push(pongEvent);
-            }
-
             /** 
              * Process each message remaining in the queue now
              * till it is empty
              */
-            while(!recvQueue.empty())
+            while(!currentMessageQueue.empty())
             {
-                ubyte[] message = recvQueue.front();
-
-                /* Decode message */
-                string messageNormal = decodeMessage(message);
-
-                recvQueue.linearRemoveElement(recvQueue.front());
-
-                // writeln("Normal message: "~messageNormal);
-
-                
-
-                /* TODO: Parse message and call correct handler */
-                curMsg = Message.parseReceivedMessage(messageNormal);
+                /* Get the frontmost Message */
+                Message curMsg = currentMessageQueue.front();
 
                 // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
                 EventyEvent ircEvent = new IRCEvent(curMsg);
                 client.engine.push(ircEvent);
+
+                /* Remove the message from the queue */
+                currentMessageQueue.linearRemoveElement(curMsg);
             }
+
+            /* Clear the receive queue */
+            recvQueue.clear();
         
             /* Unlock the receive queue */
             recvQueueLock.unlock();
