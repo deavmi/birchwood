@@ -117,6 +117,10 @@ public class Client : Thread
         logger.log("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
     }
 
+
+    // TODO: Hook certain ones default style with an implemenation
+    // ... for things that the client can learn from
+    // TODO: comment
     /** 
      * Called on command replies
      *
@@ -125,8 +129,18 @@ public class Client : Thread
      */
     public void onCommandReply(Message commandReply)
     {
+        // TODO: Add numeric response check here for CERTAIN ones which add to client
+        // ... state
+
         /* Default implementation */
         logger.log("Response("~to!(string)(commandReply.getReplyType())~", "~commandReply.getFrom()~"): "~commandReply.toString());
+
+        import birchwood.protocol.constants : ReplyType;
+
+        if(commandReply.getReplyType() == ReplyType.RPL_BOUNCE)
+        {
+            logger.log("Take a look:\n\n"~commandReply.getParams());
+        }
     }
 
     /**
@@ -619,6 +633,9 @@ public class Client : Thread
                 // If the command is numeric then it is a reply of some sorts
                 else if(ircMessage.isResponseMessage())
                 {
+                    // TODO: Add numeric response check here for CERTAIN ones which add to client
+                    // ... state
+
                     /* Call the command reply handler */
                     onCommandReply(ircMessage);
                 }
