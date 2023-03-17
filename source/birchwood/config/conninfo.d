@@ -1,8 +1,15 @@
+/** 
+ * COnfiguration-related types
+ */
 module birchwood.config.conninfo;
 
 import std.socket : SocketException, Address, getAddress;
 import birchwood.client.exceptions : BirchwoodException;
 
+/** 
+ * Represents the connection details for a server
+ * to connect to
+ */
 public struct ConnectionInfo
 {
     /* Server address information */
@@ -36,16 +43,32 @@ public struct ConnectionInfo
         return this.bulkReadSize;
     }
 
+    /** 
+     * Get the address of the endpoint server
+     *
+     * Returns: the server's address
+     */
     public Address getAddr()
     {
         return addrInfo;
     }
 
+    /** 
+     * Get the chosen fake lag
+     *
+     * Returns: the fake lag in seconds
+     */
     public ulong getFakeLag()
     {
         return fakeLag;
     }
 
+    /** 
+     * Sets the fake lag in seconds
+     *
+     * Params:
+     *   fakeLag = the fake lag to use
+     */
     public void setFakeLag(ulong fakeLag)
     {
         this.fakeLag = fakeLag;

@@ -139,8 +139,28 @@ public class Client : Thread
 
         if(commandReply.getReplyType() == ReplyType.RPL_ISUPPORT)
         {
-            string params = commandReply.getParams();
-            logger.log("RPL_ISUPPORT_PARAMS:\n\n"~params);
+            // TODO: Testing code was here
+            // logger.log();
+            // logger.log("<<<>>>");
+
+            // logger.log("Take a look:\n\n"~commandReply.getParams());
+
+            // logger.log("And here is key-value pairs: ", commandReply.getKVPairs());
+            // logger.log("And here is array: ", commandReply.getPairs());
+
+            // // TODO: DLog bug, this prints nothing
+            // logger.log("And here is trailing: ", commandReply.getTrailing());
+
+            // import std.stdio;
+            // writeln("Trailer: "~commandReply.getTrailing());
+
+            // writeln(cast(ubyte[])commandReply.getTrailing());
+
+            // logger.log("<<<>>>");
+            // logger.log();
+
+
+
         }
     }
 
@@ -610,6 +630,14 @@ public class Client : Thread
 
                 if(cmp(command, "PRIVMSG") == 0)
                 {
+                    // TODO: We will need a non kv pair thing as well to see (in the
+                    // ... case of channel messages) the singular pair <channel>
+                    // ... name.
+                    //
+                    // Then our message will be in `getTrailing()`
+                    logger.debug_("PrivMessage parser (kv-pairs): ", ircMessage.getKVPairs());
+                    logger.debug_("PrivMessage parser (trailing): ", ircMessage.getTrailing());
+
                     /* Split up into (channel/nick) and (message)*/
                     long firstSpaceIdx = indexOf(params, " "); //TODO: validity check;
                     string chanNick = params[0..firstSpaceIdx];
