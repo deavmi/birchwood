@@ -279,17 +279,35 @@ public final class Message
         return params;
     }
 
-
+    /** 
+     * Retrieves the trailing text in the paramaters
+     * (if any)
+     *
+     * Returns: the trailing text
+     */
     public string getTrailing()
     {
         return ppTrailing;
     }
 
+    /** 
+     * Returns the parameters excluding the trailing text
+     * which are seperated by spaces but only those
+     * which are key-value pairs
+     *
+     * Returns: the key-value pair parameters
+     */
     public string[string] getKVPairs()
     {
         return ppKVPairs;
     }
 
+    /** 
+     * Returns the parameters excluding the trailing text
+     * which are seperated by spaces
+     *
+     * Returns: the parameters
+     */
     public string[] getPairs()
     {
         return ppPairs;
