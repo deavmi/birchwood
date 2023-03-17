@@ -321,6 +321,19 @@ public final class Message
         assert(cmp(splitted[2], "Hello this is text") == 0);
     }
 
+    unittest
+    {
+        import std.stdio;
+
+        string testInput = ":Hello this is text";
+        bool hasTrailer;
+        string[] splitted = splitting(testInput, hasTrailer);
+
+        /* Trailer test */
+        assert(hasTrailer);
+        assert(cmp(splitted[0], "Hello this is text") == 0);
+    }
+
     /** 
      * Imagine: `A:=1 A=2 :Hello` 
      *
