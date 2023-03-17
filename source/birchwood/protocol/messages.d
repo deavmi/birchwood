@@ -300,10 +300,13 @@ public final class Message
     private string[] ppPairs;
 
 
-    unittest
+    version(unittest)
     {
         import std.stdio;
+    }
 
+    unittest
+    {
         string testInput = "A:=1 A=2 :Hello this is text";
         writeln("Input: ", testInput);
         
@@ -323,8 +326,6 @@ public final class Message
 
     unittest
     {
-        import std.stdio;
-
         string testInput = ":Hello this is text";
         bool hasTrailer;
         string[] splitted = splitting(testInput, hasTrailer);
