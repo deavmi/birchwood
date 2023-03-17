@@ -303,6 +303,11 @@ public final class Message
         
         string[] splitted = splitting(testInput);
         writeln("Input (split): ", splitted);
+
+
+        assert(cmp(splitted[0], "A:=1") == 0);
+        assert(cmp(splitted[1], "A=12") == 0);
+        assert(cmp(splitted[2], "Hello this is text") == 0);
     }
 
     /** 
