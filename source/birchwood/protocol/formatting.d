@@ -18,7 +18,7 @@ enum ascii_color_code = '\x03';
 enum hex_color_code = '\x04';
 
 // Simple color codes
-enum simple_colors: string {
+enum simpleColor: string {
     WHITE = "00",
     BLACK = "01",
     BLUE = "02",
@@ -76,6 +76,18 @@ string set_foreground_background(string fg, string bg) {
         throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
     return control_char ~ fg ~ "," ~ bg;
+}
+
+// Generates a string that changes the foreground color (except enum)
+pragma(inline)
+string set_foreground(simpleColor color) {
+    return ascii_color_code ~ color;
+}
+
+// Generate a string that sets the foreground and background color (except enum)
+pragma(inline)
+string set_foreground_background(simpleColor fg, simpleColor bg) {
+    return ascii_color_code ~ fg ~ "," ~ bg;
 }
 
 // Generate a string that resets the foreground and background colors
