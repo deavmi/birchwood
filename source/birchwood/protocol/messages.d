@@ -293,6 +293,73 @@ public final class Message
     private string ppTrailing;
     private string[string] ppKVPairs;
 
+
+    unittest
+    {
+        import std.stdio;
+
+        string testInput = "A:=1 A=2 :Hello this is text";
+        writeln("Input: ", testInput);
+        
+        string[] splitted = splitting(testInput);
+        writeln("Input (split): ", splitted);
+    }
+
+    /** 
+     * Imagine: `A:=1 A=2 :Hello` 
+     *
+     * Params:
+     *   input = 
+     * Returns: 
+     */
+    private static string[] splitting(string input)
+    {
+        string[] splits;
+
+        bool trailingMode;
+        string buildUp;
+        for(ulong idx = 0; idx < input.length; idx++)
+        {
+            /* Get current character */
+            char curCHar = input[idx];
+
+
+            if(trailingMode)
+            {
+                buildUp ~= curCHar;
+                continue;
+            }
+
+            if(buildUp.length == 0)
+            {
+                if(curCHar == ':')
+                {
+                    trailingMode = true;
+                    continue;
+                }
+            }
+            
+
+            if(curCHar ==  ' ')
+            {
+                /* Flush */
+                splits ~= buildUp;
+                buildUp = "";
+            }
+            else
+            {
+                buildUp ~= curCHar;
+            }
+        }
+
+        if(buildUp.length)
+        {
+            splits ~= buildUp;
+        }
+
+        return splits;
+    }
+
     /** 
      * NOTE: This needs more work with trailing support
      * we must make sure we only look for lastInex of `:`
@@ -306,6 +373,8 @@ public final class Message
         {
             logger.debug_("Message: ", this);
             logger.debug_("ParamsSTring in: ", params);
+
+            logger.debug_("Custom splitter: ", splitting(params));
 
             /* Key-value pairs */
             string kvPairs;
