@@ -139,10 +139,25 @@ public class Client : Thread
 
         if(commandReply.getReplyType() == ReplyType.RPL_BOUNCE)
         {
+            logger.log();
+            logger.log("<<<>>>");
+
             logger.log("Take a look:\n\n"~commandReply.getParams());
 
             logger.log("And here is key-value pairs: ", commandReply.getKVPairs());
-            logger.log("And here is everything: ", commandReply.getTrailing());
+            logger.log("And here is array: ", commandReply.getPairs());
+
+            // TODO: DLog bug, this prints nothing
+            logger.log("And here is trailing: ", commandReply.getTrailing().length);
+
+            import std.stdio;
+            writeln("Trailer: "~commandReply.getTrailing());
+
+            logger.log("<<<>>>");
+            logger.log();
+
+
+
         }
     }
 
