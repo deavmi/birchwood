@@ -279,17 +279,35 @@ public final class Message
         return params;
     }
 
-
+    /** 
+     * Retrieves the trailing text in the paramaters
+     * (if any)
+     *
+     * Returns: the trailing text
+     */
     public string getTrailing()
     {
         return ppTrailing;
     }
 
+    /** 
+     * Returns the parameters excluding the trailing text
+     * which are seperated by spaces but only those
+     * which are key-value pairs
+     *
+     * Returns: the key-value pair parameters
+     */
     public string[string] getKVPairs()
     {
         return ppKVPairs;
     }
 
+    /** 
+     * Returns the parameters excluding the trailing text
+     * which are seperated by spaces
+     *
+     * Returns: the parameters
+     */
     public string[] getPairs()
     {
         return ppPairs;
@@ -300,10 +318,13 @@ public final class Message
     private string[] ppPairs;
 
 
-    unittest
+    version(unittest)
     {
         import std.stdio;
+    }
 
+    unittest
+    {
         string testInput = "A:=1 A=2 :Hello this is text";
         writeln("Input: ", testInput);
         
@@ -323,8 +344,6 @@ public final class Message
 
     unittest
     {
-        import std.stdio;
-
         string testInput = ":Hello this is text";
         bool hasTrailer;
         string[] splitted = splitting(testInput, hasTrailer);
