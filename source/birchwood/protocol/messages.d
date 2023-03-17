@@ -138,6 +138,9 @@ public final class Message
                 logger.log(e);
             }
         }
+
+        /* Parse the parameters into key-value pairs (if any) and trailing text (if any) */
+        parameterParse();
     }
 
     /* TODO: Implement encoder function */
@@ -274,6 +277,192 @@ public final class Message
     public string getParams()
     {
         return params;
+    }
+
+    /** 
+     * Retrieves the trailing text in the paramaters
+     * (if any)
+     *
+     * Returns: the trailing text
+     */
+    public string getTrailing()
+    {
+        return ppTrailing;
+    }
+
+    /** 
+     * Returns the parameters excluding the trailing text
+     * which are seperated by spaces but only those
+     * which are key-value pairs
+     *
+     * Returns: the key-value pair parameters
+     */
+    public string[string] getKVPairs()
+    {
+        return ppKVPairs;
+    }
+
+    /** 
+     * Returns the parameters excluding the trailing text
+     * which are seperated by spaces
+     *
+     * Returns: the parameters
+     */
+    public string[] getPairs()
+    {
+        return ppPairs;
+    }
+
+    private string ppTrailing;
+    private string[string] ppKVPairs;
+    private string[] ppPairs;
+
+
+    version(unittest)
+    {
+        import std.stdio;
+    }
+
+    unittest
+    {
+        string testInput = "A:=1 A=2 :Hello this is text";
+        writeln("Input: ", testInput);
+        
+        bool hasTrailer;
+        string[] splitted = splitting(testInput, hasTrailer);
+        writeln("Input (split): ", splitted);
+
+        
+
+        assert(cmp(splitted[0], "A:=1") == 0);
+        assert(cmp(splitted[1], "A=2") == 0);
+
+        /* Trailer test */
+        assert(hasTrailer);
+        assert(cmp(splitted[2], "Hello this is text") == 0);
+    }
+
+    unittest
+    {
+        string testInput = ":Hello this is text";
+        bool hasTrailer;
+        string[] splitted = splitting(testInput, hasTrailer);
+
+        /* Trailer test */
+        assert(hasTrailer);
+        assert(cmp(splitted[0], "Hello this is text") == 0);
+    }
+
+    /** 
+     * Imagine: `A:=1 A=2 :Hello` 
+     *
+     * Params:
+     *   input = 
+     * Returns: 
+     */
+    private static string[] splitting(string input, ref bool hasTrailer)
+    {
+        string[] splits;
+
+        bool trailingMode;
+        string buildUp;
+        for(ulong idx = 0; idx < input.length; idx++)
+        {
+            /* Get current character */
+            char curCHar = input[idx];
+
+
+            if(trailingMode)
+            {
+                buildUp ~= curCHar;
+                continue;
+            }
+
+            if(buildUp.length == 0)
+            {
+                if(curCHar == ':')
+                {
+                    trailingMode = true;
+                    continue;
+                }
+            }
+            
+
+            if(curCHar ==  ' ')
+            {
+                /* Flush */
+                splits ~= buildUp;
+                buildUp = "";
+            }
+            else
+            {
+                buildUp ~= curCHar;
+            }
+        }
+
+        if(buildUp.length)
+        {
+            splits ~= buildUp;
+        }
+
+        hasTrailer = trailingMode;
+
+        return splits;
+    }
+
+    /** 
+     * NOTE: This needs more work with trailing support
+     * we must make sure we only look for lastInex of `:`
+     * where it is first cyaracter after space but NOT within
+     * an active parameter
+     */
+    private void parameterParse()
+    {
+        /* Only parse if there are params */
+        if(params.length)
+        {
+            /* Trailing text */
+            string trailing;
+
+            /* Split the `<params>` */
+            bool hasTrailer;
+            string[] paramsSplit = splitting(params, hasTrailer);
+
+            logger.debug_("ParamsSPlit direct:", paramsSplit);
+            
+            
+
+            /* Extract the trailer as the last item in the array (if it exists) */
+            if(hasTrailer)
+            {
+                trailing = paramsSplit[paramsSplit.length-1];
+
+                /* Remove it from the parameters */
+                paramsSplit = paramsSplit[0..$-1];
+
+                logger.debug_("GOt railer ", trailing);
+            }
+
+            ppPairs = paramsSplit;
+
+
+            /* Generate the key-value pairs */
+            foreach(string pair; paramsSplit)
+            {
+                /* Only do this if we have an `=` in the current pair */
+                if(indexOf(pair, "=") > -1)
+                {
+                    string key = split(pair, "=")[0];
+                    string value = split(pair, "=")[1];
+                    ppKVPairs[key] = value;
+                }
+            }
+
+            /* Save the trailing */
+            ppTrailing = trailing;
+
+            logger.debug_("ppTrailing: ", ppTrailing);
+        }
     }
 
     /** 
