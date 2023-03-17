@@ -290,8 +290,14 @@ public final class Message
         return ppKVPairs;
     }
 
+    public string[] getPairs()
+    {
+        return ppPairs;
+    }
+
     private string ppTrailing;
     private string[string] ppKVPairs;
+    private string[] ppPairs;
 
 
     unittest
@@ -301,12 +307,17 @@ public final class Message
         string testInput = "A:=1 A=2 :Hello this is text";
         writeln("Input: ", testInput);
         
-        string[] splitted = splitting(testInput);
+        bool hasTrailer;
+        string[] splitted = splitting(testInput, hasTrailer);
         writeln("Input (split): ", splitted);
 
+        
 
         assert(cmp(splitted[0], "A:=1") == 0);
         assert(cmp(splitted[1], "A=2") == 0);
+
+        /* Trailer test */
+        assert(hasTrailer);
         assert(cmp(splitted[2], "Hello this is text") == 0);
     }
 
@@ -317,7 +328,7 @@ public final class Message
      *   input = 
      * Returns: 
      */
-    private static string[] splitting(string input)
+    private static string[] splitting(string input, ref bool hasTrailer)
     {
         string[] splits;
 
@@ -362,6 +373,8 @@ public final class Message
             splits ~= buildUp;
         }
 
+        hasTrailer = trailingMode;
+
         return splits;
     }
 
@@ -376,47 +389,33 @@ public final class Message
         /* Only parse if there are params */
         if(params.length)
         {
-            logger.debug_("Message: ", this);
-            logger.debug_("ParamsSTring in: ", params);
-
-            logger.debug_("Custom splitter: ", splitting(params));
-
-            /* Key-value pairs */
-            string kvPairs;
-
             /* Trailing text */
             string trailing;
 
-            /* Find the first (and should be only) : (if any) */
-            // TODO: Maybe i misunderstoof it as it appears in
-            // some key-value pairs as the value
-            // ... therefore let's just look for the last one
-            long trailingIdx = lastIndexOf(params, ":");
+            /* Split the `<params>` */
+            bool hasTrailer;
+            string[] paramsSplit = splitting(params, hasTrailer);
 
-            /* If there is trailing */
-            if(trailingIdx > -1)
+            logger.debug_("ParamsSPlit direct:", paramsSplit);
+            
+            
+
+            /* Extract the trailer as the last item in the array (if it exists) */
+            if(hasTrailer)
             {
-                /* Then read till (and not including the `:` indicator) */
-                kvPairs = params[0..trailingIdx];
+                trailing = paramsSplit[paramsSplit.length-1];
 
-                /* Save the trailing text */
-                trailing = params[trailingIdx+1..params.length];
+                /* Remove it from the parameters */
+                paramsSplit = paramsSplit[0..$-1];
 
-                logger.debug_("Look at this trailing '"~trailing~"'");
-            }
-            /* If there is no trailing */
-            else
-            {
-                /* Read the entire parameter string */
-                kvPairs = params;
+                logger.debug_("GOt railer ", trailing);
             }
 
-            // TODO: strip whitespace on either side of `kvPairs`
+            ppPairs = paramsSplit;
+
 
             /* Generate the key-value pairs */
-            string[] pairs = split(kvPairs, " ");
-            logger.debug_("Pairs: ", pairs);
-            foreach(string pair; pairs)
+            foreach(string pair; paramsSplit)
             {
                 /* Only do this if we have an `=` in the current pair */
                 if(indexOf(pair, "=") > -1)
@@ -429,6 +428,8 @@ public final class Message
 
             /* Save the trailing */
             ppTrailing = trailing;
+
+            logger.debug_("ppTrailing: ", ppTrailing);
         }
     }
 
