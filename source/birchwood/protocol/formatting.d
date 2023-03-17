@@ -60,7 +60,8 @@ string set_foreground(string color) {
     } else {
         throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
-    return control_char ~ color;
+    return control_char.idup ~ color;
+}
 
 // Generate a string that sets the foreground and background color
 string set_foreground_background(string fg, string bg) {
@@ -75,7 +76,7 @@ string set_foreground_background(string fg, string bg) {
     } else {
         throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
-    return control_char ~ fg ~ "," ~ bg;
+    return control_char.idup ~ fg ~ "," ~ bg;
 }
 
 // Generates a string that changes the foreground color (except enum)
@@ -92,7 +93,7 @@ string set_foreground_background(simpleColor fg, simpleColor bg) {
 
 // Generate a string that resets the foreground and background colors
 pragma(inline)
-string reset_fg_bg() {return ascii_color_code;}
+string reset_fg_bg() {return [ascii_color_code].idup;}
 
 // Format strings with functions
 pragma(inline)
