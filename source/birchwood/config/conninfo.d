@@ -1,8 +1,15 @@
+/** 
+ * COnfiguration-related types
+ */
 module birchwood.config.conninfo;
 
 import std.socket : SocketException, Address, getAddress;
 import birchwood.client.exceptions : BirchwoodException;
 
+/** 
+ * Represents the connection details for a server
+ * to connect to
+ */
 public struct ConnectionInfo
 {
     /* Server address information */
