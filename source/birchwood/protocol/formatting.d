@@ -21,7 +21,7 @@ enum ascii_color_code = '\x03';
 enum hex_color_code = '\x04';
 
 // Simple color codes
-enum simpleColor: string {
+enum SimpleColor: string {
     WHITE = "00",
     BLACK = "01",
     BLUE = "02",
@@ -84,13 +84,13 @@ string set_foreground_background(string fg, string bg) {
 
 // Generates a string that changes the foreground color (except enum)
 pragma(inline)
-string set_foreground(simpleColor color) {
+string set_foreground(SimpleColor color) {
     return ascii_color_code ~ color;
 }
 
 // Generate a string that sets the foreground and background color (except enum)
 pragma(inline)
-string set_foreground_background(simpleColor fg, simpleColor bg) {
+string set_foreground_background(SimpleColor fg, SimpleColor bg) {
     return ascii_color_code ~ fg ~ "," ~ bg;
 }
 
