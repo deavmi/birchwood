@@ -28,7 +28,7 @@ dub add birchwood
 
 ### Dependencies
 
-Birchwood dependends on the following D libraries:
+Birchwood depends on the following D libraries:
 
 * `libsnooze` (0.3.0)
 * `eventy` (0.4.0)
