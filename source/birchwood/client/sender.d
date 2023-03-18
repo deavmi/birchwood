@@ -14,9 +14,13 @@ import birchwood.client;
 public final class SenderThread : Thread
 {
     /** 
-     * The send queue and its lock
+     * The send queue
      */
     private SList!(ubyte[]) sendQueue;
+
+    /** 
+     * The send queue's lock
+     */
     private Mutex sendQueueLock;
 
     /** 
@@ -130,15 +134,13 @@ public final class SenderThread : Thread
         }
     }
 
+    /** 
+     * Stops the send queue manager
+     */
     public void end()
     {
         // TODO: See above notes about libsnooze behaviour due
         // ... to usage in our context
         sendEvent.notifyAll();
     }
-
-    // public bool isReady()
-    // {
-    //     return hasEnsured;
-    // }
 }
