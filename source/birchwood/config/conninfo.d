@@ -10,7 +10,7 @@ import birchwood.client.exceptions;
  * Represents the connection details for a server
  * to connect to
  */
-public struct ConnectionInfo
+public shared struct ConnectionInfo
 {
     /** 
      * Server address
@@ -54,7 +54,8 @@ public struct ConnectionInfo
      */
     private this(Address addrInfo, string nickname, ulong bulkReadSize = 20, string quitMessage = "birchwood client disconnecting...")
     {
-        this.addrInfo = addrInfo;
+        // NOTE: Not sure if much mutable in Address anyways
+        this.addrInfo = cast(shared Address)addrInfo;
         this.nickname = nickname;
         this.bulkReadSize = bulkReadSize;
         this.quitMessage = quitMessage;
@@ -74,13 +75,24 @@ public struct ConnectionInfo
     }
 
     /** 
+     * Sets the read-dequeue size
+     *
+     * Params:
+     *   bytes = the number of bytes to dequeue at a time
+     */
+    public void setBulkReadSize(ulong bytes)
+    {
+        this.bulkReadSize = bytes;
+    }
+
+    /** 
      * Get the address of the endpoint server
      *
      * Returns: the server's address
      */
     public Address getAddr()
     {
-        return addrInfo;
+        return cast(Address)addrInfo;
     }
 
     /** 

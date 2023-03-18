@@ -26,12 +26,16 @@ __gshared static this()
 
 // TODO: Make abstract and for unit tests make a `DefaultClient`
 // ... which logs outputs for the `onX()` handler functions
+
+/** 
+ * IRC client
+ */
 public class Client : Thread
 {
     /** 
      * Connection information
      */
-    private ConnectionInfo connInfo;
+    package shared ConnectionInfo connInfo;
 
     /* TODO: We should learn some info in here (or do we put it in connInfo)? */
     private string serverName; //TODO: Make use of
@@ -42,9 +46,13 @@ public class Client : Thread
     package Socket socket;
 
     /** 
-     * Receive queue and send queue managers
+     * Receive queue meneger
      */
     private ReceiverThread receiver;
+
+    /** 
+     * Send queue manager
+     */
     private SenderThread sender;
 
     /** 
@@ -54,6 +62,14 @@ public class Client : Thread
 
     package bool running = false;
 
+
+    /** 
+     * Constructs a new IRC client with the given configuration
+     * info
+     *
+     * Params:
+     *   connInfo = the connection parameters
+     */
     this(ConnectionInfo connInfo)
     {
         super(&loop);
@@ -66,12 +82,20 @@ public class Client : Thread
         this.sender = new SenderThread(this);
     }
 
+    /** 
+     * TODO: ANything worth callin on destruction?
+     */
     ~this()
     {
         //TODO: Do something here, tare downs
     }
 
-    // TODO: Investigate
+    /** 
+     * Retrieve the active configuration at this
+     * moment
+     *
+     * Returns: the ConnectionInfo struct
+     */
     public ConnectionInfo getConnInfo()
     {
         return connInfo;

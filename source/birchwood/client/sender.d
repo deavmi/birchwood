@@ -129,7 +129,7 @@ public final class SenderThread : Thread
             foreach(ubyte[] message; sendQueue[])
             {
                 client.socket.send(message);
-                Thread.sleep(dur!("seconds")(client.getConnInfo().getFakeLag()));
+                Thread.sleep(dur!("seconds")(client.connInfo.getFakeLag()));
             }
 
             /* Empty the send queue */
