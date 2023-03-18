@@ -26,6 +26,10 @@ __gshared static this()
 
 // TODO: Make abstract and for unit tests make a `DefaultClient`
 // ... which logs outputs for the `onX()` handler functions
+
+/** 
+ * IRC client
+ */
 public class Client : Thread
 {
     /** 
