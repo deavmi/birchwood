@@ -154,7 +154,7 @@ public struct ConnectionInfo
         }
         catch(BirchwoodException e)
         {
-            assert(e.getType() == BirchwoodException.ErrorType.INVALID_CONN_INFO);
+            assert(e.getType() == ErrorType.INVALID_CONN_INFO);
         }
 
         try
@@ -164,7 +164,7 @@ public struct ConnectionInfo
         }
         catch(BirchwoodException e)
         {
-            assert(e.getType() == BirchwoodException.ErrorType.INVALID_CONN_INFO);
+            assert(e.getType() == ErrorType.INVALID_CONN_INFO);
         }
         
     }
