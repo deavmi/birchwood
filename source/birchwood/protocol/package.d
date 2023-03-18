@@ -1,7 +1,19 @@
+/**
+ * IRC protocol decoding and encoding
+ */
 module birchwood.protocol;
 
+/**
+ * Message type and parsing
+ */
 public import birchwood.protocol.messages : Message;
+
+/**
+ * Numeric response codes
+ */
 public import birchwood.protocol.constants : ReplyType;
 
-// TODO: Look how to neaten up (if any)
+/**
+ * Message formatting utilities
+ */
 public import birchwood.protocol.formatting;

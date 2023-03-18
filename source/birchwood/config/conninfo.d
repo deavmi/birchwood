@@ -1,10 +1,10 @@
 /** 
- * COnfiguration-related types
+ * Configuration-related types
  */
 module birchwood.config.conninfo;
 
 import std.socket : SocketException, Address, getAddress;
-import birchwood.client.exceptions : BirchwoodException;
+import birchwood.client.exceptions;
 
 /** 
  * Represents the connection details for a server
@@ -12,21 +12,46 @@ import birchwood.client.exceptions : BirchwoodException;
  */
 public struct ConnectionInfo
 {
-    /* Server address information */
+    /** 
+     * Server address
+     */
     private Address addrInfo;
+
+    /** 
+     * Nickname to use
+     */
     private string nickname;
 
-    /* Misc. */
-    /* TODO: Make final/const (find out difference) */
+    /** 
+     * Size to use to dequeue bytes
+     * from socket in read-loop
+     */
     private ulong bulkReadSize;
 
-    /* Client behaviour (TODO: what is sleep(0), like nothing) */
+    //TODO: Make this a Duration
+    /** 
+     * Time to wait (in seconds) between
+     * sending messages
+     */
     private ulong fakeLag;
 
-    /* The quit message */
+    /**
+     * Quit message
+     */
     public const string quitMessage;
 
     /* TODO: before publishing change this bulk size */
+
+    /** 
+     * Constructs a new ConnectionInfo instance with the
+     * provided details
+     *
+     * Params:
+     *   addrInfo = the server's endpoint
+     *   nickname = the nickname to use
+     *   bulkReadSize = the dequeue read size
+     *   quitMessage = the message to use when quitting
+     */
     private this(Address addrInfo, string nickname, ulong bulkReadSize = 20, string quitMessage = "birchwood client disconnecting...")
     {
         this.addrInfo = addrInfo;
@@ -38,6 +63,11 @@ public struct ConnectionInfo
         this.fakeLag = 1;
     }
 
+    /** 
+     * Retrieve the read-dequeue size
+     *
+     * Returns: the number of bytes
+     */
     public ulong getBulkReadSize()
     {
         return this.bulkReadSize;
@@ -83,6 +113,7 @@ public struct ConnectionInfo
      *   hostname = hostname of the server
      *   port = server port
      *   nickname = nickname to use
+     *
      * Returns: ConnectionInfo for this server
      */
     public static ConnectionInfo newConnection(string hostname, ushort port, string nickname)
@@ -95,7 +126,7 @@ public struct ConnectionInfo
             /* Username check */
             if(!nickname.length)
             {
-                throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CONN_INFO);
+                throw new BirchwoodException(ErrorType.INVALID_CONN_INFO);
             }
 
             /* TODO: Add feature to choose which address to use, prefer v4 or v6 type of thing */
@@ -105,7 +136,7 @@ public struct ConnectionInfo
         }
         catch(SocketException e)
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CONN_INFO);
+            throw new BirchwoodException(ErrorType.INVALID_CONN_INFO);
         }
     }
 
@@ -124,7 +155,7 @@ public struct ConnectionInfo
         }
         catch(BirchwoodException e)
         {
-            assert(e.getType() == BirchwoodException.ErrorType.INVALID_CONN_INFO);
+            assert(e.getType() == ErrorType.INVALID_CONN_INFO);
         }
 
         try
@@ -134,7 +165,7 @@ public struct ConnectionInfo
         }
         catch(BirchwoodException e)
         {
-            assert(e.getType() == BirchwoodException.ErrorType.INVALID_CONN_INFO);
+            assert(e.getType() == ErrorType.INVALID_CONN_INFO);
         }
         
     }

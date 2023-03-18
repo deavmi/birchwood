@@ -9,7 +9,7 @@ import core.thread : Thread, dur;
 import std.string;
 import eventy : EventyEvent = Event, Engine, EventType, Signal;
 import birchwood.config : ConnectionInfo;
-import birchwood.client.exceptions : BirchwoodException;
+import birchwood.client.exceptions : BirchwoodException, ErrorType;
 import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
 
 import birchwood.client.receiver : ReceiverThread;
@@ -190,12 +190,12 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CHANNEL_NAME);
+                throw new BirchwoodException(ErrorType.INVALID_CHANNEL_NAME);
             }
         }
         else
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
         }
     }
 
@@ -248,7 +248,7 @@ public class Client : Thread
                     }
                     else
                     {
-                        throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                        throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
                     }
                 }
 
@@ -258,13 +258,13 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
             }
         }
         /* If no channels provided at all (error) */
         else
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
+            throw new BirchwoodException(ErrorType.EMPTY_PARAMS);
         }
     }
 
@@ -319,7 +319,7 @@ public class Client : Thread
                     }
                     else
                     {
-                        throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                        throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
                     }
                 }
 
@@ -329,13 +329,13 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
             }
         }
         /* If no channels provided at all (error) */
         else
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
+            throw new BirchwoodException(ErrorType.EMPTY_PARAMS);
         }
     }
 
@@ -403,7 +403,7 @@ public class Client : Thread
                         }
                         else
                         {
-                            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
                         }
                     }
 
@@ -413,18 +413,18 @@ public class Client : Thread
                 }
                 else
                 {
-                    throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                    throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
                 }
             }
             else
             {
-                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
             }          
         }
         /* If no recipients provided at all (error) */
         else
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
+            throw new BirchwoodException(ErrorType.EMPTY_PARAMS);
         }
     }
 
@@ -451,12 +451,12 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_NICK_NAME);
+                throw new BirchwoodException(ErrorType.INVALID_NICK_NAME);
             }
         }
         else
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
         }
     }
 
@@ -509,7 +509,7 @@ public class Client : Thread
                         }
                         else
                         {
-                            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
                         }
                     }
 
@@ -519,18 +519,18 @@ public class Client : Thread
                 }
                 else
                 {
-                    throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                    throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
                 }
             }
             else
             {
-                throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
             }
         }
         /* If no channels provided at all (error) */
         else
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.EMPTY_PARAMS);
+            throw new BirchwoodException(ErrorType.EMPTY_PARAMS);
         }
     }
 
@@ -556,13 +556,13 @@ public class Client : Thread
             else
             {
                 //TODO: Invalid channel name
-                throw new BirchwoodException(BirchwoodException.ErrorType.INVALID_CHANNEL_NAME);
+                throw new BirchwoodException(ErrorType.INVALID_CHANNEL_NAME);
             }
         }
         else
         {
             //TODO: Illegal characters
-            throw new BirchwoodException(BirchwoodException.ErrorType.ILLEGAL_CHARACTERS);
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
         }
     }
 
@@ -749,13 +749,13 @@ public class Client : Thread
             }
             catch(SocketOSException e)
             {
-                throw new BirchwoodException(BirchwoodException.ErrorType.CONNECT_ERROR);
+                throw new BirchwoodException(ErrorType.CONNECT_ERROR);
             }
         }
         // TODO: Do actual liveliness check here
         else
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.ALREADY_CONNECTED);
+            throw new BirchwoodException(ErrorType.ALREADY_CONNECTED);
         }
     }
 
@@ -799,7 +799,7 @@ public class Client : Thread
         /* If above then throw an exception */
         else
         {
-            throw new BirchwoodException(BirchwoodException.ErrorType.COMMAND_TOO_LONG);
+            throw new BirchwoodException(ErrorType.COMMAND_TOO_LONG);
         }
     }
 
@@ -1011,6 +1011,8 @@ public class Client : Thread
         client.connect();
 
 
+        // TODO: The below should all be automatic, maybe once IRCV3 is done
+        // ... we should automate sending in NICK and USER stuff
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "NICK", "birchwood")); // TODO: add nickcommand
 

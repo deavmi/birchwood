@@ -1,40 +1,112 @@
+/** 
+ * Exception handling
+ */
 module birchwood.client.exceptions;
 
 import std.conv : to;
 
+/** 
+ * The type of error to be used
+ * with BirchwoodException
+ */
+public enum ErrorType
+{
+    /** 
+     * If the provided connection information
+     * is invalid, such as incorrect hostname,
+     * invalid nick
+     */
+    INVALID_CONN_INFO,
+
+    /** 
+     * If an attempt to call connect() is made
+     * when already connected
+     */
+    ALREADY_CONNECTED,
+
+    /** 
+     * If there is an erroring opening a connection
+     * to the endpoint server
+     */
+    CONNECT_ERROR,
+
+    /** 
+     * If invalid parameter information is provided
+     * to an IRC command method
+     */
+    EMPTY_PARAMS,
+
+    /** 
+     * If an invalid channel name is provided
+     */
+    INVALID_CHANNEL_NAME,
+
+    /** 
+     * If an invalid nickname is provided
+     */
+    INVALID_NICK_NAME,
+
+    /** 
+     * If illegal characters exist within the
+     * message
+     */
+    ILLEGAL_CHARACTERS,
+
+    /** 
+     * If the final encoded IRC message
+     * is too long to send to the server
+     */
+    COMMAND_TOO_LONG
+}
+
+/** 
+ * A runtime exception in the Birchwood library
+ */
 public class BirchwoodException : Exception
 {
-    // TODO: Move outside one level
-    public enum ErrorType
-    {
-        INVALID_CONN_INFO,
-        ALREADY_CONNECTED,
-        CONNECT_ERROR,
-        EMPTY_PARAMS,
-        INVALID_CHANNEL_NAME,
-        INVALID_NICK_NAME,
-        ILLEGAL_CHARACTERS,
-        COMMAND_TOO_LONG
-    }
-
+    /** 
+     * The specific type of error occurred
+     */
     private ErrorType errType;
 
-    /* Auxillary error information */
-    /* TODO: Make these actually Object */
+    /** 
+     * Auxillary information
+     */
     private string auxInfo;
 
+    /** 
+     * Constructs a new exception with the given sub-error type
+     * and infers the auxillary information based on said sub-error
+     * type
+     *
+     * Params:
+     *   errType = the sub-error type
+     */
     this(ErrorType errType)
     {
         super("BirchwoodError("~to!(string)(errType)~")"~(auxInfo.length == 0 ? "" : " "~auxInfo));
         this.errType = errType;
     }
-
+    
+    /** 
+     * Constructs a new exception with the given sub-error type
+     * and auxillary information
+     *
+     * Params:
+     *   errType = the sub-error type
+     *   auxInfo = the auxillary information
+     */
     this(ErrorType errType, string auxInfo)
     {
         this(errType);
         this.auxInfo = auxInfo;
     }
 
+    /** 
+     * Retrieve the specific error which occurred
+     *
+     * Returns: the ErrorType of the error
+     */
     public ErrorType getType()
     {
         return errType;

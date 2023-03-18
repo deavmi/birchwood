@@ -1,3 +1,6 @@
+/** 
+ * Receive queue management
+ */
 module birchwood.client.receiver;
 
 import core.thread : Thread, dur;
@@ -15,13 +18,23 @@ import birchwood.client;
 import birchwood.protocol.messages : Message, decodeMessage;
 import std.string : indexOf;
 import birchwood.client.events : PongEvent, IRCEvent;
+import std.string : cmp;
 
+/** 
+ * Manages the receive queue and performs
+ * message parsing and event triggering
+ * based on said messages
+ */
 public final class ReceiverThread : Thread
 {
     /** 
-     * The receive queue and its lock
+     * The receive queue
      */
     private SList!(ubyte[]) recvQueue;
+
+    /** 
+     * The receive queue's lock
+     */
     private Mutex recvQueueLock;
 
     /** 
@@ -151,7 +164,6 @@ public final class ReceiverThread : Thread
             Message pingMessage;
             foreach(Message curMsg; currentMessageQueue[])
             {
-                import std.string : cmp;
                 if(cmp(curMsg.getCommand(), "PING") == 0)
                 {
                     currentMessageQueue.linearRemoveElement(curMsg);
@@ -221,15 +233,13 @@ public final class ReceiverThread : Thread
         }
     }
 
+    /** 
+     * Stops the receive queue manager
+     */
     public void end()
     {
         // TODO: See above notes about libsnooze behaviour due
         // ... to usage in our context
         receiveEvent.notifyAll();
     }
-
-    // public bool isReady()
-    // {
-    //     return hasEnsured;
-    // }
 }
