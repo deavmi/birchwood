@@ -1,3 +1,6 @@
+/** 
+ * Receive queue management
+ */
 module birchwood.client.receiver;
 
 import core.thread : Thread, dur;
@@ -17,6 +20,11 @@ import std.string : indexOf;
 import birchwood.client.events : PongEvent, IRCEvent;
 import std.string : cmp;
 
+/** 
+ * Manages the receive queue and performs
+ * message parsing and event triggering
+ * based on said messages
+ */
 public final class ReceiverThread : Thread
 {
     /** 

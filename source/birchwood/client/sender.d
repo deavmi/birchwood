@@ -1,3 +1,6 @@
+/** 
+ * Send queue management
+ */
 module birchwood.client.sender;
 
 import core.thread : Thread, dur;
@@ -11,6 +14,9 @@ import libsnooze;
 
 import birchwood.client;
 
+/** 
+ * Manages the send queue
+ */
 public final class SenderThread : Thread
 {
     /** 
