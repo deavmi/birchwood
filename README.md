@@ -47,6 +47,11 @@ You can take a look at the `Client` API documentation on [DUB](https://birchwood
 
 More standards will be added within the next month or so, mostly relating to new response codes that just need to be added.
 
+## Credits
+
+* [supremestdoggo](https://github.com/supremestdoggo)
+   * Adding IRC message formatting code (`267f8886150dbd40eb5c2fecb9d7e3a4c8dfd71f`)
+
 ## License
 
 See [LICENSE](LICENSE).
