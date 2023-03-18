@@ -159,6 +159,12 @@ public class Client : Thread
             // logger.log("<<<>>>");
             // logger.log();
 
+            import std.stdio;
+            writeln("Support stuff: ", commandReply.getKVPairs());
+
+            
+            
+
 
 
         }
