@@ -28,7 +28,7 @@ dub add birchwood
 
 ### Dependencies
 
-Birchwood dependends on the following D libraries:
+Birchwood depends on the following D libraries:
 
 * `libsnooze` (0.3.0)
 * `eventy` (0.4.0)
@@ -38,7 +38,7 @@ Birchwood dependends on the following D libraries:
 
 You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.Client.html).
 
-## Compatibiloty
+## Compatibility
 
 - [x] [rfc1459](https://www.rfc-editor.org/rfc/rfc1459)
    * Supports all the numeric codes
