@@ -163,12 +163,28 @@ public class Client : Thread
             writeln("Support stuff: ", commandReply.getKVPairs());
 
             
-            
+            testing(commandReply.getKVPairs());
 
 
 
         }
     }
+
+    private string[string] attrs;
+    private void testing(string[string] newData)
+    {
+        foreach(string key; newData.keys())
+        {
+            attrs[key] = newData[key];
+        }
+
+        foreach(string key; attrs.keys())
+        {
+            logger.debug_("Attribute name:", key);
+            logger.debug_("Attribute value:", attrs[key]);
+        }
+    }
+
 
     /** 
      * Joins the requested channel
