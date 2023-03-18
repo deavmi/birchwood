@@ -35,7 +35,7 @@ public class Client : Thread
     /** 
      * Connection information
      */
-    private ConnectionInfo connInfo;
+    package shared ConnectionInfo connInfo;
 
     /* TODO: We should learn some info in here (or do we put it in connInfo)? */
     private string serverName; //TODO: Make use of
@@ -62,6 +62,14 @@ public class Client : Thread
 
     package bool running = false;
 
+
+    /** 
+     * Constructs a new IRC client with the given configuration
+     * info
+     *
+     * Params:
+     *   connInfo = the connection parameters
+     */
     this(ConnectionInfo connInfo)
     {
         super(&loop);
@@ -74,12 +82,20 @@ public class Client : Thread
         this.sender = new SenderThread(this);
     }
 
+    /** 
+     * TODO: ANything worth callin on destruction?
+     */
     ~this()
     {
         //TODO: Do something here, tare downs
     }
 
-    // TODO: Investigate
+    /** 
+     * Retrieve the active configuration at this
+     * moment
+     *
+     * Returns: the ConnectionInfo struct
+     */
     public ConnectionInfo getConnInfo()
     {
         return connInfo;
