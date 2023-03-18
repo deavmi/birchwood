@@ -38,7 +38,7 @@ Birchwood dependends on the following D libraries:
 
 You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.Client.html).
 
-## Compatibiloty
+## Compatibility
 
 - [x] [rfc1459](https://www.rfc-editor.org/rfc/rfc1459)
    * Supports all the numeric codes
