@@ -1011,6 +1011,8 @@ public class Client : Thread
         client.connect();
 
 
+        // TODO: The below should all be automatic, maybe once IRCV3 is done
+        // ... we should automate sending in NICK and USER stuff
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "NICK", "birchwood")); // TODO: add nickcommand
 
