@@ -113,6 +113,7 @@ public struct ConnectionInfo
      *   hostname = hostname of the server
      *   port = server port
      *   nickname = nickname to use
+     *
      * Returns: ConnectionInfo for this server
      */
     public static ConnectionInfo newConnection(string hostname, ushort port, string nickname)
