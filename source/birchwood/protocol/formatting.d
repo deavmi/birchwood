@@ -1,3 +1,6 @@
+/**
+ * Message formatting utilities
+ */
 module birchwood.protocol.formatting;
 
 import std.string;
