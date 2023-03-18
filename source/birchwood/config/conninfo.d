@@ -74,6 +74,17 @@ public struct ConnectionInfo
     }
 
     /** 
+     * Sets the read-dequeue size
+     *
+     * Params:
+     *   bytes = the number of bytes to dequeue at a time
+     */
+    public void setBulkReadSize(ulong bytes)
+    {
+        this.bulkReadSize = bytes;
+    }
+
+    /** 
      * Get the address of the endpoint server
      *
      * Returns: the server's address
