@@ -170,10 +170,6 @@ public class Client : Thread
         }
     }
 
-    /**
-    * User operations (request-response type)
-    */
-
     /** 
      * Joins the requested channel
      *
