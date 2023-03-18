@@ -46,9 +46,13 @@ public class Client : Thread
     package Socket socket;
 
     /** 
-     * Receive queue and send queue managers
+     * Receive queue meneger
      */
     private ReceiverThread receiver;
+
+    /** 
+     * Send queue manager
+     */
     private SenderThread sender;
 
     /** 
