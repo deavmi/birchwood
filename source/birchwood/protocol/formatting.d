@@ -67,11 +67,11 @@ string set_foreground(string color)
 {
     char[1] control_char;
 
-    if (color.length == 6)
+    if(color.length == 6)
     {
         control_char[0] = hex_color_code;
     }
-    else if (color.length == 2)
+    else if(color.length == 2)
     {
         control_char[0] = ascii_color_code;
     }
@@ -80,7 +80,7 @@ string set_foreground(string color)
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
 
-    return control_char.idup ~ color;
+    return control_char.idup~color;
 }
 
 
@@ -99,16 +99,16 @@ public string setForegroundBackground(string fg, string bg)
 {
     char[1] control_char;
 
-    if (fg.length != bg.length)
+    if(fg.length != bg.length)
     {
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (cannot mix hex and ASCII)");
     }
 
-    if (fg.length == 6)
+    if(fg.length == 6)
     {
         control_char[0] = hex_color_code;
     }
-    else if (fg.length == 2)
+    else if(fg.length == 2)
     {
         control_char[0] = ascii_color_code;
     }
@@ -120,18 +120,34 @@ public string setForegroundBackground(string fg, string bg)
     return control_char.idup~fg~","~bg;
 }
 
-// Generates a string that changes the foreground color (except enum)
+/** 
+ * Generates a string that changes the foreground color (except enum)
+ *
+ * Params:
+ *   color = the foreground color
+ *
+ * Returns: the control sequence
+ */
 pragma(inline)
-string set_foreground(SimpleColor color)
+public string setForeground(SimpleColor color)
 {
-    return ascii_color_code ~ color;
+    return ascii_color_code~color;
 }
 
-// Generate a string that sets the foreground and background color (except enum)
+
+/** 
+ * Generate a string that sets the foreground and background color (except enum)
+ *
+ * Params:
+ *   fg = the foreground color
+ *   bg = the background color
+ *
+ * Returns: thecolor control sequence
+ */
 pragma(inline)
-string set_foreground_background(SimpleColor fg, SimpleColor bg)
+public string setForegroundBackground(SimpleColor fg, SimpleColor bg)
 {
-    return ascii_color_code~fg~","~ bg;
+    return ascii_color_code~fg~","~bg;
 }
 
 /** 
@@ -141,7 +157,7 @@ string set_foreground_background(SimpleColor fg, SimpleColor bg)
  * Returns: The control string
  */
 pragma(inline)
-string reset_fg_bg()
+public string resetForegroundBackground()
 {
     return [ascii_color_code].idup;
 }
