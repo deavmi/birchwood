@@ -123,7 +123,7 @@ string reset_fg_bg()
  * Returns: the boldened text 
  */
 pragma(inline)
-string bold(string text)
+public string bold(string text)
 {
     return bold_code~text~bold_code;
 }
@@ -137,7 +137,7 @@ string bold(string text)
  * Returns: the italicized text
  */
 pragma(inline)
-string italics(string text)
+public string italics(string text)
 {
     return italic_code~text~italic_code;
 }
@@ -151,7 +151,7 @@ string italics(string text)
  * Returns: the underlined text
  */
 pragma(inline)
-string underline(string text)
+public string underline(string text)
 {
     return underline_code~text~underline_code;
 }
@@ -165,7 +165,7 @@ string underline(string text)
  * Returns: the strikethroughed text
  */
 pragma(inline)
-string strikethrough(string text)
+public string strikethrough(string text)
 {
     return strikethrough_code~text~strikethrough_code;
 }
@@ -179,7 +179,7 @@ string strikethrough(string text)
  * Returns: the monospaced text
  */
 pragma(inline)
-string monospace(string text)
+public string monospace(string text)
 {
     return monospace_code~text~monospace_code;
 }

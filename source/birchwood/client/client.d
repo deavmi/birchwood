@@ -1098,6 +1098,21 @@ public class Client : Thread
         client.directMessage("(3) Message to myself (multi)", ["birchwood", "birchwood"]);
 
         
+        /** 
+         * Test formatting of text
+         */
+        import birchwood.protocol.formatting;
+        string formattedTextBold = bold("Hello in bold!");
+        string formattedTextItalics = italics("Hello in italics!");
+        string formattedTextUnderline = underline("Hello in underline!");
+        string formattedTextMonospace = monospace("Hello in monospace!");
+        string formattedTextStrikthrough = strikethrough("Hello in strikethrough!");
+        client.channelMessage(formattedTextBold, "#birchwood");
+        client.channelMessage(formattedTextItalics, "#birchwood");
+        client.channelMessage(formattedTextUnderline, "#birchwood");
+        client.channelMessage(formattedTextMonospace, "#birchwood");
+        client.channelMessage(formattedTextStrikthrough, "#birchwood");
+
 
         
         /**
