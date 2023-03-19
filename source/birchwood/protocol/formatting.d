@@ -117,7 +117,7 @@ public string setForegroundBackground(string fg, string bg)
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
 
-    return control_char.idup ~ fg ~ "," ~ bg;
+    return control_char.idup~fg~","~bg;
 }
 
 // Generates a string that changes the foreground color (except enum)
@@ -131,7 +131,7 @@ string set_foreground(SimpleColor color)
 pragma(inline)
 string set_foreground_background(SimpleColor fg, SimpleColor bg)
 {
-    return ascii_color_code ~ fg ~ "," ~ bg;
+    return ascii_color_code~fg~","~ bg;
 }
 
 /** 
