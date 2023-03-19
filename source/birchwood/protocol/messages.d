@@ -13,7 +13,7 @@ import std.stdio : writeln;
 
 /* Static is redundant as module is always static , gshared needed */
 /* Apparebky works without gshared, that is kinda sus ngl */
-__gshared Logger logger;
+package __gshared Logger logger;
 /**
 * source/birchwood/messages.d(10,8): Error: variable `birchwood.messages.logger` is a thread-local class and cannot have a static initializer. Use `static this()` to initialize instead.
 *
