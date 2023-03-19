@@ -1113,6 +1113,9 @@ public class Client : Thread
         client.channelMessage(formattedTextMonospace, "#birchwood");
         client.channelMessage(formattedTextStrikthrough, "#birchwood");
 
+        string combination = bold(italics("Italiano Boldino"));
+        client.channelMessage(combination, "#birchwood");
+
 
         
         /**
