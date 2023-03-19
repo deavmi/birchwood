@@ -3,8 +3,7 @@
  */
 module birchwood.protocol.formatting;
 
-// FIXME: Remove below import and start using BirchwoodException
-import std.string;
+import birchwood.client.exceptions;
 
 // Reset character; resets all formatting
 enum reset_code = '\x0F';
@@ -52,7 +51,7 @@ char generate_color_control_char(string color) {
     } else if (color.length == 2) {
         return ascii_color_code;
     } else {
-        throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
+        throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
 }
 
@@ -64,7 +63,7 @@ string set_foreground(string color) {
     } else if (color.length == 2) {
         control_char[0] = ascii_color_code;
     } else {
-        throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
+        throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
     return control_char.idup ~ color;
 }
@@ -73,14 +72,14 @@ string set_foreground(string color) {
 string set_foreground_background(string fg, string bg) {
     char[1] control_char;
     if (fg.length != bg.length) {
-        throw new StringException("Invalid color code (cannot mix hex and ASCII)");
+        throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (cannot mix hex and ASCII)");
     }
     if (fg.length == 6) {
         control_char[0] = hex_color_code;
     } else if (fg.length == 2) {
         control_char[0] = ascii_color_code;
     } else {
-        throw new StringException("Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
+        throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
     return control_char.idup ~ fg ~ "," ~ bg;
 }

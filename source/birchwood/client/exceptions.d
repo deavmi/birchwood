@@ -56,7 +56,13 @@ public enum ErrorType
      * If the final encoded IRC message
      * is too long to send to the server
      */
-    COMMAND_TOO_LONG
+    COMMAND_TOO_LONG,
+
+    /** 
+     * If invalid parameters are passed
+     * to any of the text formatting functions
+     */
+    INVALID_FORMATTING
 }
 
 /** 
