@@ -2,7 +2,7 @@
  * Exception handling
  */
 module birchwood.client.exceptions;
- 
+
 import std.conv : to;
 
 /** 
