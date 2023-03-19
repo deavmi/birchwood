@@ -64,7 +64,7 @@ public enum SimpleColor: string
  *
  * Returns: the color control type
  */
-private char generate_color_control_char(string color)
+private char generateColorControlChar(string color)
 {
     if(color.length == 6)
     {
