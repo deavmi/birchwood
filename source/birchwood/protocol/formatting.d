@@ -3,6 +3,7 @@
  */
 module birchwood.protocol.formatting;
 
+// FIXME: Remove below import and start using BirchwoodException
 import std.string;
 
 // Reset character; resets all formatting
@@ -20,8 +21,10 @@ enum reverse_colors_code = '\x16'; // NOT UNIVERSALLY SUPPORTED
 enum ascii_color_code = '\x03';
 enum hex_color_code = '\x04';
 
-// Simple color codes
-enum SimpleColor: string {
+/** 
+ * Simple color codes
+ */
+public enum SimpleColor: string {
     WHITE = "00",
     BLACK = "01",
     BLUE = "02",
@@ -94,22 +97,89 @@ string set_foreground_background(SimpleColor fg, SimpleColor bg) {
     return ascii_color_code ~ fg ~ "," ~ bg;
 }
 
-// Generate a string that resets the foreground and background colors
+/** 
+ * Generate a string that resets the foreground
+ * and background colors
+ *
+ * Returns: The control string
+ */
 pragma(inline)
-string reset_fg_bg() {return [ascii_color_code].idup;}
+string reset_fg_bg()
+{
+    return [ascii_color_code].idup;
+}
+
+
+
 
 // Format strings with functions
-pragma(inline)
-string bold(string text) {return bold_code~text~bold_code;}
 
+/** 
+ * Formats the provided text as bold
+ *
+ * Params:
+ *   text = the text to bolden
+ *
+ * Returns: the boldened text 
+ */
 pragma(inline)
-string italics(string text) {return italic_code~text~italic_code;}
+string bold(string text)
+{
+    return bold_code~text~bold_code;
+}
 
+/** 
+ * Formats the provided text in italics
+ *
+ * Params:
+ *   text = the text to italicize
+ *
+ * Returns: the italicized text
+ */
 pragma(inline)
-string underline(string text) {return underline_code~text~underline_code;}
+string italics(string text)
+{
+    return italic_code~text~italic_code;
+}
 
+/** 
+ * Formats the text as underlined
+ *
+ * Params:
+ *   text = the text to underline
+ *
+ * Returns: the underlined text
+ */
 pragma(inline)
-string strikethrough(string text) {return strikethrough_code~text~strikethrough_code;}
+string underline(string text)
+{
+    return underline_code~text~underline_code;
+}
 
+/** 
+ * Formats the text as strikethroughed
+ *
+ * Params:
+ *   text = the text to strikethrough
+ *
+ * Returns: the strikethroughed text
+ */
 pragma(inline)
-string monospace(string text) {return monospace_code~text~monospace_code;}
+string strikethrough(string text)
+{
+    return strikethrough_code~text~strikethrough_code;
+}
+
+/** 
+ * Formats the text as monospaced
+ *
+ * Params:
+ *   text = the text to monospace
+ *
+ * Returns: the monospaced text
+ */
+pragma(inline)
+string monospace(string text)
+{
+    return monospace_code~text~monospace_code;
+}
