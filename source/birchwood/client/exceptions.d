@@ -8,6 +8,10 @@ import std.conv : to;
 /** 
  * The type of error to be used
  * with BirchwoodException
+ *
+ * TODO: Make this STRING and associate a message with it
+ * but make it include the enum name and corresponding value
+ * when throwin an exception
  */
 public enum ErrorType
 {
