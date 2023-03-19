@@ -18,7 +18,7 @@ import birchwood.client.events;
 
 import dlog;
 
-__gshared Logger logger;
+package __gshared Logger logger;
 __gshared static this()
 {
     logger = new DefaultLogger();
