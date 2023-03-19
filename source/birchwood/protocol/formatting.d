@@ -51,15 +51,26 @@ public enum SimpleColor: string
     DEFAULT = "99" // NOT UNIVERSALLY SUPPORTED
 }
 
-// Return the hex control character if color is a hexadecimal color code, the ASCII control character if color is two ASCII digits, and throw an exception if it's neither
-// This function might be useless now that set_fg and set_fg_bg have been changed, but I'll keep it in case it's needed later.
-char generate_color_control_char(string color)
+/** 
+ * Return the hex control character if color is a hexadecimal color code,
+ * the ASCII control character if color is two ASCII digits, and throw an
+ * exception if it's neither.
+ *
+ * This function might be useless now that set_fg and set_fg_bg have been
+ * changed, but I'll keep it in case it's needed later.
+ *
+ * Params:
+ *   color = the color to check for
+ *
+ * Returns: the color control type
+ */
+private char generate_color_control_char(string color)
 {
-    if (color.length == 6)
+    if(color.length == 6)
     {
         return ControlCode.HexColor;
     }
-    else if (color.length == 2)
+    else if(color.length == 2)
     {
         return ControlCode.AsciiColor;
     }
@@ -147,7 +158,6 @@ public string setForeground(SimpleColor color)
 {
     return ControlCode.AsciiColor~color;
 }
-
 
 /** 
  * Generate a string that sets the foreground and background color (except enum)
