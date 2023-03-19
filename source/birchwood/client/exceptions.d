@@ -102,8 +102,8 @@ public class BirchwoodException : Exception
      */
     this(ErrorType errType, string auxInfo)
     {
-        this(errType);
         this.auxInfo = auxInfo;
+        this(errType);
     }
 
     /** 
