@@ -5,20 +5,27 @@ module birchwood.protocol.formatting;
 
 import birchwood.client.exceptions;
 
-// Reset character; resets all formatting
-enum reset_code = '\x0F';
+/** 
+ * Control codes
+ *
+ * TODO: Document each member
+ */
+public enum ControlCode: char
+{
+    Reset = '\x0F',
 
-// Toggle characters
-enum bold_code = '\x02';
-enum italic_code = '\x1D';
-enum underline_code = '\x1F';
-enum strikethrough_code = '\x1E';
-enum monospace_code = '\x11';
-enum reverse_colors_code = '\x16'; // NOT UNIVERSALLY SUPPORTED
+    Bolden = '\x02',
+    Italic = '\x1D',
+    Underline = '\x1F',
+    Strikethrough = '\x1E',
+    Monospace = '\x11',
 
-// Color characters
-enum ascii_color_code = '\x03';
-enum hex_color_code = '\x04';
+    ReverseColors = '\x16', // NOT UNIVERSALLY SUPPORTED
+
+    AsciiColor = '\x03',
+    HexColor = '\x04'
+}
+
 
 /** 
  * Simple color codes
@@ -50,11 +57,11 @@ char generate_color_control_char(string color)
 {
     if (color.length == 6)
     {
-        return hex_color_code;
+        return ControlCode.HexColor;
     }
     else if (color.length == 2)
     {
-        return ascii_color_code;
+        return ControlCode.AsciiColor;
     }
     else
     {
@@ -62,18 +69,25 @@ char generate_color_control_char(string color)
     }
 }
 
-// Generates a string that changes the foreground color
-string set_foreground(string color)
+/** 
+ * Generates a string that changes the foreground color
+ *
+ * Params:
+ *   color = the foreground color
+ *
+ * Returns:  the color control sequence
+ */
+public string setForeground(string color)
 {
     char[1] control_char;
 
     if(color.length == 6)
     {
-        control_char[0] = hex_color_code;
+        control_char[0] = ControlCode.HexColor;
     }
     else if(color.length == 2)
     {
-        control_char[0] = ascii_color_code;
+        control_char[0] = ControlCode.AsciiColor;
     }
     else
     {
@@ -106,11 +120,11 @@ public string setForegroundBackground(string fg, string bg)
 
     if(fg.length == 6)
     {
-        control_char[0] = hex_color_code;
+        control_char[0] = ControlCode.HexColor;
     }
     else if(fg.length == 2)
     {
-        control_char[0] = ascii_color_code;
+        control_char[0] = ControlCode.AsciiColor;
     }
     else
     {
@@ -131,7 +145,7 @@ public string setForegroundBackground(string fg, string bg)
 pragma(inline)
 public string setForeground(SimpleColor color)
 {
-    return ascii_color_code~color;
+    return ControlCode.AsciiColor~color;
 }
 
 
@@ -147,7 +161,7 @@ public string setForeground(SimpleColor color)
 pragma(inline)
 public string setForegroundBackground(SimpleColor fg, SimpleColor bg)
 {
-    return ascii_color_code~fg~","~bg;
+    return ControlCode.AsciiColor~fg~","~bg;
 }
 
 /** 
@@ -159,7 +173,7 @@ public string setForegroundBackground(SimpleColor fg, SimpleColor bg)
 pragma(inline)
 public string resetForegroundBackground()
 {
-    return [ascii_color_code].idup;
+    return [ControlCode.AsciiColor].idup;
 }
 
 // TODO: consider removing praghma(inline), not a bad thing to have though
@@ -177,7 +191,7 @@ public string resetForegroundBackground()
 pragma(inline)
 public string bold(string text)
 {
-    return bold_code~text~bold_code;
+    return ControlCode.Bolden~text~ControlCode.Bolden;
 }
 
 /** 
@@ -191,7 +205,7 @@ public string bold(string text)
 pragma(inline)
 public string italics(string text)
 {
-    return italic_code~text~italic_code;
+    return ControlCode.Italic~text~ControlCode.Italic;
 }
 
 /** 
@@ -205,7 +219,7 @@ public string italics(string text)
 pragma(inline)
 public string underline(string text)
 {
-    return underline_code~text~underline_code;
+    return ControlCode.Underline~text~ControlCode.Underline;
 }
 
 /** 
@@ -219,7 +233,7 @@ public string underline(string text)
 pragma(inline)
 public string strikethrough(string text)
 {
-    return strikethrough_code~text~strikethrough_code;
+    return ControlCode.Strikethrough~text~ControlCode.Strikethrough;
 }
 
 /** 
@@ -233,5 +247,5 @@ public string strikethrough(string text)
 pragma(inline)
 public string monospace(string text)
 {
-    return monospace_code~text~monospace_code;
+    return ControlCode.Monospace~text~ControlCode.Monospace;
 }
