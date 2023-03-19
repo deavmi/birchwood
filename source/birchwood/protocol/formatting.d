@@ -23,7 +23,8 @@ enum hex_color_code = '\x04';
 /** 
  * Simple color codes
  */
-public enum SimpleColor: string {
+public enum SimpleColor: string
+{
     WHITE = "00",
     BLACK = "01",
     BLUE = "02",
@@ -45,54 +46,91 @@ public enum SimpleColor: string {
 
 // Return the hex control character if color is a hexadecimal color code, the ASCII control character if color is two ASCII digits, and throw an exception if it's neither
 // This function might be useless now that set_fg and set_fg_bg have been changed, but I'll keep it in case it's needed later.
-char generate_color_control_char(string color) {
-    if (color.length == 6) {
+char generate_color_control_char(string color)
+{
+    if (color.length == 6)
+    {
         return hex_color_code;
-    } else if (color.length == 2) {
+    }
+    else if (color.length == 2)
+    {
         return ascii_color_code;
-    } else {
+    }
+    else
+    {
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
 }
 
 // Generates a string that changes the foreground color
-string set_foreground(string color) {
+string set_foreground(string color)
+{
     char[1] control_char;
-    if (color.length == 6) {
+
+    if (color.length == 6)
+    {
         control_char[0] = hex_color_code;
-    } else if (color.length == 2) {
+    }
+    else if (color.length == 2)
+    {
         control_char[0] = ascii_color_code;
-    } else {
+    }
+    else
+    {
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
+
     return control_char.idup ~ color;
 }
 
-// Generate a string that sets the foreground and background color
-string set_foreground_background(string fg, string bg) {
+
+// TODO: Investigate how we want to aloow people to use the below
+
+/** 
+ * Generate a string that sets the foreground and background color
+ *
+ * Params:
+ *   fg = foreground color in hex code or ASCII color code
+ *   bg = background color
+ *
+ * Returns: the control sequence to set the style
+ */
+public string setForegroundBackground(string fg, string bg)
+{
     char[1] control_char;
-    if (fg.length != bg.length) {
+
+    if (fg.length != bg.length)
+    {
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (cannot mix hex and ASCII)");
     }
-    if (fg.length == 6) {
+
+    if (fg.length == 6)
+    {
         control_char[0] = hex_color_code;
-    } else if (fg.length == 2) {
+    }
+    else if (fg.length == 2)
+    {
         control_char[0] = ascii_color_code;
-    } else {
+    }
+    else
+    {
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
+
     return control_char.idup ~ fg ~ "," ~ bg;
 }
 
 // Generates a string that changes the foreground color (except enum)
 pragma(inline)
-string set_foreground(SimpleColor color) {
+string set_foreground(SimpleColor color)
+{
     return ascii_color_code ~ color;
 }
 
 // Generate a string that sets the foreground and background color (except enum)
 pragma(inline)
-string set_foreground_background(SimpleColor fg, SimpleColor bg) {
+string set_foreground_background(SimpleColor fg, SimpleColor bg)
+{
     return ascii_color_code ~ fg ~ "," ~ bg;
 }
 
@@ -108,10 +146,9 @@ string reset_fg_bg()
     return [ascii_color_code].idup;
 }
 
-
-
-
-// Format strings with functions
+// TODO: consider removing praghma(inline), not a bad thing to have though
+// TOOD: investigate idup, makes sense me thinks but take a look at
+// Format strings with functions (TODO: remove comment)
 
 /** 
  * Formats the provided text as bold
