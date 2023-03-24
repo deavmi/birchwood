@@ -12,17 +12,49 @@ import birchwood.client.exceptions;
  */
 public enum ControlCode: char
 {
+    /** 
+     * Reset styling
+     */
     Reset = '\x0F',
 
+    /** 
+     * Bold text styling
+     */
     Bolden = '\x02',
+
+    /** 
+     * Italic text styling
+     */
     Italic = '\x1D',
+
+    /** 
+     * Underlined text styling
+     */
     Underline = '\x1F',
+
+    /** 
+     * Strikethough text styling
+     */
     Strikethrough = '\x1E',
+
+    /** 
+     * Monospace text styling
+     */
     Monospace = '\x11',
 
-    ReverseColors = '\x16', // NOT UNIVERSALLY SUPPORTED
+    /** 
+     * Reverse colors (NOTE: not universally supported)
+     */
+    ReverseColors = '\x16',
 
+    /** 
+     * ASCII color encoding scheme
+     */
     AsciiColor = '\x03',
+
+    /** 
+     * Hex color encoding scheme
+     */
     HexColor = '\x04'
 }
 
