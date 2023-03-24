@@ -1125,6 +1125,9 @@ public class Client : Thread
         string backgroundText = setForegroundBackground(SimpleColor.RED, SimpleColor.CYAN)~"Birchwood";
         client.channelMessage(backgroundText, "#birchwood");
 
+        string combined = combination~foregroundRedtext~resetForegroundBackground()~backgroundText~resetForegroundBackground()~alternatePattern;
+        client.channelMessage(combined, "#birchwood");
+
         
         /**
          * Test leaving multiple channels (multi)
