@@ -1119,6 +1119,11 @@ public class Client : Thread
         string foregroundRedtext = setForeground(SimpleColor.RED)~"This is red text";
         client.channelMessage(foregroundRedtext, "#birchwood");
 
+        string alternatePattern = setForeground(SimpleColor.RED)~"This "~setForeground(SimpleColor.WHITE)~"is "~setForeground(SimpleColor.BLUE)~"America!";
+        client.channelMessage(alternatePattern, "#birchwood");
+
+        string backgroundText = setForegroundBackground(SimpleColor.RED, SimpleColor.CYAN)~"Birchwood";
+        client.channelMessage(backgroundText, "#birchwood");
 
         
         /**
