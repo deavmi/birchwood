@@ -1116,6 +1116,9 @@ public class Client : Thread
         string combination = bold(italics("Italiano Boldino"));
         client.channelMessage(combination, "#birchwood");
 
+        string foregroundRedtext = setForeground(SimpleColor.RED)~"This is red text";
+        client.channelMessage(foregroundRedtext, "#birchwood");
+
 
         
         /**
