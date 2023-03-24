@@ -1120,6 +1120,35 @@ public class Client : Thread
         client.directMessage("(3) Message to myself (multi)", ["birchwood", "birchwood"]);
 
         
+        /** 
+         * Test formatting of text
+         */
+        import birchwood.protocol.formatting;
+        string formattedTextBold = bold("Hello in bold!");
+        string formattedTextItalics = italics("Hello in italics!");
+        string formattedTextUnderline = underline("Hello in underline!");
+        string formattedTextMonospace = monospace("Hello in monospace!");
+        string formattedTextStrikthrough = strikethrough("Hello in strikethrough!");
+        client.channelMessage(formattedTextBold, "#birchwood");
+        client.channelMessage(formattedTextItalics, "#birchwood");
+        client.channelMessage(formattedTextUnderline, "#birchwood");
+        client.channelMessage(formattedTextMonospace, "#birchwood");
+        client.channelMessage(formattedTextStrikthrough, "#birchwood");
+
+        string combination = bold(italics("Italiano Boldino"));
+        client.channelMessage(combination, "#birchwood");
+
+        string foregroundRedtext = setForeground(SimpleColor.RED)~"This is red text";
+        client.channelMessage(foregroundRedtext, "#birchwood");
+
+        string alternatePattern = setForeground(SimpleColor.RED)~"This "~setForeground(SimpleColor.WHITE)~"is "~setForeground(SimpleColor.BLUE)~"America!";
+        client.channelMessage(alternatePattern, "#birchwood");
+
+        string backgroundText = setForegroundBackground(SimpleColor.RED, SimpleColor.CYAN)~"Birchwood";
+        client.channelMessage(backgroundText, "#birchwood");
+
+        string combined = combination~foregroundRedtext~resetForegroundBackground()~backgroundText~resetForegroundBackground()~alternatePattern;
+        client.channelMessage(combined, "#birchwood");
 
         
         /**
