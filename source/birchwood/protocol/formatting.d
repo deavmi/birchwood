@@ -105,11 +105,8 @@ public string setForeground(string color)
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
 
-    return control_char.idup~color;
+    return cast(string)control_char~color;
 }
-
-
-// TODO: Investigate how we want to aloow people to use the below
 
 /** 
  * Generate a string that sets the foreground and background color
@@ -142,7 +139,7 @@ public string setForegroundBackground(string fg, string bg)
         throw new BirchwoodException(ErrorType.INVALID_FORMATTING, "Invalid color code (must be either two ASCII digits or a hexadecimal code of the form RRGGBB)");
     }
 
-    return control_char.idup~fg~","~bg;
+    return cast(string)control_char~fg~","~bg;
 }
 
 /** 
@@ -153,7 +150,6 @@ public string setForegroundBackground(string fg, string bg)
  *
  * Returns: the control sequence
  */
-pragma(inline)
 public string setForeground(SimpleColor color)
 {
     return ControlCode.AsciiColor~color;
@@ -168,7 +164,6 @@ public string setForeground(SimpleColor color)
  *
  * Returns: thecolor control sequence
  */
-pragma(inline)
 public string setForegroundBackground(SimpleColor fg, SimpleColor bg)
 {
     return ControlCode.AsciiColor~fg~","~bg;
@@ -180,14 +175,11 @@ public string setForegroundBackground(SimpleColor fg, SimpleColor bg)
  *
  * Returns: The control string
  */
-pragma(inline)
 public string resetForegroundBackground()
 {
-    return [ControlCode.AsciiColor].idup;
+    return [ControlCode.AsciiColor];
 }
 
-// TODO: consider removing praghma(inline), not a bad thing to have though
-// TOOD: investigate idup, makes sense me thinks but take a look at
 // Format strings with functions (TODO: remove comment)
 
 /** 
@@ -198,7 +190,6 @@ public string resetForegroundBackground()
  *
  * Returns: the boldened text 
  */
-pragma(inline)
 public string bold(string text)
 {
     return ControlCode.Bolden~text~ControlCode.Bolden;
@@ -212,7 +203,6 @@ public string bold(string text)
  *
  * Returns: the italicized text
  */
-pragma(inline)
 public string italics(string text)
 {
     return ControlCode.Italic~text~ControlCode.Italic;
@@ -226,7 +216,6 @@ public string italics(string text)
  *
  * Returns: the underlined text
  */
-pragma(inline)
 public string underline(string text)
 {
     return ControlCode.Underline~text~ControlCode.Underline;
@@ -240,7 +229,6 @@ public string underline(string text)
  *
  * Returns: the strikethroughed text
  */
-pragma(inline)
 public string strikethrough(string text)
 {
     return ControlCode.Strikethrough~text~ControlCode.Strikethrough;
@@ -254,7 +242,6 @@ public string strikethrough(string text)
  *
  * Returns: the monospaced text
  */
-pragma(inline)
 public string monospace(string text)
 {
     return ControlCode.Monospace~text~ControlCode.Monospace;
