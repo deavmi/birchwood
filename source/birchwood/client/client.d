@@ -829,7 +829,7 @@ public class Client : Thread
         }
     }
 
-    private void doAuth()
+    private void doAuth(string servername = "bogus.net")
     {
         Thread.sleep(dur!("seconds")(2));
         nick(connInfo.nickname);
@@ -837,7 +837,7 @@ public class Client : Thread
         Thread.sleep(dur!("seconds")(2));
         // TODO: Note I am making hostname the same as username always (is this okay?)
         // TODO: Note I am making the servername always bogus.net
-        user(connInfo.username, connInfo.username, "bogus.net", connInfo.realname);
+        user(connInfo.username, connInfo.username, servername, connInfo.realname);
     }
 
     public void user(string username, string hostname, string servername, string realname)
