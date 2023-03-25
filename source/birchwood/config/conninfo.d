@@ -158,8 +158,6 @@ public shared struct ConnectionInfo
      */
     public T getDB(T)(string key)
     {
-        import std.stdio;
-        writeln("GETDB: '"~key~"' with len ", key.length);
         if(key in db)
         {
             /* Attempt conversion into T */
