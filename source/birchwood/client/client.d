@@ -744,10 +744,6 @@ public class Client : Thread
         engine.addSignalHandler(new PongSignal(this));
     }
 
-    /**
-    * Connects to the server
-    */
-
     /** 
      * Connects to the server
      *
@@ -1170,11 +1166,5 @@ public class Client : Thread
         // TODO: Don't forget to re-enable this when done testing!
         Thread.sleep(dur!("seconds")(15));
         client.quit();
-
-
     }
-
-    
-
-
 }
