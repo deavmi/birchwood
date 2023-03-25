@@ -129,7 +129,6 @@ public shared struct ConnectionInfo
 
     public string getDB(string key)
     {
-        // TODO: Do existence check
         if(key in db)
         {
             return db[key];
