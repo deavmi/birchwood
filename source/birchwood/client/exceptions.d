@@ -71,7 +71,13 @@ public enum ErrorType
     /** 
      * If a key-lookup in the ConnInfo failed
      */
-    DB_KEY_NOT_FOUND
+    DB_KEY_NOT_FOUND,
+
+    /** 
+     * If the requested nickname (via /NICK) is
+     * too long
+     */
+    NICKNAME_TOO_LONG
 }
 
 /** 
