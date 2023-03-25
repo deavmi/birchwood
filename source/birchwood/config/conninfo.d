@@ -136,8 +136,7 @@ public shared struct ConnectionInfo
         }
         else
         {
-            // TODO: Should throw an exception
-            return "";
+            throw new BirchwoodException(ErrorType.DB_KEY_NOT_FOUND, "Could not find key '"~key~"'");
         }
     }
 

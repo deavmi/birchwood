@@ -66,7 +66,12 @@ public enum ErrorType
      * If invalid parameters are passed
      * to any of the text formatting functions
      */
-    INVALID_FORMATTING
+    INVALID_FORMATTING,
+
+    /** 
+     * If a key-lookup in the ConnInfo failed
+     */
+    DB_KEY_NOT_FOUND
 }
 
 /** 
