@@ -189,7 +189,13 @@ public class Client : Thread
             
             testing(commandReply.getKVPairs());
 
-
+            /* Fetch and parse the received key-value pairs */
+            string[string] receivedKV = commandReply.getKVPairs();
+            foreach(string key; receivedKV.keys())
+            {
+                /* Update the db */
+                connInfo.updateDB(key, receivedKV[key]);
+            }
 
         }
     }
