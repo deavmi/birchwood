@@ -813,6 +813,9 @@ public class Client : Thread
 
                 /* Start the socket read-decode loop */
                 this.start();
+
+                // TODO: We should add a call to NICK followed by USER here
+                doAuth();
             }
             catch(SocketOSException e)
             {
@@ -824,6 +827,26 @@ public class Client : Thread
         {
             throw new BirchwoodException(ErrorType.ALREADY_CONNECTED);
         }
+    }
+
+    private void doAuth()
+    {
+        Thread.sleep(dur!("seconds")(2));
+        nick(connInfo.nickname);
+
+        Thread.sleep(dur!("seconds")(2));
+        // TODO: Note I am making hostname the same as username always (is this okay?)
+        // TODO: Note I am making the servername always bogus.net
+        user(connInfo.username, connInfo.username, "bogus.net", connInfo.realname);
+    }
+
+    public void user(string username, string hostname, string servername, string realname)
+    {
+        // TODO: Implement me properly with all required checks
+        
+        /* User message */
+        Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
+        sendMessage(userMessage);
     }
 
 
@@ -1067,7 +1090,7 @@ public class Client : Thread
         //freenode: 149.28.246.185
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
-        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "testBirchwood");
+        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "birchwood", "doggie", "Tristan B. Kildaire");
 
         // // Set the fakelag to 1 second
         // connInfo.setFakeLag(1);
@@ -1080,12 +1103,16 @@ public class Client : Thread
 
         // TODO: The below should all be automatic, maybe once IRCV3 is done
         // ... we should automate sending in NICK and USER stuff
-        Thread.sleep(dur!("seconds")(2));
-        // client.command(new Message("", "NICK", "birchwood")); // TODO: add nickcommand
-        client.nick("birchwood");
+        // Thread.sleep(dur!("seconds")(2));
+        // client.nick("birchwood");
 
-        Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
+        // Thread.sleep(dur!("seconds")(2));
+        // client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
+        // client.user("doggie", "doggie", "irc.frdeenode.net", "Tristan B. Kildaire");
+
+
+
+
         
         Thread.sleep(dur!("seconds")(4));
         // client.command(new Message("", "JOIN", "#birchwood"));

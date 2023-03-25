@@ -21,7 +21,17 @@ public shared struct ConnectionInfo
     /** 
      * Nickname to use
      */
-    private string nickname;
+    public string nickname;
+
+    /** 
+     * Username
+     */
+    public string username;
+
+    /** 
+     * Real name
+     */
+    public string realname;
 
     /** 
      * Size to use to dequeue bytes
@@ -59,11 +69,13 @@ public shared struct ConnectionInfo
      *   bulkReadSize = the dequeue read size
      *   quitMessage = the message to use when quitting
      */
-    private this(Address addrInfo, string nickname, ulong bulkReadSize = 20, string quitMessage = "birchwood client disconnecting...")
+    private this(Address addrInfo, string nickname, string username, string realname, ulong bulkReadSize = 20, string quitMessage = "birchwood client disconnecting...")
     {
         // NOTE: Not sure if much mutable in Address anyways
         this.addrInfo = cast(shared Address)addrInfo;
         this.nickname = nickname;
+        this.username = username;
+        this.realname = realname;
         this.bulkReadSize = bulkReadSize;
         this.quitMessage = quitMessage;
 
@@ -167,7 +179,7 @@ public shared struct ConnectionInfo
      *
      * Returns: ConnectionInfo for this server
      */
-    public static ConnectionInfo newConnection(string hostname, ushort port, string nickname)
+    public static ConnectionInfo newConnection(string hostname, ushort port, string nickname, string username, string realname)
     {
         try
         {
@@ -183,7 +195,7 @@ public shared struct ConnectionInfo
             /* TODO: Add feature to choose which address to use, prefer v4 or v6 type of thing */
             Address chosenAddress = addrInfo[0];
 
-            return ConnectionInfo(chosenAddress, nickname);
+            return ConnectionInfo(chosenAddress, nickname, username, realname);
         }
         catch(SocketException e)
         {
@@ -201,7 +213,7 @@ public shared struct ConnectionInfo
     {
         try
         {
-            newConnection("1.", 21, "deavmi");
+            newConnection("1.", 21, "deavmi", "thedeavmi", "Tristan Brice Birchwood Kildaire");
             assert(false);
         }
         catch(BirchwoodException e)
@@ -211,7 +223,7 @@ public shared struct ConnectionInfo
 
         try
         {
-            newConnection("1.1.1.1", 21, "");
+            newConnection("1.1.1.1", 21, "", "thedeavmi", "Tristan Brice Birchwood Kildaire");
             assert(false);
         }
         catch(BirchwoodException e)
