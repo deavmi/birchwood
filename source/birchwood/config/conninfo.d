@@ -234,11 +234,15 @@ public shared struct ConnectionInfo
     }
 }
 
+/** 
+ * Sets the default values as per rfc1459 in the
+ * key-value pair DB
+ *
+ * Params:
+ *   connInfo = a reference to the ConnectionInfo struct to update
+ */
 public void setDefaults(ref ConnectionInfo connInfo)
 {
     /* Set the `MAXNICKLEN` to a default of 9 */
     connInfo.updateDB("MAXNICKLEN", "9");
-    assert(connInfo.getDB!(ulong)("MAXNICKLEN") == 9);
-    import std.stdio;
-    writeln("MAXKAK: ", connInfo.getDB!(ulong)("MAXNICKLEN"));
 }
