@@ -40,6 +40,12 @@ public shared struct ConnectionInfo
      */
     public const string quitMessage;
 
+    /** 
+     * Key-value pairs learnt from the
+     * server
+     */
+    private string[string] db;
+
     /* TODO: before publishing change this bulk size */
 
     /** 
@@ -115,6 +121,26 @@ public shared struct ConnectionInfo
     {
         this.fakeLag = fakeLag;
     }
+
+    public void updateDB(string key, string value)
+    {
+        db[key] = value;
+    }
+
+    public string getDB(string key)
+    {
+        // TODO: Do existence check
+        if(key in db)
+        {
+            return db[key];
+        }
+        else
+        {
+            // TODO: Should throw an exception
+            return "";
+        }
+    }
+
 
     /** 
      * Creates a ConnectionInfo struct representing a client configuration which
