@@ -814,7 +814,7 @@ public class Client : Thread
                 /* Start the socket read-decode loop */
                 this.start();
 
-                // TODO: We should add a call to NICK followed by USER here
+                /* Do the /NICK and /USER handshake */
                 doAuth();
             }
             catch(SocketOSException e)
