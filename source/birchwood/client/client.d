@@ -191,7 +191,9 @@ public class Client : Thread
             foreach(string key; receivedKV.keys())
             {
                 /* Update the db */
-                connInfo.updateDB(key, receivedKV[key]);
+                string value = receivedKV[key];
+                connInfo.updateDB(key, value);
+                logger.log("Updated key in db '"~key~"' with value '"~value~"'");
             }
 
         }
