@@ -5,6 +5,7 @@ module birchwood.config.conninfo;
 
 import std.socket : SocketException, Address, getAddress;
 import birchwood.client.exceptions;
+import std.conv : to, ConvException;
 
 /** 
  * Represents the connection details for a server
@@ -127,11 +128,25 @@ public shared struct ConnectionInfo
         db[key] = value;
     }
 
-    public string getDB(string key)
+    public T getDB(T)(string key)
     {
+        import std.stdio;
+        writeln("GETDB: '"~key~"' with len ", key.length);
         if(key in db)
         {
-            return db[key];
+            /* Attempt conversion into T */
+            try
+            {
+                /* Fetch and convert */
+                T value = to!(T)(db[key]);
+                return value;
+            }
+            /* If conversion to type T fails */
+            catch(ConvException e)
+            {
+                /* Return the initial value for such a paremeter */
+                return T.init;
+            }
         }
         else
         {
@@ -205,4 +220,13 @@ public shared struct ConnectionInfo
         }
         
     }
+}
+
+public void setDefaults(ref ConnectionInfo connInfo)
+{
+    /* Set the `MAXNICKLEN` to a default of 9 */
+    connInfo.updateDB("MAXNICKLEN", "9");
+    assert(connInfo.getDB!(ulong)("MAXNICKLEN") == 9);
+    import std.stdio;
+    writeln("MAXKAK: ", connInfo.getDB!(ulong)("MAXNICKLEN"));
 }
