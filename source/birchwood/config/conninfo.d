@@ -135,11 +135,27 @@ public shared struct ConnectionInfo
         this.fakeLag = fakeLag;
     }
 
+    /** 
+     * Update a value in the key-value pair database
+     *
+     * Params:
+     *   key = the key to set
+     *   value = the value to set to
+     */
     public void updateDB(string key, string value)
     {
         db[key] = value;
     }
 
+    /** 
+     * Retrieve a value from the key-value pair database
+     *
+     * Params:
+     *   key = the key to lookup
+     * Returns: the value as type T, if not able to convert then T.init
+     * Throws:
+     *   BirchwoodException if the key is not found
+     */
     public T getDB(T)(string key)
     {
         import std.stdio;
