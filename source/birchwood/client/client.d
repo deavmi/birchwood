@@ -8,7 +8,7 @@ import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
 import eventy : EventyEvent = Event, Engine, EventType, Signal;
-import birchwood.config : ConnectionInfo;
+import birchwood.config;
 import birchwood.client.exceptions : BirchwoodException, ErrorType;
 import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
 
@@ -80,6 +80,11 @@ public class Client : Thread
          */
         this.receiver = new ReceiverThread(this);
         this.sender = new SenderThread(this);
+
+        /** 
+         * Set defaults in db
+         */
+        setDefaults(this.connInfo);
     }
 
     /** 
@@ -212,9 +217,21 @@ public class Client : Thread
         /* Ensure no illegal characters in nick name */
         if(isValidText(nickname))
         {
-            /* Set the nick */
-            Message nickMessage = new Message("", "NICK", nickname);
-            sendMessage(nickMessage);
+            // TODO: We could investigate this later if we want to be safer
+            ulong maxNickLen = connInfo.getDB!(ulong)("MAXNICKLEN");
+
+            /* If the username's lenght is within the allowed bounds */
+            if(nickname.length <= maxNickLen)
+            {
+                /* Set the nick */
+                Message nickMessage = new Message("", "NICK", nickname);
+                sendMessage(nickMessage);
+            }
+            /* If not */
+            else
+            {
+                throw new BirchwoodException(ErrorType.NICKNAME_TOO_LONG);
+            }
         }
         else
         {
@@ -1175,6 +1192,21 @@ public class Client : Thread
          * Test leaving a single channel (multi)
          */
         client.leaveChannel(["#birchwoodLeave2"]);
+
+
+        /**
+         * Definately by now we would have learnt the new MAXNICLEN
+         * which on BonoboNET is 30, hence the below should work
+         */
+        try
+        {
+            client.nick("birchwood123456789123456789123");
+            assert(true);
+        }
+        catch(BirchwoodException e)
+        {
+            assert(false);
+        }
 
         // TODO: Don't forget to re-enable this when done testing!
         Thread.sleep(dur!("seconds")(15));
