@@ -829,6 +829,12 @@ public class Client : Thread
         }
     }
 
+    /** 
+     * Performs the /NICK and /USER handshake
+     *
+     * Params:
+     *   servername = the servername to use (default: bogus.net)
+     */
     private void doAuth(string servername = "bogus.net")
     {
         Thread.sleep(dur!("seconds")(2));
@@ -840,6 +846,15 @@ public class Client : Thread
         user(connInfo.username, connInfo.username, servername, connInfo.realname);
     }
 
+    /** 
+     * Performs user identification
+     *
+     * Params:
+     *   username = the username to identify with
+     *   hostname = the hostname to use
+     *   servername = the servername to use
+     *   realname = your realname
+     */
     public void user(string username, string hostname, string servername, string realname)
     {
         // TODO: Implement me properly with all required checks
