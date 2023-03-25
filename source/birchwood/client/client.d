@@ -830,7 +830,10 @@ public class Client : Thread
     }
 
     /** 
-     * Performs the /NICK and /USER handshake
+     * Performs the /NICK and /USER handshake.
+     *
+     * This method will set the hostname to be equal to the chosen
+     * username in the ConnectionInfo struct
      *
      * Params:
      *   servername = the servername to use (default: bogus.net)
