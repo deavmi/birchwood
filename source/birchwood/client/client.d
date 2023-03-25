@@ -200,6 +200,29 @@ public class Client : Thread
     }
 
     /** 
+     * Requests setting of the provided nickname
+     *
+     * Params:
+     *   nickname = the nickname to request
+     * Throws:
+     *   BirchwoodException on invalid nickname
+     */
+    public void nick(string nickname)
+    {
+        /* Ensure no illegal characters in nick name */
+        if(isValidText(nickname))
+        {
+            /* Set the nick */
+            Message nickMessage = new Message("", "NICK", nickname);
+            sendMessage(nickMessage);
+        }
+        else
+        {
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+        }
+    }
+
+    /** 
      * Joins the requested channel
      *
      * Params:
@@ -1041,7 +1064,8 @@ public class Client : Thread
         // TODO: The below should all be automatic, maybe once IRCV3 is done
         // ... we should automate sending in NICK and USER stuff
         Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "NICK", "birchwood")); // TODO: add nickcommand
+        // client.command(new Message("", "NICK", "birchwood")); // TODO: add nickcommand
+        client.nick("birchwood");
 
         Thread.sleep(dur!("seconds")(2));
         client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
