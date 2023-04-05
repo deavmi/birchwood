@@ -104,10 +104,6 @@ public final class ReceiverThread : Thread
      * an event depending on the type of message
      *
      * Handles PINGs along with normal messages
-     *
-     * TODO: Our high load average is from here
-     * ... it is getting lock a lot and spinning here
-     * ... we should use libsnooze to avoid this
      */
     private void recvHandlerFunc()
     {
