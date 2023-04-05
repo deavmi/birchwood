@@ -1115,6 +1115,7 @@ public class Client : Thread
         // Create a new Client
         Client client = new Client(connInfo);
 
+        // Authenticate
         client.connect();
 
 
