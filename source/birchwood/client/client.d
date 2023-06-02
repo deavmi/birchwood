@@ -1012,9 +1012,14 @@ public class Client : Thread
             /* Receieve at most 512 bytes (as per RFC) */
             ptrdiff_t bytesRead = socket.receive(currentData, SocketFlags.PEEK);
 
-            import std.stdio;
-            // writeln(bytesRead);
-            // writeln(currentData);
+            version(unittest)
+            {
+                import std.stdio;
+                writeln("(peek) bytesRead: '", bytesRead, "' (status var or count)");
+                writeln("(peek) currentData: '", currentData, "'");
+            }
+
+            
 
             /* FIXME: CHECK BYTES READ FOR SOCKET ERRORS! */
 
@@ -1088,7 +1093,7 @@ public class Client : Thread
             scratch.length = bytesRead;
             this.socket.receive(scratch);
 
-
+            
             
             /* TODO: Yield here and in other places before continue */
 
