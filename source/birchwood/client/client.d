@@ -1017,6 +1017,13 @@ public class Client : Thread
                 import std.stdio;
                 writeln("(peek) bytesRead: '", bytesRead, "' (status var or count)");
                 writeln("(peek) currentData: '", currentData, "'");
+
+                // On remote end closing connection
+                if(bytesRead == 0)
+                {
+                    writeln("About to do the panic!");
+                    *cast(byte*)0 = 2;
+                }
             }
 
             
