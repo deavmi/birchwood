@@ -116,6 +116,8 @@ public final class SenderThread : Thread
 
             // TODO: See above notes about libsnooze behaviour due
             // ... to usage in our context
+
+            // TODO: Catch InterruptedException here
             sendEvent.wait(); // TODO: Catch any exceptions from libsnooze
 
             // TODO: After the above call have a once-off call to `ensure()` here
