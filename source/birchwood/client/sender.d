@@ -14,6 +14,11 @@ import libsnooze;
 
 import birchwood.client;
 
+version(unittest)
+{
+    import std.stdio : writeln;
+}
+
 /** 
  * Manages the send queue
  */
@@ -116,9 +121,30 @@ public final class SenderThread : Thread
 
             // TODO: See above notes about libsnooze behaviour due
             // ... to usage in our context
+            try
+            {
+                sendEvent.wait();
+            }
+            catch(InterruptedException e)
+            {
+                version(unittest)
+                {
+                    writeln("wait() interrupted");
+                }
+                continue;
+            }
+            catch(SnoozeError e)
+            {
+                // TODO: This should crash and end
+                version(unittest)
+                {
+                    writeln("wait() had an error");
+                }
+                continue;
+            }
 
-            // TODO: Catch InterruptedException here
-            sendEvent.wait(); // TODO: Catch any exceptions from libsnooze
+
+
 
             // TODO: After the above call have a once-off call to `ensure()` here
             // ... which then only runs once and sets a `ready` flag for the Client

@@ -20,6 +20,11 @@ import std.string : indexOf;
 import birchwood.client.events : PongEvent, IRCEvent;
 import std.string : cmp;
 
+version(unittest)
+{
+    import std.stdio : writeln;
+}
+
 /** 
  * Manages the receive queue and performs
  * message parsing and event triggering
@@ -126,9 +131,28 @@ public final class ReceiverThread : Thread
 
             // TODO: See above notes about libsnooze behaviour due
             // ... to usage in our context
-
-            // TODO: Catch InterruptedException here
-            receiveEvent.wait(); // TODO: Catch any exceptions from libsnooze
+            try
+            {
+                receiveEvent.wait();
+            }
+            catch(InterruptedException e)
+            {
+                version(unittest)
+                {
+                    writeln("wait() interrupted");
+                }
+                continue;
+            }
+            catch(SnoozeError e)
+            {
+                // TODO: This should crash and end
+                version(unittest)
+                {
+                    writeln("wait() had an error");
+                }
+                continue;
+            }
+            
 
             
 
