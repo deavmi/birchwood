@@ -133,12 +133,12 @@ public final class SenderThread : Thread
                 }
                 continue;
             }
-            catch(SnoozeError e)
+            catch(FatalException e)
             {
                 // TODO: This should crash and end
                 version(unittest)
                 {
-                    writeln("wait() had an error");
+                    writeln("wait() had a FATAL error!!!!!!!!!!!");
                 }
                 continue;
             }
