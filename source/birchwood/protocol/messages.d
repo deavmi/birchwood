@@ -609,3 +609,16 @@ public final class Message
         return replyType;
     }
 }
+
+version(unittest)
+{
+    // Contains illegal characters
+    string badString1 = "doos"~"bruh"~"lek"~cast(string)[10]~"ker";
+    string badString2 = "doos"~"bruh"~"lek"~cast(string)[13]~"ker";
+}
+
+unittest
+{
+    assert(Message.hasIllegalCharacters(badString1) == true);
+    assert(Message.hasIllegalCharacters(badString2) == true);
+}
