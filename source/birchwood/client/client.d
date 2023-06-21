@@ -8,7 +8,7 @@ import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
 import eventy : EventyEvent = Event, Engine, EventType, Signal;
-import birchwood.config : ConnectionInfo;
+import birchwood.config;
 import birchwood.client.exceptions : BirchwoodException, ErrorType;
 import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
 
@@ -80,6 +80,11 @@ public class Client : Thread
          */
         this.receiver = new ReceiverThread(this);
         this.sender = new SenderThread(this);
+
+        /** 
+         * Set defaults in db
+         */
+        setDefaults(this.connInfo);
     }
 
     /** 
@@ -161,7 +166,7 @@ public class Client : Thread
 
         import birchwood.protocol.constants : ReplyType;
 
-        if(commandReply.getReplyType() == ReplyType.RPL_BOUNCE)
+        if(commandReply.getReplyType() == ReplyType.RPL_ISUPPORT)
         {
             // TODO: Testing code was here
             // logger.log();
@@ -183,7 +188,18 @@ public class Client : Thread
             // logger.log("<<<>>>");
             // logger.log();
 
+            import std.stdio;
+            writeln("Support stuff: ", commandReply.getKVPairs());
 
+            /* Fetch and parse the received key-value pairs */
+            string[string] receivedKV = commandReply.getKVPairs();
+            foreach(string key; receivedKV.keys())
+            {
+                /* Update the db */
+                string value = receivedKV[key];
+                connInfo.updateDB(key, value);
+                logger.log("Updated key in db '"~key~"' with value '"~value~"'");
+            }
 
         }
     }
@@ -201,9 +217,21 @@ public class Client : Thread
         /* Ensure no illegal characters in nick name */
         if(isValidText(nickname))
         {
-            /* Set the nick */
-            Message nickMessage = new Message("", "NICK", nickname);
-            sendMessage(nickMessage);
+            // TODO: We could investigate this later if we want to be safer
+            ulong maxNickLen = connInfo.getDB!(ulong)("MAXNICKLEN");
+
+            /* If the username's lenght is within the allowed bounds */
+            if(nickname.length <= maxNickLen)
+            {
+                /* Set the nick */
+                Message nickMessage = new Message("", "NICK", nickname);
+                sendMessage(nickMessage);
+            }
+            /* If not */
+            else
+            {
+                throw new BirchwoodException(ErrorType.NICKNAME_TOO_LONG);
+            }
         }
         else
         {
@@ -785,6 +813,9 @@ public class Client : Thread
 
                 /* Start the socket read-decode loop */
                 this.start();
+
+                /* Do the /NICK and /USER handshake */
+                doAuth();
             }
             catch(SocketOSException e)
             {
@@ -796,6 +827,44 @@ public class Client : Thread
         {
             throw new BirchwoodException(ErrorType.ALREADY_CONNECTED);
         }
+    }
+
+    /** 
+     * Performs the /NICK and /USER handshake.
+     *
+     * This method will set the hostname to be equal to the chosen
+     * username in the ConnectionInfo struct
+     *
+     * Params:
+     *   servername = the servername to use (default: bogus.net)
+     */
+    private void doAuth(string servername = "bogus.net")
+    {
+        Thread.sleep(dur!("seconds")(2));
+        nick(connInfo.nickname);
+
+        Thread.sleep(dur!("seconds")(2));
+        // TODO: Note I am making hostname the same as username always (is this okay?)
+        // TODO: Note I am making the servername always bogus.net
+        user(connInfo.username, connInfo.username, servername, connInfo.realname);
+    }
+
+    /** 
+     * Performs user identification
+     *
+     * Params:
+     *   username = the username to identify with
+     *   hostname = the hostname to use
+     *   servername = the servername to use
+     *   realname = your realname
+     */
+    public void user(string username, string hostname, string servername, string realname)
+    {
+        // TODO: Implement me properly with all required checks
+        
+        /* User message */
+        Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
+        sendMessage(userMessage);
     }
 
 
@@ -943,9 +1012,21 @@ public class Client : Thread
             /* Receieve at most 512 bytes (as per RFC) */
             ptrdiff_t bytesRead = socket.receive(currentData, SocketFlags.PEEK);
 
-            import std.stdio;
-            // writeln(bytesRead);
-            // writeln(currentData);
+            version(unittest)
+            {
+                import std.stdio;
+                writeln("(peek) bytesRead: '", bytesRead, "' (status var or count)");
+                writeln("(peek) currentData: '", currentData, "'");
+
+                // On remote end closing connection
+                if(bytesRead == 0)
+                {
+                    writeln("About to do the panic!");
+                    *cast(byte*)0 = 2;
+                }
+            }
+
+            
 
             /* FIXME: CHECK BYTES READ FOR SOCKET ERRORS! */
 
@@ -1019,7 +1100,7 @@ public class Client : Thread
             scratch.length = bytesRead;
             this.socket.receive(scratch);
 
-
+            
             
             /* TODO: Yield here and in other places before continue */
 
@@ -1034,12 +1115,11 @@ public class Client : Thread
 
     unittest
     {
-        /* FIXME: Get domaina name resolution support */
         // ConnectionInfo connInfo = ConnectionInfo.newConnection("irc.freenode.net", 6667, "testBirchwood");
         //freenode: 149.28.246.185
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
-        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "testBirchwood");
+        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "birchwood", "doggie", "Tristan B. Kildaire");
 
         // // Set the fakelag to 1 second
         // connInfo.setFakeLag(1);
@@ -1047,17 +1127,22 @@ public class Client : Thread
         // Create a new Client
         Client client = new Client(connInfo);
 
+        // Authenticate
         client.connect();
 
 
         // TODO: The below should all be automatic, maybe once IRCV3 is done
         // ... we should automate sending in NICK and USER stuff
-        Thread.sleep(dur!("seconds")(2));
-        // client.command(new Message("", "NICK", "birchwood")); // TODO: add nickcommand
-        client.nick("birchwood");
+        // Thread.sleep(dur!("seconds")(2));
+        // client.nick("birchwood");
 
-        Thread.sleep(dur!("seconds")(2));
-        client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
+        // Thread.sleep(dur!("seconds")(2));
+        // client.command(new Message("", "USER", "doggie doggie irc.frdeenode.net :Tristan B. Kildaire"));
+        // client.user("doggie", "doggie", "irc.frdeenode.net", "Tristan B. Kildaire");
+
+
+
+
         
         Thread.sleep(dur!("seconds")(4));
         // client.command(new Message("", "JOIN", "#birchwood"));
@@ -1165,8 +1250,29 @@ public class Client : Thread
          */
         client.leaveChannel(["#birchwoodLeave2"]);
 
+
+        /**
+         * Definately by now we would have learnt the new MAXNICLEN
+         * which on BonoboNET is 30, hence the below should work
+         */
+        try
+        {
+            client.nick("birchwood123456789123456789123");
+            assert(true);
+        }
+        catch(BirchwoodException e)
+        {
+            assert(false);
+        }
+
         // TODO: Don't forget to re-enable this when done testing!
-        Thread.sleep(dur!("seconds")(15));
-        client.quit();
+        Thread.sleep(dur!("seconds")(4));
+        client.joinChannel("#birchwood");
+        while(true)
+        {
+            Thread.sleep(dur!("seconds")(15));
+        }
+        
+        // client.quit();
     }
 }

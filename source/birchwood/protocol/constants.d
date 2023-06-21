@@ -149,7 +149,6 @@ public enum ReplyType : ulong
     RPL_MYPORTIS = 384,
     ERR_BADCHANMASK = 476,
 
-
     /**
      * rfc 2812
      */
@@ -157,8 +156,16 @@ public enum ReplyType : ulong
     RPL_YOURHOST = 2,
     RPL_CREATED = 3,
     RPL_MYINFO = 4,
-    RPL_BOUNCE = 5, // TODO: We care about the key-value pairs here in RPL_BOUNCE
+    RPL_BOUNCE = 10, // In ircv3 this changed from 005 to 010
     ERR_NOCHANMODES = 477,
+
+    /**
+     * ircv3
+     */
+    RPL_LOCALUSERS = 265,
+    RPL_GLOBALUSERS = 266,
+    RPL_WHOISCERTFP = 276,
+    RPL_ISUPPORT = 5, // This overrides the old rfc2812 RPL_BOUNCE code (we can only support one of these)
 
 
 

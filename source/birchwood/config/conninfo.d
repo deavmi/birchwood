@@ -5,6 +5,7 @@ module birchwood.config.conninfo;
 
 import std.socket : SocketException, Address, getAddress;
 import birchwood.client.exceptions;
+import std.conv : to, ConvException;
 
 /** 
  * Represents the connection details for a server
@@ -20,7 +21,17 @@ public shared struct ConnectionInfo
     /** 
      * Nickname to use
      */
-    private string nickname;
+    public string nickname;
+
+    /** 
+     * Username
+     */
+    public string username;
+
+    /** 
+     * Real name
+     */
+    public string realname;
 
     /** 
      * Size to use to dequeue bytes
@@ -40,6 +51,12 @@ public shared struct ConnectionInfo
      */
     public const string quitMessage;
 
+    /** 
+     * Key-value pairs learnt from the
+     * server
+     */
+    private string[string] db;
+
     /* TODO: before publishing change this bulk size */
 
     /** 
@@ -52,11 +69,13 @@ public shared struct ConnectionInfo
      *   bulkReadSize = the dequeue read size
      *   quitMessage = the message to use when quitting
      */
-    private this(Address addrInfo, string nickname, ulong bulkReadSize = 20, string quitMessage = "birchwood client disconnecting...")
+    private this(Address addrInfo, string nickname, string username, string realname, ulong bulkReadSize = 20, string quitMessage = "birchwood client disconnecting...")
     {
         // NOTE: Not sure if much mutable in Address anyways
         this.addrInfo = cast(shared Address)addrInfo;
         this.nickname = nickname;
+        this.username = username;
+        this.realname = realname;
         this.bulkReadSize = bulkReadSize;
         this.quitMessage = quitMessage;
 
@@ -117,6 +136,52 @@ public shared struct ConnectionInfo
     }
 
     /** 
+     * Update a value in the key-value pair database
+     *
+     * Params:
+     *   key = the key to set
+     *   value = the value to set to
+     */
+    public void updateDB(string key, string value)
+    {
+        db[key] = value;
+    }
+
+    /** 
+     * Retrieve a value from the key-value pair database
+     *
+     * Params:
+     *   key = the key to lookup
+     * Returns: the value as type T, if not able to convert then T.init
+     * Throws:
+     *   BirchwoodException if the key is not found
+     */
+    public T getDB(T)(string key)
+    {
+        if(key in db)
+        {
+            /* Attempt conversion into T */
+            try
+            {
+                /* Fetch and convert */
+                T value = to!(T)(db[key]);
+                return value;
+            }
+            /* If conversion to type T fails */
+            catch(ConvException e)
+            {
+                /* Return the initial value for such a paremeter */
+                return T.init;
+            }
+        }
+        else
+        {
+            throw new BirchwoodException(ErrorType.DB_KEY_NOT_FOUND, "Could not find key '"~key~"'");
+        }
+    }
+
+
+    /** 
      * Creates a ConnectionInfo struct representing a client configuration which
      * can be provided to the Client class to create a new connection based on its
      * parameters
@@ -128,7 +193,7 @@ public shared struct ConnectionInfo
      *
      * Returns: ConnectionInfo for this server
      */
-    public static ConnectionInfo newConnection(string hostname, ushort port, string nickname)
+    public static ConnectionInfo newConnection(string hostname, ushort port, string nickname, string username, string realname)
     {
         try
         {
@@ -144,7 +209,7 @@ public shared struct ConnectionInfo
             /* TODO: Add feature to choose which address to use, prefer v4 or v6 type of thing */
             Address chosenAddress = addrInfo[0];
 
-            return ConnectionInfo(chosenAddress, nickname);
+            return ConnectionInfo(chosenAddress, nickname, username, realname);
         }
         catch(SocketException e)
         {
@@ -162,7 +227,7 @@ public shared struct ConnectionInfo
     {
         try
         {
-            newConnection("1.", 21, "deavmi");
+            newConnection("1.", 21, "deavmi", "thedeavmi", "Tristan Brice Birchwood Kildaire");
             assert(false);
         }
         catch(BirchwoodException e)
@@ -172,7 +237,7 @@ public shared struct ConnectionInfo
 
         try
         {
-            newConnection("1.1.1.1", 21, "");
+            newConnection("1.1.1.1", 21, "", "thedeavmi", "Tristan Brice Birchwood Kildaire");
             assert(false);
         }
         catch(BirchwoodException e)
@@ -181,4 +246,17 @@ public shared struct ConnectionInfo
         }
         
     }
+}
+
+/** 
+ * Sets the default values as per rfc1459 in the
+ * key-value pair DB
+ *
+ * Params:
+ *   connInfo = a reference to the ConnectionInfo struct to update
+ */
+public void setDefaults(ref ConnectionInfo connInfo)
+{
+    /* Set the `MAXNICKLEN` to a default of 9 */
+    connInfo.updateDB("MAXNICKLEN", "9");
 }

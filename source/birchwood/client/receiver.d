@@ -20,6 +20,11 @@ import std.string : indexOf;
 import birchwood.client.events : PongEvent, IRCEvent;
 import std.string : cmp;
 
+version(unittest)
+{
+    import std.stdio : writeln;
+}
+
 /** 
  * Manages the receive queue and performs
  * message parsing and event triggering
@@ -104,10 +109,6 @@ public final class ReceiverThread : Thread
      * an event depending on the type of message
      *
      * Handles PINGs along with normal messages
-     *
-     * TODO: Our high load average is from here
-     * ... it is getting lock a lot and spinning here
-     * ... we should use libsnooze to avoid this
      */
     private void recvHandlerFunc()
     {
@@ -130,7 +131,28 @@ public final class ReceiverThread : Thread
 
             // TODO: See above notes about libsnooze behaviour due
             // ... to usage in our context
-            receiveEvent.wait(); // TODO: Catch any exceptions from libsnooze
+            try
+            {
+                receiveEvent.wait();
+            }
+            catch(InterruptedException e)
+            {
+                version(unittest)
+                {
+                    writeln("wait() interrupted");
+                }
+                continue;
+            }
+            catch(FatalException e)
+            {
+                // TODO: This should crash and end
+                version(unittest)
+                {
+                    writeln("wait() had a FATAL error!!!!!!!!!!!");
+                }
+                continue;
+            }
+            
 
             
 
