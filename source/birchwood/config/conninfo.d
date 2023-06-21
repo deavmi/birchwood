@@ -109,6 +109,16 @@ public shared struct ConnectionInfo
         this.mode = ChecksMode.EASY;
     }
 
+    public ChecksMode getMode()
+    {
+        return this.mode;
+    }
+
+    public void setMode(ChecksMode mode)
+    {
+        this.mode = mode;
+    }
+
     /** 
      * Retrieve the read-dequeue size
      *
