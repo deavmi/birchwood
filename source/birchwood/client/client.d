@@ -149,7 +149,6 @@ public class Client : Thread
 
     // TODO: Hook certain ones default style with an implemenation
     // ... for things that the client can learn from
-    // TODO: comment
     /** 
      * Called on command replies
      *
