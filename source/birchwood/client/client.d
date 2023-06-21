@@ -147,7 +147,6 @@ public class Client : Thread
         logger.log("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
     }
 
-
     // TODO: Hook certain ones default style with an implemenation
     // ... for things that the client can learn from
     /** 
@@ -649,7 +648,6 @@ public class Client : Thread
         sendMessage(message);
     }
 
-
     /**
     * Initialize the event handlers
     */
@@ -867,7 +865,6 @@ public class Client : Thread
         Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
         sendMessage(userMessage);
     }
-
 
     /** 
      * Adds a given message onto the receieve queue for
