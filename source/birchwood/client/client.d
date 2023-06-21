@@ -1,3 +1,6 @@
+/** 
+ * Client definition
+ */
 module birchwood.client.client;
 
 import std.socket : Socket, SocketException, Address, getAddress, SocketType, ProtocolType, SocketOSException;
@@ -87,9 +90,7 @@ public class Client : Thread
         setDefaults(this.connInfo);
     }
 
-    /** 
-     * TODO: ANything worth callin on destruction?
-     */
+    // TODO: ANything worth callin on destruction?
     ~this()
     {
         //TODO: Do something here, tare downs
