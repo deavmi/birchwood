@@ -9,6 +9,9 @@ import std.string;
 import std.conv : to, ConvException;
 import birchwood.protocol.constants : ReplyType;
 
+import birchwood.client.exceptions;
+import birchwood.config.conninfo : ChecksMode;
+
 // TODO: Before release we should remove this import
 import std.stdio : writeln;
 
@@ -154,15 +157,81 @@ public final class Message
      * any invalid characters will be stripped prior
      * to encoding
      *
+     * Params:
+     *    mode = the `ChecksMode` to use
+     *
      * Throws: 
      *  `BirchwoodException` if `ChecksMode` is set to
      *  `HARDCORE` and invalid characters are present
-     * Returns: 
+     * Returns: the encoded format
      */
-    public string encode()
+    public string encode(ChecksMode mode)
     {
-        string fullLine = from~" "~command~" "~params;
+        string fullLine;
+
+        /** 
+         * Copy over the values (they might be updated and we
+         * want to leave the originals intact)
+         */
+        string fFrom = from, fCommand = command, fParams = params;
+        
+        /** 
+         * If in `HARDCORE` mode then and illegal characters
+         * are present, throw an exception
+         */
+        if(mode == ChecksMode.HARDCORE && (
+                                            hic(fFrom) ||
+                                            hic(fCommand) ||
+                                            hic(fParams)
+                                          ))
+        {
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters present");
+        }
+        /** 
+         * If in `EASY` mode and illegal characters have
+         * been found, then fix them up
+         */
+        else
+        {
+            // Strip illegal characters from all
+            fFrom = sic(fFrom);
+            fCommand = sic(fCommand);
+            fParams = sic(fParams);
+        }
+        
+        /* Combine */
+        fullLine = fFrom~" "~fCommand~" "~fParams;
+
+        
+
         return fullLine;
+    }
+
+    // TODO: comemnt
+    private alias sic = stripIllegalCharacters;
+    // TODO: comemnt
+    private alias hic = hasIllegalCharacters;
+
+    /** 
+     * Checks whether the provided input string contains
+     * any invalid characters
+     *
+     * Params:
+     *   input = the string to check
+     * Returns: `true` if so, `false` otherwise
+     */
+    // TODO: Add unittest
+    private static bool hasIllegalCharacters(string input)
+    {
+        foreach(char character; input)
+        {
+            if(character == '\n' || character == '\r')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** 
@@ -173,6 +242,7 @@ public final class Message
      *   input = the string to filter
      * Returns: the filtered string
      */
+    // TODO: Add unittest
     private static string stripIllegalCharacters(string input)
     {
         string stripped;
