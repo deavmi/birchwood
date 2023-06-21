@@ -1,3 +1,6 @@
+/** 
+ * IRC constants
+ */
 module birchwood.protocol.constants;
 
 /** 
