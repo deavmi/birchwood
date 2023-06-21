@@ -1,3 +1,7 @@
+/** 
+ * Internal eventing definitions for use
+ * with `eventy`
+ */
 module birchwood.client.events;
 
 import eventy : EventyEvent = Event;
@@ -9,8 +13,6 @@ public final enum IRCEventType : ulong
     PONG_EVENT
 }
 
-
-/* TODO: Move to an events.d class */
 public final class IRCEvent : EventyEvent
 {   
     private Message msg;
