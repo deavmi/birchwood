@@ -13,6 +13,9 @@ public final enum IRCEventType : ulong
     PONG_EVENT
 }
 
+/** 
+ * Generic IRC event (non-pong)
+ */
 public final class IRCEvent : EventyEvent
 {   
     private Message msg;
@@ -36,6 +39,9 @@ public final class IRCEvent : EventyEvent
 }
 
 /* TODO: make PongEvent (id 2 buit-in) */
+/** 
+ * Pong event
+ */
 public final class PongEvent : EventyEvent
 {
     private string pingID;
