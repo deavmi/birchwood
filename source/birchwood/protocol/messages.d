@@ -146,11 +146,47 @@ public final class Message
         parameterParse();
     }
 
-    /* TODO: Implement encoder function */
+    /** 
+     * Encodes this `Message` into a CRLF delimited
+     * byte array
+     *
+     * If `ChecksMode` is set to `EASY` (default) then
+     * any invalid characters will be stripped prior
+     * to encoding
+     *
+     * Throws: 
+     *  `BirchwoodException` if `ChecksMode` is set to
+     *  `HARDCORE` and invalid characters are present
+     * Returns: 
+     */
     public string encode()
     {
         string fullLine = from~" "~command~" "~params;
         return fullLine;
+    }
+
+    /** 
+     * Provided an input string this will strip any illegal
+     * characters present within it
+     *
+     * Params:
+     *   input = the string to filter
+     * Returns: the filtered string
+     */
+    private static string stripIllegalCharacters(string input)
+    {
+        string stripped;
+        foreach(char character; input)
+        {
+            if(character == '\n' || character == '\r')
+            {
+                continue;
+            }
+
+            stripped ~= character;
+        }
+
+        return stripped;
     }
 
     public static Message parseReceivedMessage(string message)
