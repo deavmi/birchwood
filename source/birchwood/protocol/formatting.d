@@ -7,8 +7,6 @@ import birchwood.client.exceptions;
 
 /** 
  * Control codes
- *
- * TODO: Document each member
  */
 public enum ControlCode: char
 {
