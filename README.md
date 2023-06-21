@@ -1,17 +1,8 @@
-<p align="center">
-<img src="logo.png" width=220>
-</p>
+![](branding/logo_small.png)
 
-<br>
+# birchwood
 
-<h1 align="center">birchwood</h1>
-
-<h3 align="center"><i><b>A sane IRC framework for the D language</i></b></h3>
-
----
-
-<br>
-<br>
+## _A sane IRC framework for the D language_
 
 ```
 [13:51:00] <zh_> A sane IRC framework for the D language
