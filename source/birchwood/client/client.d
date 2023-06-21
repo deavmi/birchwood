@@ -776,7 +776,8 @@ public class Client : Thread
     /** 
      * Connects to the server
      *
-     * Throws: BirchwoodException
+     * Throws:
+     *  BirchwoodException if there is an error connecting
      */
     public void connect()
     {
