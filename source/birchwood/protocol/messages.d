@@ -1,3 +1,6 @@
+/** 
+ * Message definition and tooling
+ */
 module birchwood.protocol.messages;
 
 import dlog;
