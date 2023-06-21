@@ -7,9 +7,19 @@ module birchwood.client.events;
 import eventy : EventyEvent = Event;
 import birchwood.protocol.messages : Message;
 
+/** 
+ * Event IDs
+ */
 public final enum IRCEventType : ulong
 {
+    /** 
+     * A generic IRC event
+     */
     GENERIC_EVENT = 1,
+
+    /** 
+     * A pong event
+     */
     PONG_EVENT
 }
 
