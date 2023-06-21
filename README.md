@@ -18,6 +18,8 @@
 [13:51:11] <zh_> s/sane/professional
 ```
 
+![DUB](https://img.shields.io/dub/v/birchwood?color=%23c10000ff%20&style=flat-square) ![DUB](https://img.shields.io/dub/dt/birchwood?style=flat-square) ![DUB](https://img.shields.io/dub/l/birchwood?style=flat-square)
+
 ## Installation
 
 To add birchwood to your project simply run:
