@@ -95,9 +95,6 @@ public final class SenderThread : Thread
 
     /** 
      * The send queue worker function
-     *
-     * TODO: Same issue as recvHandlerFunc
-     * ... we should I/O wait (sleep) here
      */
     private void sendHandlerFunc()
     {
