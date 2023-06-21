@@ -8,6 +8,27 @@ import birchwood.client.exceptions;
 import std.conv : to, ConvException;
 
 /** 
+ * The mode describes how birchwood will act
+ * when encounterin invalid characters that
+ * were provided BY the user TO birchwood
+ */
+public enum ChecksMode
+{
+    /** 
+     * In this mode any invalid characters
+     * will be automatically stripped
+     */
+    EASY,
+
+    /** 
+     * In this mode any invalid characters
+     * will result in the throwing of a
+     * `BirchwoodException`
+     */
+    HARDCORE
+}
+
+/** 
  * Represents the connection details for a server
  * to connect to
  */
@@ -59,6 +80,8 @@ public shared struct ConnectionInfo
 
     /* TODO: before publishing change this bulk size */
 
+    private ChecksMode mode;
+
     /** 
      * Constructs a new ConnectionInfo instance with the
      * provided details
@@ -81,6 +104,9 @@ public shared struct ConnectionInfo
 
         // Set the default fakelag to 1
         this.fakeLag = 1;
+
+        // Set the validity mode to easy
+        this.mode = ChecksMode.EASY;
     }
 
     /** 
