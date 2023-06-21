@@ -883,18 +883,22 @@ public class Client : Thread
      * Sends a message to the server by enqueuing it on
      * the client-side send queue.
      *
-     * A BirchwoodException is thrown if the messages
-     * final length exceeds 512 bytes
+     * Any invalid characters will be stripped prior
+     * to encoding IF `ChecksMode` is set to `EASY` (default)
      *
      * Params:
      *   message = the message to send
+     * Throws:
+     *  A `BirchwoodException` is thrown if the messages
+     *  final length exceeds 512 bytes of if `ChecksMode`
+     *  is set to `HARDCORE`
      */
     private void sendMessage(Message message)
     {
         // TODO: Do message splits here
         
         /* Encode the message */
-        ubyte[] encodedMessage = encodeMessage(message.encode());
+        ubyte[] encodedMessage = encodeMessage(message.encode(connInfo.getMode()));
 
         /* If the message is 512 bytes or less then send */
         if(encodedMessage.length <= 512)
