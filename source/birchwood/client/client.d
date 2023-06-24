@@ -1021,6 +1021,9 @@ public class Client : Thread
                 {
                     writeln("About to do the panic!");
                     *cast(byte*)0 = 2;
+
+                    // FIXME: We need to set some state to disconnect here and tare
+                    // ... down alles
                 }
             }
 
