@@ -798,22 +798,12 @@ public class Client : Thread
                 /* Register default handler */
                 initEvents();
 
-                // /**
-                //  * Initialize the ready events for both the
-                //  * receive and send queue managers, then after
-                //  * doing so start both managers and spin for
-                //  * both of them to enter a ready state (i.e.
-                //  * they have ensured a waiting-pipe pair for
-                //  * libsnooze exists)
-                //  */
-
                 /* Set the running status to true */
                 running = true;
 
                 /* Start the receive queue and send queue managers */
                 this.receiver.start();
                 this.sender.start();
-                // while(!receiver.isReady() || !sender.isReady()) {}
 
                 /* Start the socket read-decode loop */
                 this.start();
