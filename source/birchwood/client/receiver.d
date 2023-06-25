@@ -70,7 +70,6 @@ public final class ReceiverThread : Thread
         this.recvQueueLock = new Mutex();        
     }
 
-    // TODO: Rename to `receiveQ`
     /** 
      * Enqueues the raw message into the receieve queue
      * for eventual processing
