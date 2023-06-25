@@ -211,7 +211,7 @@ public class Client : Thread
      * Params:
      *   nickname = the nickname to request
      * Throws:
-     *   BirchwoodException on invalid nickname
+     *   `BirchwoodException` on invalid nickname
      */
     public void nick(string nickname)
     {
@@ -246,7 +246,7 @@ public class Client : Thread
      * Params:
      *   channel = the channel to join
      * Throws:
-     *   BirchwoodException on invalid channel name
+     *   `BirchwoodException` on invalid channel name
      */
     public void joinChannel(string channel)
     {
@@ -277,7 +277,8 @@ public class Client : Thread
      * Params:
      *   channels = the channels to join
      * Throws:
-     *   BirchwoodException on invalid channel name
+     *   `BirchwoodException` on invalid channel name or
+     * if the list is empty
      */
     public void joinChannel(string[] channels)
     {
@@ -346,7 +347,8 @@ public class Client : Thread
      * Params:
      *   channels = the list of channels to part from
      * Throws:
-     *   BirchwoodException if the channels list is empty
+     *   `BirchwoodException` if the channels list is empty
+     * or there are illegal characters present
      */
     public void leaveChannel(string[] channels)
     {
@@ -433,7 +435,8 @@ public class Client : Thread
      *   message = The message to send
      *   recipients = The receipients of the message
      * Throws:
-     *   BirchwoodException if the recipients list is empty
+     *   `BirchwoodException` if the recipients list is empty
+     * or illegal characters are present
      */
     public void directMessage(string message, string[] recipients)
     {
@@ -506,6 +509,9 @@ public class Client : Thread
      * Params:
      *   message = The message to send
      *   recipients = The receipient of the message
+     * Throws:
+     *   `BirchwoodException` if the receipient's nickname
+     * is invalid or there are illegal characters present
      */
     public void directMessage(string message, string recipient)
     {
@@ -539,7 +545,7 @@ public class Client : Thread
      *   message = The message to send
      *   recipients = The receipients of the message
      * Throws:
-     *   BirchwoodException if the channels list is empty
+     *   `BirchwoodException` if the channels list is empty
      */
     public void channelMessage(string message, string[] channels)
     {
@@ -612,6 +618,9 @@ public class Client : Thread
      * Params:
      *   message = The message to send
      *   channel = The channel to send the message to
+     * Throws:
+     *   `BirchwoodException` if the message or channel name
+     * contains illegal characters
      */
     public void channelMessage(string message, string channel)
     {
@@ -888,11 +897,11 @@ public class Client : Thread
      * Sends a message to the server by enqueuing it on
      * the client-side send queue.
      *
-     * A BirchwoodException is thrown if the messages
-     * final length exceeds 512 bytes
-     *
      * Params:
      *   message = the message to send
+     * Throws:
+     *   `BirchwoodException` if the message's length
+     * exceeds 512 bytes
      */
     private void sendMessage(Message message)
     {
