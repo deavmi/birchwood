@@ -48,7 +48,6 @@ public final class ReceiverThread : Thread
      * to be processed and received
      */
     private Event receiveEvent;
-    // private bool hasEnsured;
 
     /** 
      * The associated IRC client
@@ -67,7 +66,8 @@ public final class ReceiverThread : Thread
         super(&recvHandlerFunc);
         this.client = client;
         this.receiveEvent = new Event(); // TODO: Catch any libsnooze error here
-        this.recvQueueLock = new Mutex();        
+        this.recvQueueLock = new Mutex();
+        this.receiveEvent.ensure(this);
     }
 
     // TODO: Rename to `receiveQ`
@@ -88,10 +88,6 @@ public final class ReceiverThread : Thread
 
         /* Unlock queue */
         recvQueueLock.unlock();
-
-        // TODO: Add a "register" function which can initialize pipes
-        // ... without needing a wait, we'd need a ready flag though
-        // ... for receiver's thread start
 
         /** 
          * Wake up all threads waiting on this event
@@ -116,21 +112,6 @@ public final class ReceiverThread : Thread
         {
             // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
 
-
-            // // Do a once-off call to `ensure()` here which then only runs once and
-            // // ... sets a `ready` flag for the Client to spin on. This ensures that
-            // // ... when the first received messages will be able to cause a wait
-            // // ... to immediately unblock rather than letting wait() register itself
-            // // ... and then require another receiveQ call to wake it up and process
-            // // ... the initial n messages + m new ones resulting in the second call
-            // if(hasEnsured == false)
-            // {
-            //     receiveEvent.ensure();
-            //     hasEnsured = true;
-            // }
-
-            // TODO: See above notes about libsnooze behaviour due
-            // ... to usage in our context
             try
             {
                 receiveEvent.wait();
@@ -152,9 +133,7 @@ public final class ReceiverThread : Thread
                 }
                 continue;
             }
-            
-
-            
+                        
 
             /* Lock the receieve queue */
             recvQueueLock.lock();
