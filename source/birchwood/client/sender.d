@@ -62,7 +62,6 @@ public final class SenderThread : Thread
         this.sendEvent.ensure(this);
     }
 
-    // TODO: Rename to `sendQ`
     /** 
      * Enqueues the raw message into the send queue
      * for eventual sending
