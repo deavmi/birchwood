@@ -15,6 +15,13 @@ import std.conv : to;
  */
 public enum ErrorType
 {
+    /**
+     * This could occur from errors with `Eventy`
+     * when setting up the signal handlers and
+     * event types
+     */
+    INTERNAL_FAILURE,
+
     /** 
      * If the provided connection information
      * is invalid, such as incorrect hostname,

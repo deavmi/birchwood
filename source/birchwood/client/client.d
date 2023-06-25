@@ -10,7 +10,7 @@ import std.container.slist : SList;
 import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
-import eventy : EventyEvent = Event, Engine, EventType, Signal;
+import eventy : EventyEvent = Event, Engine, EventType, Signal, EventyException;
 import birchwood.config;
 import birchwood.client.exceptions : BirchwoodException, ErrorType;
 import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
@@ -649,8 +649,12 @@ public class Client : Thread
     }
 
     /**
-    * Initialize the event handlers
-    */
+     * Initialize the event handlers
+     *
+     * Throws:
+     *   `EventyException` on error registering
+     * the signals and event types
+     */
     private void initEvents()
     {
         /* TODO: For now we just register one signal type for all messages */
@@ -775,7 +779,8 @@ public class Client : Thread
      * Connects to the server
      *
      * Throws:
-     *  BirchwoodException if there is an error connecting
+     *  `BirchwoodException` if there is an error connecting
+     * or something failed internally
      */
     public void connect()
     {
@@ -819,6 +824,10 @@ public class Client : Thread
             catch(SocketOSException e)
             {
                 throw new BirchwoodException(ErrorType.CONNECT_ERROR);
+            }
+            catch(EventyException e)
+            {
+                throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
             }
         }
         // TODO: Do actual liveliness check here
