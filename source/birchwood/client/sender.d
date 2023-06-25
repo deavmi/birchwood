@@ -52,12 +52,15 @@ public final class SenderThread : Thread
      *
      * Params:
      *   client = the Client to associate with
+     * Throws:
+     *   `SnoozeError` on failure to construct an
+     * `Event` or ensure ourselves
      */
     this(Client client)
     {
         super(&sendHandlerFunc);
         this.client = client;
-        this.sendEvent = new Event(); // TODO: Catch any libsnooze error here
+        this.sendEvent = new Event();
         this.sendQueueLock = new Mutex();
         this.sendEvent.ensure(this);
     }

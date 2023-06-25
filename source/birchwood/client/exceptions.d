@@ -18,7 +18,10 @@ public enum ErrorType
     /**
      * This could occur from errors with `Eventy`
      * when setting up the signal handlers and
-     * event types
+     * event types. It can also occur if `libsnooze`
+     * has an error which would occur when calling
+     * `ensure(Thread)` for the `Receiver` and `Sender`
+     * threads
      */
     INTERNAL_FAILURE,
 

@@ -60,12 +60,15 @@ public final class ReceiverThread : Thread
      *
      * Params:
      *   client = the Client to associate with
+     * Throws:
+     *   `SnoozeError` on failure to construct an
+     * `Event` or ensure ourselves
      */
     this(Client client)
     {
         super(&recvHandlerFunc);
         this.client = client;
-        this.receiveEvent = new Event(); // TODO: Catch any libsnooze error here
+        this.receiveEvent = new Event();
         this.recvQueueLock = new Mutex();
         this.receiveEvent.ensure(this);
     }

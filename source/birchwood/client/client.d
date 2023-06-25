@@ -19,6 +19,8 @@ import birchwood.client.receiver : ReceiverThread;
 import birchwood.client.sender : SenderThread;
 import birchwood.client.events;
 
+import libsnooze.exceptions : SnoozeError;
+
 import dlog;
 
 package __gshared Logger logger;
@@ -816,6 +818,10 @@ public class Client : Thread
                 throw new BirchwoodException(ErrorType.CONNECT_ERROR);
             }
             catch(EventyException e)
+            {
+                throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
+            }
+            catch(SnoozeError e)
             {
                 throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
             }
