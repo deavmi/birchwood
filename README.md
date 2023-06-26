@@ -23,9 +23,9 @@ dub add birchwood
 
 Birchwood depends on the following D libraries:
 
-* `libsnooze` (atleast 1.0.0-beta)
-* `eventy` (atleast 0.4.0)
-* `dlog` (atleast 0.3.19)
+* `libsnooze` (at least 1.2.0-beta)
+* `eventy` (at least 0.4.0)
+* `dlog` (at least 0.3.19)
 
 ## Usage
 
