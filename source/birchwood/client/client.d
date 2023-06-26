@@ -10,7 +10,7 @@ import std.container.slist : SList;
 import core.sync.mutex : Mutex;
 import core.thread : Thread, dur;
 import std.string;
-import eventy : EventyEvent = Event, Engine, EventType, Signal;
+import eventy : EventyEvent = Event, Engine, EventType, Signal, EventyException;
 import birchwood.config;
 import birchwood.client.exceptions : BirchwoodException, ErrorType;
 import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
@@ -18,6 +18,8 @@ import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isVa
 import birchwood.client.receiver : ReceiverThread;
 import birchwood.client.sender : SenderThread;
 import birchwood.client.events;
+
+import libsnooze.exceptions : SnoozeError;
 
 import dlog;
 
@@ -209,7 +211,7 @@ public class Client : Thread
      * Params:
      *   nickname = the nickname to request
      * Throws:
-     *   BirchwoodException on invalid nickname
+     *   `BirchwoodException` on invalid nickname
      */
     public void nick(string nickname)
     {
@@ -244,7 +246,7 @@ public class Client : Thread
      * Params:
      *   channel = the channel to join
      * Throws:
-     *   BirchwoodException on invalid channel name
+     *   `BirchwoodException` on invalid channel name
      */
     public void joinChannel(string channel)
     {
@@ -275,7 +277,8 @@ public class Client : Thread
      * Params:
      *   channels = the channels to join
      * Throws:
-     *   BirchwoodException on invalid channel name
+     *   `BirchwoodException` on invalid channel name or
+     * if the list is empty
      */
     public void joinChannel(string[] channels)
     {
@@ -344,7 +347,8 @@ public class Client : Thread
      * Params:
      *   channels = the list of channels to part from
      * Throws:
-     *   BirchwoodException if the channels list is empty
+     *   `BirchwoodException` if the channels list is empty
+     * or there are illegal characters present
      */
     public void leaveChannel(string[] channels)
     {
@@ -431,7 +435,8 @@ public class Client : Thread
      *   message = The message to send
      *   recipients = The receipients of the message
      * Throws:
-     *   BirchwoodException if the recipients list is empty
+     *   `BirchwoodException` if the recipients list is empty
+     * or illegal characters are present
      */
     public void directMessage(string message, string[] recipients)
     {
@@ -504,6 +509,9 @@ public class Client : Thread
      * Params:
      *   message = The message to send
      *   recipients = The receipient of the message
+     * Throws:
+     *   `BirchwoodException` if the receipient's nickname
+     * is invalid or there are illegal characters present
      */
     public void directMessage(string message, string recipient)
     {
@@ -537,7 +545,7 @@ public class Client : Thread
      *   message = The message to send
      *   recipients = The receipients of the message
      * Throws:
-     *   BirchwoodException if the channels list is empty
+     *   `BirchwoodException` if the channels list is empty
      */
     public void channelMessage(string message, string[] channels)
     {
@@ -610,6 +618,9 @@ public class Client : Thread
      * Params:
      *   message = The message to send
      *   channel = The channel to send the message to
+     * Throws:
+     *   `BirchwoodException` if the message or channel name
+     * contains illegal characters
      */
     public void channelMessage(string message, string channel)
     {
@@ -649,8 +660,12 @@ public class Client : Thread
     }
 
     /**
-    * Initialize the event handlers
-    */
+     * Initialize the event handlers
+     *
+     * Throws:
+     *   `EventyException` on error registering
+     * the signals and event types
+     */
     private void initEvents()
     {
         /* TODO: For now we just register one signal type for all messages */
@@ -775,7 +790,8 @@ public class Client : Thread
      * Connects to the server
      *
      * Throws:
-     *  BirchwoodException if there is an error connecting
+     *  `BirchwoodException` if there is an error connecting
+     * or something failed internally
      */
     public void connect()
     {
@@ -793,22 +809,12 @@ public class Client : Thread
                 /* Register default handler */
                 initEvents();
 
-                // /**
-                //  * Initialize the ready events for both the
-                //  * receive and send queue managers, then after
-                //  * doing so start both managers and spin for
-                //  * both of them to enter a ready state (i.e.
-                //  * they have ensured a waiting-pipe pair for
-                //  * libsnooze exists)
-                //  */
-
                 /* Set the running status to true */
                 running = true;
 
                 /* Start the receive queue and send queue managers */
                 this.receiver.start();
                 this.sender.start();
-                // while(!receiver.isReady() || !sender.isReady()) {}
 
                 /* Start the socket read-decode loop */
                 this.start();
@@ -819,6 +825,14 @@ public class Client : Thread
             catch(SocketOSException e)
             {
                 throw new BirchwoodException(ErrorType.CONNECT_ERROR);
+            }
+            catch(EventyException e)
+            {
+                throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
+            }
+            catch(SnoozeError e)
+            {
+                throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
             }
         }
         // TODO: Do actual liveliness check here
@@ -883,11 +897,11 @@ public class Client : Thread
      * Sends a message to the server by enqueuing it on
      * the client-side send queue.
      *
-     * A BirchwoodException is thrown if the messages
-     * final length exceeds 512 bytes
-     *
      * Params:
      *   message = the message to send
+     * Throws:
+     *   `BirchwoodException` if the message's length
+     * exceeds 512 bytes
      */
     private void sendMessage(Message message)
     {
