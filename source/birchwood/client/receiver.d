@@ -247,5 +247,7 @@ public final class ReceiverThread : Thread
 
         // Wait on the manager thread to end
         join();
+
+        // TODO: Call dispose() on eventy event
     }
 }

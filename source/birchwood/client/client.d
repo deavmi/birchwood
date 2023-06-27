@@ -215,25 +215,6 @@ public class Client : Thread
     }
 
     /** 
-     * Called when the receiver realises the socket has
-     * closed
-     */
-    private void closedConnectionHandler()
-    {
-        // Set the running state to false
-        this.running = false;
-
-        // Now we can wake up any sleeping managers and let them stop
-        this.sender.end();
-        this.receiver.end();
-
-        // TODO: Do any other clean up that needs to be done
-
-        // Call the event handler
-        onConnectionClosed();
-    }
-
-    /** 
      * Requests setting of the provided nickname
      *
      * Params:

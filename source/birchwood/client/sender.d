@@ -152,5 +152,7 @@ public final class SenderThread : Thread
 
         // Wait on the manager thread to end
         join();
+
+        // TODO: Call dispose() on eventy event
     }
 }
