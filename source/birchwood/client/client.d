@@ -206,6 +206,34 @@ public class Client : Thread
     }
 
     /** 
+     * Called when the connection to the remote host is closed
+     */
+    public void onConnectionClosed()
+    {
+        // TODO: Add log as default behaviour?
+        logger.log("Connection was closed, not doing anything");
+    }
+
+    /** 
+     * Called when the receiver realises the socket has
+     * closed
+     */
+    private void closedConnectionHandler()
+    {
+        // Set the running state to false
+        this.running = false;
+
+        // Now we can wake up any sleeping managers and let them stop
+        this.sender.end();
+        this.receiver.end();
+
+        // TODO: Do any other clean up that needs to be done
+
+        // Call the event handler
+        onConnectionClosed();
+    }
+
+    /** 
      * Requests setting of the provided nickname
      *
      * Params:
@@ -926,8 +954,10 @@ public class Client : Thread
     /** 
      * Disconnect from the IRC server gracefully
      */
-    public void quit()
+    public void quit(bool gracefulChannelLeave = false)
     {
+        // TODO: Add graceful leaving of all channels?
+
         /* Generate the quit command using the custom quit message */
         Message quitCommand = new Message("", "QUIT", connInfo.quitMessage);
         sendMessage(quitCommand);
@@ -950,29 +980,38 @@ public class Client : Thread
         running = false;
         logger.log("disconnect() begin");
 
-        /* Close the socket */
-        socket.close();
-        logger.log("disconnect() socket closed");
+        /* Shutdown the socket */
 
-        // TODO: See libsnooze notes in `receiver.d` and `sender.d`, we could technically in some
-        // ... teribble situation have a unregistered situaion which would then have a fallthrough
-        // ... notify and a wait which never wakes up (the solution is mentioned in `receiver.d`/`sender.d`)
+        /**
+         * Shutdown the socket unblocking
+         * any reads and writes occuring
+         *
+         * Notably this unblocks the receiver
+         * thread and causes it to handle
+         * the shutdown.
+         */
+        import std.socket : SocketShutdown;
+        socket.shutdown(SocketShutdown.BOTH);
+        logger.log("disconnect() socket shutdown");
+
+        
+    }
+
+    private void doThreadCleanup()
+    {
+        /* Stop the receive queue manager and wait for it to stop */
         receiver.end();
+        logger.log("doThreadCleanup() recvQueue manager stopped");
+
+        /* Stop the send queue manager and wait for it to stop */
         sender.end();
-
-        /* Wait for receive queue manager to realise it needs to stop */
-        receiver.join();
-        logger.log("disconnect() recvQueue manager stopped");
-
-        /* Wait for the send queue manager to realise it needs to stop */
-        sender.join();
-        logger.log("disconnect() sendQueue manager stopped");
+        logger.log("doThreadCleanup() sendQueue manager stopped");
 
         /* TODO: Stop eventy (FIXME: I don't know if this is implemented in Eventy yet, do this!) */
         engine.shutdown();
-        logger.log("disconnect() eventy stopped");
+        logger.log("doThreadCleanup() eventy stopped");
 
-        logger.log("disconnect() end");
+        logger.log("doThreadCleanup() end");
     }
 
     /** 
@@ -1019,27 +1058,41 @@ public class Client : Thread
          * FIXME: We need to find a way to tare down this socket, we don't
          * want to block forever after running quit
          */
-        while(running)
+        readLoop: while(running)
         {
             /* Receieve at most 512 bytes (as per RFC) */
             ptrdiff_t bytesRead = socket.receive(currentData, SocketFlags.PEEK);
 
+            // TODO: Should not be JUST unittest builds
+            // TODO: This sort of logic should be used by EVERY read
             version(unittest)
             {
                 import std.stdio;
                 writeln("(peek) bytesRead: '", bytesRead, "' (status var or count)");
                 writeln("(peek) currentData: '", currentData, "'");
-
-                // On remote end closing connection
-                if(bytesRead == 0)
-                {
-                    writeln("About to do the panic!");
-                    *cast(byte*)0 = 2;
-
-                    // FIXME: We need to set some state to disconnect here and tare
-                    // ... down alles
-                }
             }
+
+            /**
+             * Check if the remote host closed the connection
+             * OR some general error occurred
+             *
+             * TODO: See if the code is safe enough to only
+             * have to do this ONCE
+             */
+            if(bytesRead == 0 || bytesRead < 0)
+            {
+                version(unittest)
+                {
+                    import std.stdio;
+                    writeln("Remote host ended connection or general error, Socket.ERROR: '", bytesRead, "'");
+                }
+
+                /* Set running state to false, then exit loop */
+                this.running = false;
+                continue readLoop;
+            }
+
+            
 
             
 
@@ -1064,7 +1117,18 @@ public class Client : Thread
                     /* Chop off the LF */
                     ubyte[] scratch;
                     scratch.length = 1;
-                    this.socket.receive(scratch);
+                    long status = this.socket.receive(scratch);
+
+                    /**
+                     * Check if the remote host closed the connection
+                     * OR some general error occurred
+                     */
+                    if(status == 0 || status < 0)
+                    {
+                        /* Set running state to false, then exit loop */
+                        this.running = false;
+                        continue readLoop;
+                    }
 
                     continue;
                 }
@@ -1103,7 +1167,19 @@ public class Client : Thread
                 /* Guaranteed as we peeked this lenght */
                 ubyte[] scratch;
                 scratch.length = pos+1;
-                this.socket.receive(scratch);
+                long status = this.socket.receive(scratch);
+
+                /**
+                 * Check if the remote host closed the connection
+                 * OR some general error occurred
+                 */
+                if(status == 0 || status < 0)
+                {
+                    /* Set running state to false, then exit loop */
+                    this.running = false;
+                    continue readLoop;
+                }
+
                 continue;
             }
 
@@ -1113,13 +1189,34 @@ public class Client : Thread
             /* TODO: Dequeue without peek after this */
             ubyte[] scratch;
             scratch.length = bytesRead;
-            this.socket.receive(scratch);
+            long status = this.socket.receive(scratch);
+            
+            /**
+             * Check if the remote host closed the connection
+             * OR some general error occurred
+             */
+            if(status == 0 || status < 0)
+            {
+                /* Set running state to false, then exit loop */
+                this.running = false;
+                continue readLoop;
+            }
 
-            
-            
             /* TODO: Yield here and in other places before continue */
-
         }
+
+        /* Shut down socket AND close it */
+        import std.socket : SocketShutdown;
+        socket.shutdown(SocketShutdown.BOTH);
+        socket.close();
+
+        /* Shutdown sub-systems */
+        doThreadCleanup();
+
+        // FIXME: Really invalidate everything here
+
+        /* Call the onDisconnect thing (TODO) */
+        onConnectionClosed();
     }
 
 
