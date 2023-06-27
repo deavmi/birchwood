@@ -149,5 +149,8 @@ public final class SenderThread : Thread
         // TODO: See above notes about libsnooze behaviour due
         // ... to usage in our context
         sendEvent.notifyAll();
+
+        // Wait on the manager thread to end
+        join();
     }
 }

@@ -244,5 +244,8 @@ public final class ReceiverThread : Thread
         // TODO: See above notes about libsnooze behaviour due
         // ... to usage in our context
         receiveEvent.notifyAll();
+
+        // Wait on the manager thread to end
+        join();
     }
 }
