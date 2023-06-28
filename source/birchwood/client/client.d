@@ -239,12 +239,12 @@ public class Client : Thread
             /* If not */
             else
             {
-                throw new BirchwoodException(ErrorType.NICKNAME_TOO_LONG);
+                throw new BirchwoodException(ErrorType.NICKNAME_TOO_LONG, "The nickname was over thge length of "~to!(string)(maxNickLen)~" characters");
             }
         }
         else
         {
-            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "There are illegal characters in the nickname");
         }
     }
 
@@ -270,12 +270,12 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(ErrorType.INVALID_CHANNEL_NAME);
+                throw new BirchwoodException(ErrorType.INVALID_CHANNEL_NAME, "Channel name does not start with a #");
             }
         }
         else
         {
-            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters in channel");
         }
     }
 
@@ -329,7 +329,7 @@ public class Client : Thread
                     }
                     else
                     {
-                        throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                        throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters in the channel");
                     }
                 }
 
@@ -339,13 +339,13 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters in the channel");
             }
         }
         /* If no channels provided at all (error) */
         else
         {
-            throw new BirchwoodException(ErrorType.EMPTY_PARAMS);
+            throw new BirchwoodException(ErrorType.EMPTY_PARAMS, "No channels provided");
         }
     }
 
@@ -401,7 +401,7 @@ public class Client : Thread
                     }
                     else
                     {
-                        throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                        throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters in the channel");
                     }
                 }
 
@@ -411,13 +411,13 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters in the channel");
             }
         }
         /* If no channels provided at all (error) */
         else
         {
-            throw new BirchwoodException(ErrorType.EMPTY_PARAMS);
+            throw new BirchwoodException(ErrorType.EMPTY_PARAMS, "No channels were provided");
         }
     }
 
@@ -442,7 +442,7 @@ public class Client : Thread
         /* If invalid characters were present */
         else
         {
-            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "There are illegal characters in the channel name");
         }
     }
 
@@ -496,7 +496,7 @@ public class Client : Thread
                         }
                         else
                         {
-                            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "There are illegal characters in the recipient");
                         }
                     }
 
@@ -506,18 +506,18 @@ public class Client : Thread
                 }
                 else
                 {
-                    throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                    throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "There are illegal characters in the recipient");
                 }
             }
             else
             {
-                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "The message contains invalid characters");
             }          
         }
         /* If no recipients provided at all (error) */
         else
         {
-            throw new BirchwoodException(ErrorType.EMPTY_PARAMS);
+            throw new BirchwoodException(ErrorType.EMPTY_PARAMS, "No recipients were provided");
         }
     }
 
@@ -533,8 +533,6 @@ public class Client : Thread
      */
     public void directMessage(string message, string recipient)
     {
-        //TODO: Add check on recipient
-
         /* Ensure the message and recipient are valid text */
         if(isValidText(message) && isValidText(recipient))
         {
@@ -547,12 +545,12 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(ErrorType.INVALID_NICK_NAME);
+                throw new BirchwoodException(ErrorType.INVALID_NICK_NAME, "The provided nickname contains invalid characters");
             }
         }
         else
         {
-            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "There are illegal characters in either the message of the recipient");
         }
     }
 
@@ -605,7 +603,7 @@ public class Client : Thread
                         }
                         else
                         {
-                            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "One of the channel names contains invalid characters");
                         }
                     }
 
@@ -615,18 +613,18 @@ public class Client : Thread
                 }
                 else
                 {
-                    throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                    throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "One of the channel names contains invalid characters");
                 }
             }
             else
             {
-                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+                throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters in the message");
             }
         }
         /* If no channels provided at all (error) */
         else
         {
-            throw new BirchwoodException(ErrorType.EMPTY_PARAMS);
+            throw new BirchwoodException(ErrorType.EMPTY_PARAMS, "No channels were provided");
         }
     }
 
@@ -654,12 +652,12 @@ public class Client : Thread
             }
             else
             {
-                throw new BirchwoodException(ErrorType.INVALID_CHANNEL_NAME);
+                throw new BirchwoodException(ErrorType.INVALID_CHANNEL_NAME, "The channel is missign a # infront of its name");
             }
         }
         else
         {
-            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Channel name of message contains invalid characters");
         }
     }
 
@@ -886,14 +884,24 @@ public class Client : Thread
      *   hostname = the hostname to use
      *   servername = the servername to use
      *   realname = your realname
+     * Throws:
+     *   `BirchwoodException` if the username, jostname,
+     * servername or realname contains illegal characters
      */
     public void user(string username, string hostname, string servername, string realname)
     {
         // TODO: Implement me properly with all required checks
-        
-        /* User message */
-        Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
-        sendMessage(userMessage);
+
+        if(isValidText(username) && isValidText(hostname) && isValidText(servername) && isValidText(realname))
+        {
+            /* User message */
+            Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
+            sendMessage(userMessage);
+        }
+        else
+        {
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Illegal characters present in either the username, hostname, server name or real name");
+        }
     }
 
     /** 
@@ -935,7 +943,7 @@ public class Client : Thread
         /* If above then throw an exception */
         else
         {
-            throw new BirchwoodException(ErrorType.COMMAND_TOO_LONG);
+            throw new BirchwoodException(ErrorType.COMMAND_TOO_LONG, "The final encoded length of the message is too long");
         }
     }
 
