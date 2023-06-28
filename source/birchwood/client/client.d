@@ -943,10 +943,8 @@ public class Client : Thread
     /** 
      * Disconnect from the IRC server gracefully
      */
-    public void quit(bool gracefulChannelLeave = false)
+    public void quit()
     {
-        // TODO: Add graceful leaving of all channels?
-
         /* Generate the quit command using the custom quit message */
         Message quitCommand = new Message("", "QUIT", connInfo.quitMessage);
         sendMessage(quitCommand);
