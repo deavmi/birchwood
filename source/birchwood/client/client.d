@@ -418,14 +418,24 @@ public class Client : Thread
      *
      * Params:
      *   channel = the channel to leave
+     * Throws:
+     *   `BirchwoodException` if the channel name
+     * is invalid
      */
     public void leaveChannel(string channel)
     {
-        // TODO: Add check for valid and non-empty channel names
-
-        /* Leave the channel */
-        Message leaveMessage = new Message("", "PART", channel);
-        sendMessage(leaveMessage);
+        /* Ensure the channel name contains only valid characters */
+        if(isValidText(channel))
+        {
+            /* Leave the channel */
+            Message leaveMessage = new Message("", "PART", channel);
+            sendMessage(leaveMessage);
+        }
+        /* If invalid characters were present */
+        else
+        {
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
+        }
     }
 
     /** 
