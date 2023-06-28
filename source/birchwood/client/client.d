@@ -876,14 +876,24 @@ public class Client : Thread
      *   hostname = the hostname to use
      *   servername = the servername to use
      *   realname = your realname
+     * Throws:
+     *   `BirchwoodException` if the username, jostname,
+     * servername or realname contains illegal characters
      */
     public void user(string username, string hostname, string servername, string realname)
     {
         // TODO: Implement me properly with all required checks
-        
-        /* User message */
-        Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
-        sendMessage(userMessage);
+
+        if(isValidText(username) && isValidText(hostname) && isValidText(servername) && isValidText(realname))
+        {
+            /* User message */
+            Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
+            sendMessage(userMessage);
+        }
+        else
+        {
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Illegal characters present in either the username, hostname, server name or real name");
+        }
     }
 
     /** 
