@@ -4,7 +4,7 @@
 module birchwood.client.client;
 
 import std.socket : Socket, SocketException, Address, getAddress, SocketType, ProtocolType, SocketOSException;
-import std.socket : SocketFlags;
+import std.socket : SocketFlags, SocketShutdown;
 import std.conv : to;
 import std.container.slist : SList;
 import core.sync.mutex : Mutex;
@@ -14,6 +14,7 @@ import eventy : EventyEvent = Event, Engine, EventType, Signal, EventyException;
 import birchwood.config;
 import birchwood.client.exceptions : BirchwoodException, ErrorType;
 import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
+import birchwood.protocol.constants : ReplyType;
 
 import birchwood.client.receiver : ReceiverThread;
 import birchwood.client.sender : SenderThread;
@@ -164,8 +165,6 @@ public class Client : Thread
 
         /* Default implementation */
         logger.log("Response("~to!(string)(commandReply.getReplyType())~", "~commandReply.getFrom()~"): "~commandReply.toString());
-
-        import birchwood.protocol.constants : ReplyType;
 
         if(commandReply.getReplyType() == ReplyType.RPL_ISUPPORT)
         {
@@ -1193,7 +1192,6 @@ public class Client : Thread
         }
 
         /* Shut down socket AND close it */
-        import std.socket : SocketShutdown;
         socket.shutdown(SocketShutdown.BOTH);
         socket.close();
 
