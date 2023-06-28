@@ -646,13 +646,11 @@ public class Client : Thread
             }
             else
             {
-                //TODO: Invalid channel name
                 throw new BirchwoodException(ErrorType.INVALID_CHANNEL_NAME);
             }
         }
         else
         {
-            //TODO: Illegal characters
             throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS);
         }
     }
