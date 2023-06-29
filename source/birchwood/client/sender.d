@@ -95,7 +95,7 @@ public final class SenderThread : Thread
      */
     private void sendHandlerFunc()
     {
-        while(client.running)
+        while(client.isRunning())
         {
             // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
 

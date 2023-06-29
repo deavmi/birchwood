@@ -110,7 +110,7 @@ public final class ReceiverThread : Thread
      */
     private void recvHandlerFunc()
     {
-        while(client.running)
+        while(client.isRunning())
         {
             // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
 

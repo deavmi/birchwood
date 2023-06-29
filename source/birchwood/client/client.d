@@ -63,11 +63,26 @@ public class Client : Thread
 
     /** 
      * Eventy event engine
+     *
+     * (TODO: Try make private)
      */
     package Engine engine;
 
-    package bool running = false;
+    /** 
+     * Whether the client is running or not
+     */
+    private bool running = false;
 
+    /** 
+     * Checks whether this client is running
+     *
+     * Returns: `true` if running, `false`
+     * otherwise
+     */
+    package bool isRunning()
+    {
+        return this.running;
+    }
 
     /** 
      * Constructs a new IRC client with the given configuration
