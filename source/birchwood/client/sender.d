@@ -153,6 +153,7 @@ public final class SenderThread : Thread
         // Wait on the manager thread to end
         join();
 
-        // TODO: Call dispose() on eventy event
+        // Dispose the eventy event (TODO: We could do this then join for same effect)
+        sendEvent.dispose();
     }
 }
