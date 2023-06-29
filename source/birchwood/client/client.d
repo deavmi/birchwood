@@ -63,10 +63,8 @@ public class Client : Thread
 
     /** 
      * Eventy event engine
-     *
-     * (TODO: Try make private)
      */
-    package Engine engine;
+    private Engine engine;
 
     /** 
      * Whether the client is running or not
@@ -82,6 +80,16 @@ public class Client : Thread
     package bool isRunning()
     {
         return this.running;
+    }
+
+    /** 
+     * Returns the eventy engine
+     *
+     * Returns: the `Engine`
+     */
+    package Engine getEngine()
+    {
+        return this.engine;
     }
 
     /** 

@@ -187,7 +187,7 @@ public final class ReceiverThread : Thread
 
                 /* Spawn a PONG event */
                 EventyEvent pongEvent = new PongEvent(pingID);
-                client.engine.push(pongEvent);
+                client.getEngine().push(pongEvent);
             }
 
 
@@ -222,7 +222,7 @@ public final class ReceiverThread : Thread
 
                 // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
                 EventyEvent ircEvent = new IRCEvent(curMsg);
-                client.engine.push(ircEvent);
+                client.getEngine.push(ircEvent);
 
                 /* Remove the message from the queue */
                 currentMessageQueue.linearRemoveElement(curMsg);
