@@ -4,7 +4,7 @@
 module birchwood.client.client;
 
 import std.socket : Socket, SocketException, Address, getAddress, SocketType, ProtocolType, SocketOSException;
-import std.socket : SocketFlags;
+import std.socket : SocketFlags, SocketShutdown;
 import std.conv : to;
 import std.container.slist : SList;
 import core.sync.mutex : Mutex;
@@ -14,6 +14,7 @@ import eventy : EventyEvent = Event, Engine, EventType, Signal, EventyException;
 import birchwood.config;
 import birchwood.client.exceptions : BirchwoodException, ErrorType;
 import birchwood.protocol.messages : Message, encodeMessage, decodeMessage, isValidText;
+import birchwood.protocol.constants : ReplyType;
 
 import birchwood.client.receiver : ReceiverThread;
 import birchwood.client.sender : SenderThread;
@@ -63,10 +64,33 @@ public class Client : Thread
     /** 
      * Eventy event engine
      */
-    package Engine engine;
+    private Engine engine;
 
-    package bool running = false;
+    /** 
+     * Whether the client is running or not
+     */
+    private bool running = false;
 
+    /** 
+     * Checks whether this client is running
+     *
+     * Returns: `true` if running, `false`
+     * otherwise
+     */
+    package bool isRunning()
+    {
+        return this.running;
+    }
+
+    /** 
+     * Returns the eventy engine
+     *
+     * Returns: the `Engine`
+     */
+    package Engine getEngine()
+    {
+        return this.engine;
+    }
 
     /** 
      * Constructs a new IRC client with the given configuration
@@ -79,12 +103,6 @@ public class Client : Thread
     {
         super(&loop);
         this.connInfo = connInfo;
-
-        /** 
-         * Setups the receiver and sender queue managers
-         */
-        this.receiver = new ReceiverThread(this);
-        this.sender = new SenderThread(this);
 
         /** 
          * Set defaults in db
@@ -165,8 +183,6 @@ public class Client : Thread
         /* Default implementation */
         logger.log("Response("~to!(string)(commandReply.getReplyType())~", "~commandReply.getFrom()~"): "~commandReply.toString());
 
-        import birchwood.protocol.constants : ReplyType;
-
         if(commandReply.getReplyType() == ReplyType.RPL_ISUPPORT)
         {
             // TODO: Testing code was here
@@ -203,6 +219,15 @@ public class Client : Thread
             }
 
         }
+    }
+
+    /** 
+     * Called when the connection to the remote host is closed
+     */
+    public void onConnectionClosed()
+    {
+        // TODO: Add log as default behaviour?
+        logger.log("Connection was closed, not doing anything");
     }
 
     /** 
@@ -801,7 +826,7 @@ public class Client : Thread
      */
     public void connect()
     {
-        if(socket is null)
+        if(!running)
         {
             try
             {
@@ -817,6 +842,12 @@ public class Client : Thread
 
                 /* Set the running status to true */
                 running = true;
+
+                /** 
+                 * Setups the receiver and sender queue managers
+                 */
+                this.receiver = new ReceiverThread(this);
+                this.sender = new SenderThread(this);
 
                 /* Start the receive queue and send queue managers */
                 this.receiver.start();
@@ -834,10 +865,12 @@ public class Client : Thread
             }
             catch(EventyException e)
             {
+                // TODO: Could deallocate here
                 throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
             }
             catch(SnoozeError e)
             {
+                // TODO: Coudl deallocate here
                 throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
             }
         }
@@ -966,29 +999,46 @@ public class Client : Thread
         running = false;
         logger.log("disconnect() begin");
 
-        /* Close the socket */
-        socket.close();
-        logger.log("disconnect() socket closed");
+        /* Shutdown the socket */
 
-        // TODO: See libsnooze notes in `receiver.d` and `sender.d`, we could technically in some
-        // ... teribble situation have a unregistered situaion which would then have a fallthrough
-        // ... notify and a wait which never wakes up (the solution is mentioned in `receiver.d`/`sender.d`)
+        /**
+         * Shutdown the socket unblocking
+         * any reads and writes occuring
+         *
+         * Notably this unblocks the receiver
+         * thread and causes it to handle
+         * the shutdown.
+         */
+        import std.socket : SocketShutdown;
+        socket.shutdown(SocketShutdown.BOTH);
+        logger.log("disconnect() socket shutdown");
+
+        
+    }
+
+    /** 
+     * Cleans up resources which would have been allocated
+     * during the call to `connect()` and for the duration
+     * of the open session
+     */
+    private void doThreadCleanup()
+    {
+        /* Stop the receive queue manager and wait for it to stop */
         receiver.end();
+        logger.log("doThreadCleanup() recvQueue manager stopped");
+        receiver = null;
+
+        /* Stop the send queue manager and wait for it to stop */
         sender.end();
-
-        /* Wait for receive queue manager to realise it needs to stop */
-        receiver.join();
-        logger.log("disconnect() recvQueue manager stopped");
-
-        /* Wait for the send queue manager to realise it needs to stop */
-        sender.join();
-        logger.log("disconnect() sendQueue manager stopped");
+        logger.log("doThreadCleanup() sendQueue manager stopped");
+        sender = null;
 
         /* TODO: Stop eventy (FIXME: I don't know if this is implemented in Eventy yet, do this!) */
         engine.shutdown();
-        logger.log("disconnect() eventy stopped");
+        logger.log("doThreadCleanup() eventy stopped");
+        engine = null;
 
-        logger.log("disconnect() end");
+        logger.log("doThreadCleanup() end");
     }
 
     /** 
@@ -1035,24 +1085,41 @@ public class Client : Thread
          * FIXME: We need to find a way to tare down this socket, we don't
          * want to block forever after running quit
          */
-        while(running)
+        readLoop: while(running)
         {
             /* Receieve at most 512 bytes (as per RFC) */
             ptrdiff_t bytesRead = socket.receive(currentData, SocketFlags.PEEK);
 
+            // TODO: Should not be JUST unittest builds
+            // TODO: This sort of logic should be used by EVERY read
             version(unittest)
             {
                 import std.stdio;
                 writeln("(peek) bytesRead: '", bytesRead, "' (status var or count)");
                 writeln("(peek) currentData: '", currentData, "'");
-
-                // On remote end closing connection
-                if(bytesRead == 0)
-                {
-                    writeln("About to do the panic!");
-                    *cast(byte*)0 = 2;
-                }
             }
+
+            /**
+             * Check if the remote host closed the connection
+             * OR some general error occurred
+             *
+             * TODO: See if the code is safe enough to only
+             * have to do this ONCE
+             */
+            if(bytesRead == 0 || bytesRead < 0)
+            {
+                version(unittest)
+                {
+                    import std.stdio;
+                    writeln("Remote host ended connection or general error, Socket.ERROR: '", bytesRead, "'");
+                }
+
+                /* Set running state to false, then exit loop */
+                this.running = false;
+                continue readLoop;
+            }
+
+            
 
             
 
@@ -1077,7 +1144,18 @@ public class Client : Thread
                     /* Chop off the LF */
                     ubyte[] scratch;
                     scratch.length = 1;
-                    this.socket.receive(scratch);
+                    long status = this.socket.receive(scratch);
+
+                    /**
+                     * Check if the remote host closed the connection
+                     * OR some general error occurred
+                     */
+                    if(status == 0 || status < 0)
+                    {
+                        /* Set running state to false, then exit loop */
+                        this.running = false;
+                        continue readLoop;
+                    }
 
                     continue;
                 }
@@ -1116,7 +1194,19 @@ public class Client : Thread
                 /* Guaranteed as we peeked this lenght */
                 ubyte[] scratch;
                 scratch.length = pos+1;
-                this.socket.receive(scratch);
+                long status = this.socket.receive(scratch);
+
+                /**
+                 * Check if the remote host closed the connection
+                 * OR some general error occurred
+                 */
+                if(status == 0 || status < 0)
+                {
+                    /* Set running state to false, then exit loop */
+                    this.running = false;
+                    continue readLoop;
+                }
+
                 continue;
             }
 
@@ -1126,13 +1216,33 @@ public class Client : Thread
             /* TODO: Dequeue without peek after this */
             ubyte[] scratch;
             scratch.length = bytesRead;
-            this.socket.receive(scratch);
+            long status = this.socket.receive(scratch);
+            
+            /**
+             * Check if the remote host closed the connection
+             * OR some general error occurred
+             */
+            if(status == 0 || status < 0)
+            {
+                /* Set running state to false, then exit loop */
+                this.running = false;
+                continue readLoop;
+            }
 
-            
-            
             /* TODO: Yield here and in other places before continue */
-
         }
+
+        /* Shut down socket AND close it */
+        socket.shutdown(SocketShutdown.BOTH);
+        socket.close();
+
+        /* Shutdown sub-systems */
+        doThreadCleanup();
+
+        // FIXME: Really invalidate everything here
+
+        /* Call the onDisconnect thing (TODO) */
+        onConnectionClosed();
     }
 
 
@@ -1295,12 +1405,21 @@ public class Client : Thread
 
         // TODO: Don't forget to re-enable this when done testing!
         Thread.sleep(dur!("seconds")(4));
+        client.quit();
+
+
+        /**
+         * Reconnect again (to test it)
+         */
+        client.connect();
+
+        /**
+         * Join #birchwood, send a message
+         * and then quit once again
+         */
+        Thread.sleep(dur!("seconds")(4));
         client.joinChannel("#birchwood");
-        while(true)
-        {
-            Thread.sleep(dur!("seconds")(15));
-        }
-        
-        // client.quit();
+        client.channelMessage("Lekker", "#birchwood");
+        client.quit();
     }
 }

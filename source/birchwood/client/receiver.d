@@ -110,7 +110,7 @@ public final class ReceiverThread : Thread
      */
     private void recvHandlerFunc()
     {
-        while(client.running)
+        while(client.isRunning())
         {
             // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
 
@@ -187,7 +187,7 @@ public final class ReceiverThread : Thread
 
                 /* Spawn a PONG event */
                 EventyEvent pongEvent = new PongEvent(pingID);
-                client.engine.push(pongEvent);
+                client.getEngine().push(pongEvent);
             }
 
 
@@ -222,7 +222,7 @@ public final class ReceiverThread : Thread
 
                 // TODO: Remove the Eventy push and replace with a handler call (on second thought no)
                 EventyEvent ircEvent = new IRCEvent(curMsg);
-                client.engine.push(ircEvent);
+                client.getEngine.push(ircEvent);
 
                 /* Remove the message from the queue */
                 currentMessageQueue.linearRemoveElement(curMsg);
@@ -244,5 +244,11 @@ public final class ReceiverThread : Thread
         // TODO: See above notes about libsnooze behaviour due
         // ... to usage in our context
         receiveEvent.notifyAll();
+
+        // Wait on the manager thread to end
+        join();
+
+        // Dispose the eventy event (TODO: We could do this then join for same effect)
+        receiveEvent.dispose();
     }
 }
