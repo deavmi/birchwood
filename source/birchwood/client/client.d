@@ -826,7 +826,7 @@ public class Client : Thread
      */
     public void connect()
     {
-        if(socket is null)
+        if(!running)
         {
             try
             {
@@ -1020,13 +1020,20 @@ public class Client : Thread
         receiver.end();
         logger.log("doThreadCleanup() recvQueue manager stopped");
 
+        // TODO: Set to null
+
+
         /* Stop the send queue manager and wait for it to stop */
         sender.end();
         logger.log("doThreadCleanup() sendQueue manager stopped");
 
+        // TODO: Set to null
+
         /* TODO: Stop eventy (FIXME: I don't know if this is implemented in Eventy yet, do this!) */
         engine.shutdown();
         logger.log("doThreadCleanup() eventy stopped");
+
+        // TODO: Set to null
 
         logger.log("doThreadCleanup() end");
     }
@@ -1401,6 +1408,18 @@ public class Client : Thread
         //     Thread.sleep(dur!("seconds")(15));
         // }
         
+        client.quit();
+
+
+        /**
+         * Reconnect (TODO: This is new testing code)
+         */
+        client.connect();
+
+
+        Thread.sleep(dur!("seconds")(4));
+        client.joinChannel("#birchwood");
+        client.channelMessage("Lekker", "#birchwood");
         client.quit();
     }
 }
