@@ -27,7 +27,7 @@ Birchwood depends on the following D libraries:
 
 ## Usage
 
-You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.Client.html).
+You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.client.Client.html).
 
 ## Compatibility
 
