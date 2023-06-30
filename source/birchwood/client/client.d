@@ -1024,21 +1024,17 @@ public class Client : Thread
         /* Stop the receive queue manager and wait for it to stop */
         receiver.end();
         logger.log("doThreadCleanup() recvQueue manager stopped");
-
-        // TODO: Set to null
-
+        receiver = null;
 
         /* Stop the send queue manager and wait for it to stop */
         sender.end();
         logger.log("doThreadCleanup() sendQueue manager stopped");
-
-        // TODO: Set to null
+        sender = null;
 
         /* TODO: Stop eventy (FIXME: I don't know if this is implemented in Eventy yet, do this!) */
         engine.shutdown();
         logger.log("doThreadCleanup() eventy stopped");
-
-        // TODO: Set to null
+        engine = null;
 
         logger.log("doThreadCleanup() end");
     }
