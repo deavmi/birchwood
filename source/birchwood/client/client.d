@@ -1014,6 +1014,11 @@ public class Client : Thread
         
     }
 
+    /** 
+     * Cleans up resources which would have been allocated
+     * during the call to `connect()` and for the duration
+     * of the open session
+     */
     private void doThreadCleanup()
     {
         /* Stop the receive queue manager and wait for it to stop */
@@ -1402,21 +1407,18 @@ public class Client : Thread
 
         // TODO: Don't forget to re-enable this when done testing!
         Thread.sleep(dur!("seconds")(4));
-        // client.joinChannel("#birchwood");
-        // while(true)
-        // {
-        //     Thread.sleep(dur!("seconds")(15));
-        // }
-        
         client.quit();
 
 
         /**
-         * Reconnect (TODO: This is new testing code)
+         * Reconnect again (to test it)
          */
         client.connect();
 
-
+        /**
+         * Join #birchwood, send a message
+         * and then quit once again
+         */
         Thread.sleep(dur!("seconds")(4));
         client.joinChannel("#birchwood");
         client.channelMessage("Lekker", "#birchwood");
