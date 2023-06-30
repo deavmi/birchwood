@@ -105,12 +105,6 @@ public class Client : Thread
         this.connInfo = connInfo;
 
         /** 
-         * Setups the receiver and sender queue managers
-         */
-        this.receiver = new ReceiverThread(this);
-        this.sender = new SenderThread(this);
-
-        /** 
          * Set defaults in db
          */
         setDefaults(this.connInfo);
@@ -848,6 +842,12 @@ public class Client : Thread
 
                 /* Set the running status to true */
                 running = true;
+
+                /** 
+                 * Setups the receiver and sender queue managers
+                 */
+                this.receiver = new ReceiverThread(this);
+                this.sender = new SenderThread(this);
 
                 /* Start the receive queue and send queue managers */
                 this.receiver.start();
