@@ -865,10 +865,12 @@ public class Client : Thread
             }
             catch(EventyException e)
             {
+                // TODO: Could deallocate here
                 throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
             }
             catch(SnoozeError e)
             {
+                // TODO: Coudl deallocate here
                 throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
             }
         }
