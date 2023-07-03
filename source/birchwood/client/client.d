@@ -241,7 +241,7 @@ public class Client : Thread
     public void nick(string nickname)
     {
         /* Ensure no illegal characters in nick name */
-        if(isValidText(nickname))
+        if(textPass(nickname))
         {
             // TODO: We could investigate this later if we want to be safer
             ulong maxNickLen = connInfo.getDB!(ulong)("MAXNICKLEN");
@@ -276,7 +276,7 @@ public class Client : Thread
     public void joinChannel(string channel)
     {
         /* Ensure no illegal characters in channel name */
-        if(isValidText(channel))
+        if(textPass(channel))
         {
             /* Channel name must start with a `#` */
             if(channel[0] == '#')
@@ -295,6 +295,49 @@ public class Client : Thread
             throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters in channel");
         }
     }
+
+
+    /** 
+     * Provided with a reference to a string
+     * this will check to see if it contains
+     * any illegal characters and then if so
+     * it will strip them if the `ChecksMode`
+     * is set to `EASY` (and return `true`)
+     * else it will return `false` if set to
+     * `HARDCORE` whilst illegal characters
+     * are present.
+     *
+     * Params:
+     *   text = the ref'd `string`
+     * Returns: `true` if validated, `false`
+     * otherwise
+     */
+    private bool textPass(ref string text)
+    {
+        /* If there are any invalid characters */
+        if(Message.hasIllegalCharacters(text))
+        {
+
+            import birchwood.config.conninfo : ChecksMode;
+            if(connInfo.getMode() == ChecksMode.EASY)
+            {
+                // TODO: Filter text here
+                text = Message.stripIllegalCharacters(text);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /* If there are no invalid characters prewsent */
+        else
+        {
+            return true;
+        }
+    }
+
 
     /** 
      * Joins the requested channels
@@ -319,7 +362,7 @@ public class Client : Thread
             string channelLine = channels[0];
 
             /* Ensure valid characters in first channel */
-            if(isValidText(channelLine))
+            if(textPass(channelLine))
             {
                 //TODO: Add check for #
 
@@ -331,7 +374,7 @@ public class Client : Thread
                     string currentChannel = channels[i];
 
                     /* Ensure the character channel is valid */
-                    if(isValidText(currentChannel))
+                    if(textPass(currentChannel))
                     {
                         //TODO: Add check for #
                         
@@ -391,7 +434,7 @@ public class Client : Thread
             string channelLine = channels[0];
 
             /* Ensure valid characters in first channel */
-            if(isValidText(channelLine))
+            if(textPass(channelLine))
             {
                 //TODO: Add check for #
 
@@ -403,7 +446,7 @@ public class Client : Thread
                     string currentChannel = channels[i];
 
                     /* Ensure the character channel is valid */
-                    if(isValidText(currentChannel))
+                    if(textPass(currentChannel))
                     {
                         //TODO: Add check for #
                         
@@ -450,7 +493,7 @@ public class Client : Thread
     public void leaveChannel(string channel)
     {
         /* Ensure the channel name contains only valid characters */
-        if(isValidText(channel))
+        if(textPass(channel))
         {
             /* Leave the channel */
             Message leaveMessage = new Message("", "PART", channel);
@@ -485,12 +528,12 @@ public class Client : Thread
         else if(recipients.length > 1)
         {
             /* Ensure message is valid */
-            if(isValidText(message))
+            if(textPass(message))
             {
                 string recipientLine = recipients[0];
 
                 /* Ensure valid characters in first recipient */
-                if(isValidText(recipientLine))
+                if(textPass(recipientLine))
                 {
                     /* Append on a trailing `,` */
                     recipientLine ~= ",";
@@ -500,7 +543,7 @@ public class Client : Thread
                         string currentRecipient = recipients[i];
 
                         /* Ensure valid characters in the current recipient */
-                        if(isValidText(currentRecipient))
+                        if(textPass(currentRecipient))
                         {
                             if(i == recipients.length-1)
                             {
@@ -551,7 +594,7 @@ public class Client : Thread
     public void directMessage(string message, string recipient)
     {
         /* Ensure the message and recipient are valid text */
-        if(isValidText(message) && isValidText(recipient))
+        if(textPass(message) && textPass(recipient))
         {
             /* Ensure the recipient does NOT start with a # (as that is reserved for channels) */
             if(recipient[0] != '#')
@@ -592,12 +635,12 @@ public class Client : Thread
         else if(channels.length > 1)
         {
             /* Ensure message is valid */
-            if(isValidText(message))
+            if(textPass(message))
             {
                 string channelLine = channels[0];    
 
                 /* Ensure valid characters in first channel */
-                if(isValidText(channelLine))
+                if(textPass(channelLine))
                 {
                     /* Append on a trailing `,` */
                     channelLine ~= ",";
@@ -607,7 +650,7 @@ public class Client : Thread
                         string currentChannel = channels[i];
 
                         /* Ensure valid characters in current channel */
-                        if(isValidText(currentChannel))
+                        if(textPass(currentChannel))
                         {
                             if(i == channels.length-1)
                             {
@@ -659,7 +702,7 @@ public class Client : Thread
     {
         //TODO: Add check on recipient
         //TODO: Add emptiness check
-        if(isValidText(message) && isValidText(channel))
+        if(textPass(message) && textPass(channel))
         {
             if(channel[0] == '#')
             {
@@ -917,7 +960,7 @@ public class Client : Thread
     {
         // TODO: Implement me properly with all required checks
 
-        if(isValidText(username) && isValidText(hostname) && isValidText(servername) && isValidText(realname))
+        if(textPass(username) && textPass(hostname) && textPass(servername) && textPass(realname))
         {
             /* User message */
             Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
