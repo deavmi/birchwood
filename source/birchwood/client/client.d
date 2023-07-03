@@ -475,6 +475,8 @@ public class Client : Thread
      */
     public void directMessage(string message, string[] recipients)
     {
+        // TODO: Chunked sends when over limit of `message`
+        
         /* Single recipient */
         if(recipients.length == 1)
         {
@@ -550,6 +552,8 @@ public class Client : Thread
      */
     public void directMessage(string message, string recipient)
     {
+        // TODO: Chunked sends when over limit of `message`
+
         /* Ensure the message and recipient are valid text */
         if(isValidText(message) && isValidText(recipient))
         {
@@ -582,6 +586,8 @@ public class Client : Thread
      */
     public void channelMessage(string message, string[] channels)
     {
+        // TODO: Chunked sends when over limit of `message`
+
         /* If single channel */
         if(channels.length == 1)
         {
@@ -657,6 +663,8 @@ public class Client : Thread
      */
     public void channelMessage(string message, string channel)
     {
+        // TODO: Chunked sends when over limit of `message`
+
         //TODO: Add check on recipient
         //TODO: Add emptiness check
         if(isValidText(message) && isValidText(channel))
@@ -954,16 +962,8 @@ public class Client : Thread
      */
     private void sendMessage(Message message)
     {
-        // TODO: Do message splits here
-        
         /* Encode the message */
         ubyte[] encodedMessage = encodeMessage(message.encode());
-
-        // TODO: Decide on the chunks required
-        ulong chunksRequired = encodedMessage.length/512;
-        // FIXME: I mean should this maybe be something that channelMessage
-        // ... does as I don't feel nor think we can issue several messages in general
-
 
         /* If the message is 512 bytes or less then send */
         if(encodedMessage.length <= 512)
