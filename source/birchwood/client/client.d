@@ -317,13 +317,11 @@ public class Client : Thread
         /* If there are any invalid characters */
         if(Message.hasIllegalCharacters(text))
         {
-
             import birchwood.config.conninfo : ChecksMode;
             if(connInfo.getMode() == ChecksMode.EASY)
             {
-                // TODO: Filter text here
+                // Filter the text and update it in-place
                 text = Message.stripIllegalCharacters(text);
-
                 return true;
             }
             else
@@ -337,7 +335,6 @@ public class Client : Thread
             return true;
         }
     }
-
 
     /** 
      * Joins the requested channels
