@@ -959,6 +959,12 @@ public class Client : Thread
         /* Encode the message */
         ubyte[] encodedMessage = encodeMessage(message.encode());
 
+        // TODO: Decide on the chunks required
+        ulong chunksRequired = encodedMessage.length/512;
+        // FIXME: I mean should this maybe be something that channelMessage
+        // ... does as I don't feel nor think we can issue several messages in general
+
+
         /* If the message is 512 bytes or less then send */
         if(encodedMessage.length <= 512)
         {
