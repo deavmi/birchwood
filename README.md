@@ -21,13 +21,13 @@ dub add birchwood
 
 Birchwood depends on the following D libraries:
 
-* `libsnooze` (at least 1.2.0-beta)
+* `libsnooze` (at least 1.3.0-beta)
 * `eventy` (at least 0.4.0)
 * `dlog` (at least 0.3.19)
 
 ## Usage
 
-You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.Client.html).
+You can take a look at the `Client` API documentation on [DUB](https://birchwood.dpldocs.info/birchwood.client.client.Client.html).
 
 ## Compatibility
 

@@ -95,7 +95,7 @@ public final class SenderThread : Thread
      */
     private void sendHandlerFunc()
     {
-        while(client.running)
+        while(client.isRunning())
         {
             // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
 
@@ -149,5 +149,11 @@ public final class SenderThread : Thread
         // TODO: See above notes about libsnooze behaviour due
         // ... to usage in our context
         sendEvent.notifyAll();
+
+        // Wait on the manager thread to end
+        join();
+
+        // Dispose the eventy event (TODO: We could do this then join for same effect)
+        sendEvent.dispose();
     }
 }
