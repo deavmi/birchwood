@@ -221,7 +221,7 @@ public final class Message
      * Returns: `true` if so, `false` otherwise
      */
     // TODO: Add unittest
-    private static bool hasIllegalCharacters(string input)
+    public static bool hasIllegalCharacters(string input)
     {
         foreach(char character; input)
         {
@@ -243,7 +243,7 @@ public final class Message
      * Returns: the filtered string
      */
     // TODO: Add unittest
-    private static string stripIllegalCharacters(string input)
+    public static string stripIllegalCharacters(string input)
     {
         string stripped;
         foreach(char character; input)
