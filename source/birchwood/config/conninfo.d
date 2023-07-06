@@ -102,8 +102,8 @@ public shared struct ConnectionInfo
         this.bulkReadSize = bulkReadSize;
         this.quitMessage = quitMessage;
 
-        // Set the default fakelag to 1
-        this.fakeLag = 1;
+        // Set the default fakelag to 0 seconds (no send lag)
+        this.fakeLag = 0;
 
         // Set the validity mode to easy
         this.mode = ChecksMode.EASY;
