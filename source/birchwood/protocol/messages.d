@@ -9,6 +9,9 @@ import std.string;
 import std.conv : to, ConvException;
 import birchwood.protocol.constants : ReplyType;
 
+import birchwood.client.exceptions;
+import birchwood.config.conninfo : ChecksMode;
+
 // TODO: Before release we should remove this import
 import std.stdio : writeln;
 
@@ -146,11 +149,114 @@ public final class Message
         parameterParse();
     }
 
-    /* TODO: Implement encoder function */
-    public string encode()
+    /** 
+     * Encodes this `Message` into a CRLF delimited
+     * byte array
+     *
+     * If `ChecksMode` is set to `EASY` (default) then
+     * any invalid characters will be stripped prior
+     * to encoding
+     *
+     * Params:
+     *    mode = the `ChecksMode` to use
+     *
+     * Throws: 
+     *  `BirchwoodException` if `ChecksMode` is set to
+     *  `HARDCORE` and invalid characters are present
+     * Returns: the encoded format
+     */
+    public string encode(ChecksMode mode)
     {
-        string fullLine = from~" "~command~" "~params;
+        string fullLine;
+
+        /** 
+         * Copy over the values (they might be updated and we
+         * want to leave the originals intact)
+         */
+        string fFrom = from, fCommand = command, fParams = params;
+        
+        /** 
+         * If in `HARDCORE` mode then and illegal characters
+         * are present, throw an exception
+         */
+        if(mode == ChecksMode.HARDCORE && (
+                                            hic(fFrom) ||
+                                            hic(fCommand) ||
+                                            hic(fParams)
+                                          ))
+        {
+            throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters present");
+        }
+        /** 
+         * If in `EASY` mode and illegal characters have
+         * been found, then fix them up
+         */
+        else
+        {
+            // Strip illegal characters from all
+            fFrom = sic(fFrom);
+            fCommand = sic(fCommand);
+            fParams = sic(fParams);
+        }
+        
+        /* Combine */
+        fullLine = fFrom~" "~fCommand~" "~fParams;
+
+        
+
         return fullLine;
+    }
+
+    // TODO: comemnt
+    private alias sic = stripIllegalCharacters;
+    // TODO: comemnt
+    private alias hic = hasIllegalCharacters;
+
+    /** 
+     * Checks whether the provided input string contains
+     * any invalid characters
+     *
+     * Params:
+     *   input = the string to check
+     * Returns: `true` if so, `false` otherwise
+     */
+    // TODO: Add unittest
+    public static bool hasIllegalCharacters(string input)
+    {
+        foreach(char character; input)
+        {
+            if(character == '\n' || character == '\r')
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** 
+     * Provided an input string this will strip any illegal
+     * characters present within it
+     *
+     * Params:
+     *   input = the string to filter
+     * Returns: the filtered string
+     */
+    // TODO: Add unittest
+    public static string stripIllegalCharacters(string input)
+    {
+        string stripped;
+        foreach(char character; input)
+        {
+            if(character == '\n' || character == '\r')
+            {
+                continue;
+            }
+
+            stripped ~= character;
+        }
+
+        return stripped;
     }
 
     public static Message parseReceivedMessage(string message)
@@ -501,5 +607,75 @@ public final class Message
     public ReplyType getReplyType()
     {
         return replyType;
+    }
+}
+
+version(unittest)
+{
+    // Contains illegal characters
+    string badString1 = "doos"~"bruh"~"lek"~cast(string)[10]~"ker";
+    string badString2 = "doos"~"bruh"~"lek"~cast(string)[13]~"ker";
+
+    import birchwood.config.conninfo : ChecksMode;
+}
+
+/**
+ * Tests the detection of illegal characters in messages
+ */
+unittest
+{
+    assert(Message.hasIllegalCharacters(badString1) == true);
+    assert(Message.hasIllegalCharacters(badString2) == true);
+}
+
+/**
+ * Tests if a message containing bad characters,
+ * once stripped, is then valid.
+ *
+ * Essentially, tests the stripper.
+ */
+unittest
+{
+    assert(Message.hasIllegalCharacters(Message.stripIllegalCharacters(badString1)) == false);
+    assert(Message.hasIllegalCharacters(Message.stripIllegalCharacters(badString2)) == false);
+}
+
+/**
+ * Tests the ability, at the `Message`-level, to detect
+ * illegal characters and automatically strip them when
+ * in `ChecksMode.EASY`
+ */
+unittest
+{
+    Message message = new Message(badString1, "fine", "fine");
+
+    try
+    {
+        string encoded = message.encode(ChecksMode.EASY);
+        assert(Message.hasIllegalCharacters(encoded) == false);
+    }
+    catch(BirchwoodException e)
+    {
+        assert(false);
+    }
+}
+
+/**
+ * Tests the ability, at the `Message`-level, to detect
+ * illegal characters and throw an exception when in
+ * `ChecksMode.HARDCORE`
+ */
+unittest
+{
+    Message message = new Message(badString1, "fine", "fine");
+
+    try
+    {
+        message.encode(ChecksMode.HARDCORE);
+        assert(false);
+    }
+    catch(BirchwoodException e)
+    {
+        assert(e.getType() == ErrorType.ILLEGAL_CHARACTERS);
     }
 }

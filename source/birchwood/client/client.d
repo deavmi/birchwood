@@ -241,7 +241,7 @@ public class Client : Thread
     public void nick(string nickname)
     {
         /* Ensure no illegal characters in nick name */
-        if(isValidText(nickname))
+        if(textPass(nickname))
         {
             // TODO: We could investigate this later if we want to be safer
             ulong maxNickLen = connInfo.getDB!(ulong)("MAXNICKLEN");
@@ -276,7 +276,7 @@ public class Client : Thread
     public void joinChannel(string channel)
     {
         /* Ensure no illegal characters in channel name */
-        if(isValidText(channel))
+        if(textPass(channel))
         {
             /* Channel name must start with a `#` */
             if(channel[0] == '#')
@@ -293,6 +293,46 @@ public class Client : Thread
         else
         {
             throw new BirchwoodException(ErrorType.ILLEGAL_CHARACTERS, "Invalid characters in channel");
+        }
+    }
+
+
+    /** 
+     * Provided with a reference to a string
+     * this will check to see if it contains
+     * any illegal characters and then if so
+     * it will strip them if the `ChecksMode`
+     * is set to `EASY` (and return `true`)
+     * else it will return `false` if set to
+     * `HARDCORE` whilst illegal characters
+     * are present.
+     *
+     * Params:
+     *   text = the ref'd `string`
+     * Returns: `true` if validated, `false`
+     * otherwise
+     */
+    private bool textPass(ref string text)
+    {
+        /* If there are any invalid characters */
+        if(Message.hasIllegalCharacters(text))
+        {
+            import birchwood.config.conninfo : ChecksMode;
+            if(connInfo.getMode() == ChecksMode.EASY)
+            {
+                // Filter the text and update it in-place
+                text = Message.stripIllegalCharacters(text);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        /* If there are no invalid characters prewsent */
+        else
+        {
+            return true;
         }
     }
 
@@ -319,7 +359,7 @@ public class Client : Thread
             string channelLine = channels[0];
 
             /* Ensure valid characters in first channel */
-            if(isValidText(channelLine))
+            if(textPass(channelLine))
             {
                 //TODO: Add check for #
 
@@ -331,7 +371,7 @@ public class Client : Thread
                     string currentChannel = channels[i];
 
                     /* Ensure the character channel is valid */
-                    if(isValidText(currentChannel))
+                    if(textPass(currentChannel))
                     {
                         //TODO: Add check for #
                         
@@ -391,7 +431,7 @@ public class Client : Thread
             string channelLine = channels[0];
 
             /* Ensure valid characters in first channel */
-            if(isValidText(channelLine))
+            if(textPass(channelLine))
             {
                 //TODO: Add check for #
 
@@ -403,7 +443,7 @@ public class Client : Thread
                     string currentChannel = channels[i];
 
                     /* Ensure the character channel is valid */
-                    if(isValidText(currentChannel))
+                    if(textPass(currentChannel))
                     {
                         //TODO: Add check for #
                         
@@ -450,7 +490,7 @@ public class Client : Thread
     public void leaveChannel(string channel)
     {
         /* Ensure the channel name contains only valid characters */
-        if(isValidText(channel))
+        if(textPass(channel))
         {
             /* Leave the channel */
             Message leaveMessage = new Message("", "PART", channel);
@@ -487,12 +527,12 @@ public class Client : Thread
         else if(recipients.length > 1)
         {
             /* Ensure message is valid */
-            if(isValidText(message))
+            if(textPass(message))
             {
                 string recipientLine = recipients[0];
 
                 /* Ensure valid characters in first recipient */
-                if(isValidText(recipientLine))
+                if(textPass(recipientLine))
                 {
                     /* Append on a trailing `,` */
                     recipientLine ~= ",";
@@ -502,7 +542,7 @@ public class Client : Thread
                         string currentRecipient = recipients[i];
 
                         /* Ensure valid characters in the current recipient */
-                        if(isValidText(currentRecipient))
+                        if(textPass(currentRecipient))
                         {
                             if(i == recipients.length-1)
                             {
@@ -555,7 +595,7 @@ public class Client : Thread
         // TODO: Chunked sends when over limit of `message`
 
         /* Ensure the message and recipient are valid text */
-        if(isValidText(message) && isValidText(recipient))
+        if(textPass(message) && textPass(recipient))
         {
             /* Ensure the recipient does NOT start with a # (as that is reserved for channels) */
             if(recipient[0] != '#')
@@ -598,12 +638,12 @@ public class Client : Thread
         else if(channels.length > 1)
         {
             /* Ensure message is valid */
-            if(isValidText(message))
+            if(textPass(message))
             {
                 string channelLine = channels[0];    
 
                 /* Ensure valid characters in first channel */
-                if(isValidText(channelLine))
+                if(textPass(channelLine))
                 {
                     /* Append on a trailing `,` */
                     channelLine ~= ",";
@@ -613,7 +653,7 @@ public class Client : Thread
                         string currentChannel = channels[i];
 
                         /* Ensure valid characters in current channel */
-                        if(isValidText(currentChannel))
+                        if(textPass(currentChannel))
                         {
                             if(i == channels.length-1)
                             {
@@ -667,7 +707,7 @@ public class Client : Thread
 
         //TODO: Add check on recipient
         //TODO: Add emptiness check
-        if(isValidText(message) && isValidText(channel))
+        if(textPass(message) && textPass(channel))
         {
             if(channel[0] == '#')
             {
@@ -925,7 +965,7 @@ public class Client : Thread
     {
         // TODO: Implement me properly with all required checks
 
-        if(isValidText(username) && isValidText(hostname) && isValidText(servername) && isValidText(realname))
+        if(textPass(username) && textPass(hostname) && textPass(servername) && textPass(realname))
         {
             /* User message */
             Message userMessage = new Message("", "USER", username~" "~hostname~" "~servername~" "~":"~realname);
@@ -954,16 +994,20 @@ public class Client : Thread
      * Sends a message to the server by enqueuing it on
      * the client-side send queue.
      *
+     * Any invalid characters will be stripped prior
+     * to encoding IF `ChecksMode` is set to `EASY` (default)
+     *
      * Params:
      *   message = the message to send
      * Throws:
-     *   `BirchwoodException` if the message's length
-     * exceeds 512 bytes
+     *  A `BirchwoodException` is thrown if the messages
+     *  final length exceeds 512 bytes of if `ChecksMode`
+     *  is set to `HARDCORE`
      */
     private void sendMessage(Message message)
     {
         /* Encode the message */
-        ubyte[] encodedMessage = encodeMessage(message.encode());
+        ubyte[] encodedMessage = encodeMessage(message.encode(connInfo.getMode()));
 
         /* If the message is 512 bytes or less then send */
         if(encodedMessage.length <= 512)
@@ -1265,8 +1309,8 @@ public class Client : Thread
         //bonobonet: fd08:8441:e254::5
         ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "birchwood", "doggie", "Tristan B. Kildaire");
 
-        // // Set the fakelag to 1 second
-        // connInfo.setFakeLag(1);
+        // Set the fakelag to 1 second (server kicks me for spam me thinks if not)
+        connInfo.setFakeLag(1);
 
         // Create a new Client
         Client client = new Client(connInfo);
