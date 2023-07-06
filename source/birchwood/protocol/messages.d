@@ -617,6 +617,9 @@ version(unittest)
     string badString2 = "doos"~"bruh"~"lek"~cast(string)[13]~"ker";
 }
 
+/**
+ * Tests the detection of illegal characters in messages
+ */
 unittest
 {
     assert(Message.hasIllegalCharacters(badString1) == true);
