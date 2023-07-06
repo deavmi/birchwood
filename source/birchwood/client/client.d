@@ -1305,8 +1305,8 @@ public class Client : Thread
         //bonobonet: fd08:8441:e254::5
         ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "birchwood", "doggie", "Tristan B. Kildaire");
 
-        // // Set the fakelag to 1 second
-        // connInfo.setFakeLag(1);
+        // Set the fakelag to 1 second (server kicks me for spam me thinks if not)
+        connInfo.setFakeLag(1);
 
         // Create a new Client
         Client client = new Client(connInfo);
