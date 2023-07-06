@@ -671,7 +671,7 @@ unittest
 
     try
     {
-        message.encode(ChecksMode.EASY);
+        message.encode(ChecksMode.HARCORE);
         assert(false);
     }
     catch(BirchwoodException e)
