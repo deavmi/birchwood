@@ -615,6 +615,8 @@ version(unittest)
     // Contains illegal characters
     string badString1 = "doos"~"bruh"~"lek"~cast(string)[10]~"ker";
     string badString2 = "doos"~"bruh"~"lek"~cast(string)[13]~"ker";
+
+    import birchwood.config.conninfo : ChecksMode;
 }
 
 /**
@@ -636,4 +638,44 @@ unittest
 {
     assert(Message.hasIllegalCharacters(Message.stripIllegalCharacters(badString1)) == false);
     assert(Message.hasIllegalCharacters(Message.stripIllegalCharacters(badString2)) == false);
+}
+
+/**
+ * Tests the ability, at the `Message`-level, to detect
+ * illegal characters and automatically strip them when
+ * in `ChecksMode.EASY`
+ */
+unittest
+{
+    Message message = new Message(badString1, "fine", "fine");
+
+    try
+    {
+        string encoded = message.encode(ChecksMode.EASY);
+        assert(Message.hasIllegalCharacters(encoded) == false);
+    }
+    catch(BirchwoodException e)
+    {
+        assert(false);
+    }
+}
+
+/**
+ * Tests the ability, at the `Message`-level, to detect
+ * illegal characters and throw an exception when in
+ * `ChecksMode.HARDCORE`
+ */
+unittest
+{
+    Message message = new Message(badString1, "fine", "fine");
+
+    try
+    {
+        message.encode(ChecksMode.EASY);
+        assert(false);
+    }
+    catch(BirchwoodException e)
+    {
+        assert(e.getType() == ErrorType.ILLEGAL_CHARACTERS);
+    }
 }
