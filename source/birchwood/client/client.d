@@ -30,6 +30,8 @@ __gshared static this()
     logger = new DefaultLogger();
 }
 
+// TODO: DIsbale logging here for release mode
+
 // TODO: Make abstract and for unit tests make a `DefaultClient`
 // ... which logs outputs for the `onX()` handler functions
 
