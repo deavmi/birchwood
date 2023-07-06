@@ -622,3 +622,15 @@ unittest
     assert(Message.hasIllegalCharacters(badString1) == true);
     assert(Message.hasIllegalCharacters(badString2) == true);
 }
+
+/**
+ * Tests if a message containing bad characters,
+ * once stripped, is then valid.
+ *
+ * Essentially, tests the stripper.
+ */
+unittest
+{
+    assert(Message.hasIllegalCharacters(Message.stripIllegalCharacters(badString1)) == false);
+    assert(Message.hasIllegalCharacters(Message.stripIllegalCharacters(badString2)) == false);
+}
