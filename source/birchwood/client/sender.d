@@ -8,10 +8,6 @@ import core.thread : Thread, dur;
 import std.container.slist : SList;
 import core.sync.mutex : Mutex;
 
-// TODO: Examine the below import which seemingly fixes stuff for libsnooze
-import libsnooze.clib;
-import libsnooze;
-
 import birchwood.client;
 
 version(unittest)
