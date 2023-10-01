@@ -1301,7 +1301,7 @@ public class Client : Thread
         //freenode: 149.28.246.185
         //snootnet: 178.62.125.123
         //bonobonet: fd08:8441:e254::5
-        ConnectionInfo connInfo = ConnectionInfo.newConnection("worcester.community.networks.deavmi.assigned.network", 6667, "birchwood", "doggie", "Tristan B. Kildaire");
+        ConnectionInfo connInfo = ConnectionInfo.newConnection("rany.irc.bnet.eu.org", 6667, "birchwood", "doggie", "Tristan B. Kildaire");
 
         // Set the fakelag to 1 second (server kicks me for spam me thinks if not)
         connInfo.setFakeLag(1);
