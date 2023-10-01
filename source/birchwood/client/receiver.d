@@ -10,10 +10,6 @@ import core.sync.mutex : Mutex;
 
 import eventy : EventyEvent = Event;
 
-// TODO: Examine the below import which seemingly fixes stuff for libsnooze
-import libsnooze.clib;
-import libsnooze;
-
 import birchwood.client;
 import birchwood.protocol.messages : Message, decodeMessage;
 import std.string : indexOf;
