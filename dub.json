@@ -6,8 +6,7 @@
 	"copyright": "Copyright © 2023, Tristan B. Kildaire",
 	"dependencies": {
 		"dlog": ">=0.3.19",
-		"eventy": ">=0.4.0",
-		"libsnooze": ">=1.3.0-beta"
+		"eventy": ">=0.4.0"
 	},
 	"description": "A sane IRC framework for the D language",
 	"license": "LGPL-3.0",
