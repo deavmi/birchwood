@@ -6,12 +6,28 @@ module birchwood.client.exceptions;
 import std.conv : to;
 
 /** 
+ * Associated error strings which are used
+ * if a custom auxillary information is not
+ * passed in.
+ *
+ * TODO: Ensure each ErrorTYpe has a corresponding
+ * string here
+ */
+private string[] errorStrings = [
+    "The provided connection information is incorrect",
+    "Already connected to server",
+    "Connection to the server failed",
+    "The IRC params are empty",
+    "The provided channel name is invalid",
+    "The porvided nickname is invalid",
+    "The message contains illegal characters",
+    "The encoded IRC frame is too long to send"
+];
+
+
+/** 
  * The type of error to be used
  * with BirchwoodException
- *
- * TODO: Make this STRING and associate a message with it
- * but make it include the enum name and corresponding value
- * when throwin an exception
  */
 public enum ErrorType
 {
@@ -115,7 +131,7 @@ public class BirchwoodException : Exception
      */
     this(ErrorType errType)
     {
-        super("BirchwoodError("~to!(string)(errType)~")"~(auxInfo.length == 0 ? "" : " "~auxInfo));
+        super("BirchwoodError("~to!(string)(errType)~")"~(auxInfo.length == 0 ? errorStrings[errType] : " "~auxInfo));
         this.errType = errType;
     }
     
@@ -129,8 +145,8 @@ public class BirchwoodException : Exception
      */
     this(ErrorType errType, string auxInfo)
     {
-        this(errType);
         this.auxInfo = auxInfo;
+        this(errType);
     }
 
     /** 
