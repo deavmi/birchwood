@@ -20,8 +20,6 @@ import birchwood.client.receiver : ReceiverThread;
 import birchwood.client.sender : SenderThread;
 import birchwood.client.events;
 
-import libsnooze.exceptions : SnoozeError;
-
 import dlog;
 
 package __gshared Logger logger;
