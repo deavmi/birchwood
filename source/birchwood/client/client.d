@@ -906,11 +906,6 @@ public class Client : Thread
                 // TODO: Could deallocate here
                 throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
             }
-            catch(SnoozeError e)
-            {
-                // TODO: Coudl deallocate here
-                throw new BirchwoodException(ErrorType.INTERNAL_FAILURE, e.toString());
-            }
         }
         // TODO: Do actual liveliness check here
         else
