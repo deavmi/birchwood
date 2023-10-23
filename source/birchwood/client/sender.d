@@ -89,35 +89,13 @@ public final class SenderThread : Thread
     {
         while(client.isRunning())
         {
-            // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
-
             /* TODO: handle normal messages (xCount with fakeLagInBetween) */
 
-            try
-            {
-                sendEvent.wait();
-            }
-            catch(InterruptedException e)
-            {
-                version(unittest)
-                {
-                    writeln("wait() interrupted");
-                }
-                continue;
-            }
-            catch(FatalException e)
-            {
-                // TODO: This should crash and end
-                version(unittest)
-                {
-                    writeln("wait() had a FATAL error!!!!!!!!!!!");
-                }
-                continue;
-            }
-
-
-            /* Lock queue */
+            /* Lock the queue */
             sendQueueLock.lock();
+
+            /* Sleep till woken (new message) */
+            sendQueueCond.wait(); // TODO: Check SyncError?
 
             foreach(ubyte[] message; sendQueue[])
             {
@@ -138,14 +116,16 @@ public final class SenderThread : Thread
      */
     public void end()
     {
-        // TODO: See above notes about libsnooze behaviour due
-        // ... to usage in our context
-        sendEvent.notifyAll();
+        /* Lock the queue */
+        sendQueueLock.lock();
+
+        /* Wake up sleeping thread (so it can exit) */
+        sendQueueCond.notify();
+
+        /* Unlock the queue */
+        sendQueueLock.unlock();
 
         // Wait on the manager thread to end
         join();
-
-        // Dispose the eventy event (TODO: We could do this then join for same effect)
-        sendEvent.dispose();
     }
 }
