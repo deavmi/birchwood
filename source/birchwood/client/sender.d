@@ -7,6 +7,7 @@ import core.thread : Thread, dur;
 
 import std.container.slist : SList;
 import core.sync.mutex : Mutex;
+import core.sync.condition : Condition;
 
 import birchwood.client;
 
@@ -31,11 +32,10 @@ public final class SenderThread : Thread
     private Mutex sendQueueLock;
 
     /** 
-     * The libsnooze event to await on which
-     * when we wake up signals a new message
-     * to be processed and sent
+     * Condition variable for waking
+     * up send queue reader
      */
-    private Event sendEvent;
+    private Condition sendQueueCond;
 
     /** 
      * The associated IRC client
@@ -56,9 +56,8 @@ public final class SenderThread : Thread
     {
         super(&sendHandlerFunc);
         this.client = client;
-        this.sendEvent = new Event();
         this.sendQueueLock = new Mutex();
-        this.sendEvent.ensure(this);
+        this.sendQueueCond = new Condition(this.sendQueueLock);
     }
 
     /** 
@@ -76,14 +75,11 @@ public final class SenderThread : Thread
         /* Add to queue */
         sendQueue.insertAfter(sendQueue[], encodedMessage);
 
+        /* Wake the sleeping message handler */
+        sendQueueCond.notify();
+
         /* Unlock queue */
         sendQueueLock.unlock();
-
-        /** 
-         * Wake up all threads waiting on this event
-         * (if any, and if so it would only be the sender)
-         */
-        sendEvent.notifyAll();
     }
 
     /** 
