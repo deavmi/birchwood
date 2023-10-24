@@ -615,8 +615,6 @@ version(unittest)
     // Contains illegal characters
     string badString1 = "doos"~"bruh"~"lek"~cast(string)[10]~"ker";
     string badString2 = "doos"~"bruh"~"lek"~cast(string)[13]~"ker";
-
-    import birchwood.config.conninfo : ChecksMode;
 }
 
 /**
