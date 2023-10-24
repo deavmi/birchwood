@@ -7,10 +7,7 @@ import core.thread : Thread, dur;
 
 import std.container.slist : SList;
 import core.sync.mutex : Mutex;
-
-// TODO: Examine the below import which seemingly fixes stuff for libsnooze
-import libsnooze.clib;
-import libsnooze;
+import core.sync.condition : Condition;
 
 import birchwood.client;
 
@@ -35,11 +32,10 @@ public final class SenderThread : Thread
     private Mutex sendQueueLock;
 
     /** 
-     * The libsnooze event to await on which
-     * when we wake up signals a new message
-     * to be processed and sent
+     * Condition variable for waking
+     * up send queue reader
      */
-    private Event sendEvent;
+    private Condition sendQueueCond;
 
     /** 
      * The associated IRC client
@@ -60,9 +56,8 @@ public final class SenderThread : Thread
     {
         super(&sendHandlerFunc);
         this.client = client;
-        this.sendEvent = new Event();
         this.sendQueueLock = new Mutex();
-        this.sendEvent.ensure(this);
+        this.sendQueueCond = new Condition(this.sendQueueLock);
     }
 
     /** 
@@ -80,14 +75,11 @@ public final class SenderThread : Thread
         /* Add to queue */
         sendQueue.insertAfter(sendQueue[], encodedMessage);
 
+        /* Wake the sleeping message handler */
+        sendQueueCond.notify();
+
         /* Unlock queue */
         sendQueueLock.unlock();
-
-        /** 
-         * Wake up all threads waiting on this event
-         * (if any, and if so it would only be the sender)
-         */
-        sendEvent.notifyAll();
     }
 
     /** 
@@ -97,35 +89,13 @@ public final class SenderThread : Thread
     {
         while(client.isRunning())
         {
-            // TODO: We could look at libsnooze wait starvation or mutex racing (future thought)
-
             /* TODO: handle normal messages (xCount with fakeLagInBetween) */
 
-            try
-            {
-                sendEvent.wait();
-            }
-            catch(InterruptedException e)
-            {
-                version(unittest)
-                {
-                    writeln("wait() interrupted");
-                }
-                continue;
-            }
-            catch(FatalException e)
-            {
-                // TODO: This should crash and end
-                version(unittest)
-                {
-                    writeln("wait() had a FATAL error!!!!!!!!!!!");
-                }
-                continue;
-            }
-
-
-            /* Lock queue */
+            /* Lock the queue */
             sendQueueLock.lock();
+
+            /* Sleep till woken (new message) */
+            sendQueueCond.wait(); // TODO: Check SyncError?
 
             foreach(ubyte[] message; sendQueue[])
             {
@@ -146,14 +116,16 @@ public final class SenderThread : Thread
      */
     public void end()
     {
-        // TODO: See above notes about libsnooze behaviour due
-        // ... to usage in our context
-        sendEvent.notifyAll();
+        /* Lock the queue */
+        sendQueueLock.lock();
+
+        /* Wake up sleeping thread (so it can exit) */
+        sendQueueCond.notify();
+
+        /* Unlock the queue */
+        sendQueueLock.unlock();
 
         // Wait on the manager thread to end
         join();
-
-        // Dispose the eventy event (TODO: We could do this then join for same effect)
-        sendEvent.dispose();
     }
 }
