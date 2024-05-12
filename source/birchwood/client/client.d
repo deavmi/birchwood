@@ -21,6 +21,8 @@ import birchwood.client.sender : SenderThread;
 import birchwood.client.events;
 import birchwood.logging;
 
+// TODO: DIsbale logging here for release mode
+
 // TODO: Make abstract and for unit tests make a `DefaultClient`
 // ... which logs outputs for the `onX()` handler functions
 
