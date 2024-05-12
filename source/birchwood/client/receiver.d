@@ -21,6 +21,7 @@ version(unittest)
 {
     import std.stdio : writeln;
 }
+import birchwood.logging;
 
 /** 
  * Manages the receive queue and performs
@@ -150,7 +151,7 @@ public final class ReceiverThread : Thread
              */
             if(pingMessage !is null)
             {
-                logger.log("Found a ping: "~pingMessage.toString());
+                DEBUG("Found a ping: "~pingMessage.toString());
 
                 /* Extract the PING ID */
                 string pingID = pingMessage.getParams();
