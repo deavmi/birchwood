@@ -11,27 +11,12 @@ import birchwood.protocol.constants : ReplyType;
 
 import birchwood.client.exceptions;
 import birchwood.config.conninfo : ChecksMode;
+import birchwood.logging;
 
 // TODO: Before release we should remove this import
 import std.stdio : writeln;
 
 /* TODO: We could move these all to `package.d` */
-
-/* Static is redundant as module is always static , gshared needed */
-/* Apparebky works without gshared, that is kinda sus ngl */
-package __gshared Logger logger;
-/**
-* source/birchwood/messages.d(10,8): Error: variable `birchwood.messages.logger` is a thread-local class and cannot have a static initializer. Use `static this()` to initialize instead.
-*
-* It is complaining that it wopuld static init per thread, static this() for module is required but that would
-* do a module init per thread, so __gshared static this() is needed, we want one global init - a single logger
-* variable and also class init
-*/
-
-__gshared static this()
-{
-    logger = new DefaultLogger();
-}
 
 /**
 * Encoding/decoding primitives
@@ -140,8 +125,8 @@ public final class Message
             }
             catch(ConvException e)
             {
-                logger.log("<<< Unsupported response code (Error below) >>>");
-                logger.log(e);
+                DEBUG("<<< Unsupported response code (Error below) >>>");
+                DEBUG(e);
             }
         }
 
@@ -286,7 +271,7 @@ public final class Message
             {
                 from = message[1..firstSpace];
 
-                // logger.log("from: "~from);
+                // DEBUG("from: "~from);
 
                 /* TODO: Find next space (what follows `from` is  `' ' { ' ' }`) */
                 ulong i = firstSpace;
@@ -306,7 +291,7 @@ public final class Message
 
                 /* Extract the command */
                 command = rem[0..idx];
-                // logger.log("command: "~command);
+                // DEBUG("command: "~command);
 
                 /* Params are everything till the end */
                 i = idx;
@@ -318,12 +303,12 @@ public final class Message
                     }
                 }
                 params = rem[i..rem.length];
-                // logger.log("params: "~params);
+                // DEBUG("params: "~params);
             }
             else
             {
                 //TODO: handle
-                logger.log("Malformed message start after :");
+                DEBUG("Malformed message start after :");
                 assert(false);
             }
 
