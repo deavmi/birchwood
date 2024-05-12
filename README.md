@@ -22,7 +22,7 @@ dub add birchwood
 Birchwood depends on the following D libraries:
 
 * `eventy` (at least 0.4.0)
-* `dlog` (at least 0.3.19)
+* `gogga` (at least 3.1.1)
 
 ## Usage
 
