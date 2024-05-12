@@ -13,14 +13,7 @@ import birchwood.client.exceptions;
 import birchwood.config.conninfo : ChecksMode;
 import birchwood.logging;
 
-// TODO: Before release we should remove this import
-import std.stdio : writeln;
-
 /* TODO: We could move these all to `package.d` */
-
-/**
-* Encoding/decoding primitives
-*/
 
 /** 
  * Encodes the provided message into a CRLF
