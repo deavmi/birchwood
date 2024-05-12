@@ -19,14 +19,7 @@ import birchwood.protocol.constants : ReplyType;
 import birchwood.client.receiver : ReceiverThread;
 import birchwood.client.sender : SenderThread;
 import birchwood.client.events;
-
-import dlog;
-
-package __gshared Logger logger;
-__gshared static this()
-{
-    logger = new DefaultLogger();
-}
+import birchwood.logging;
 
 // TODO: Make abstract and for unit tests make a `DefaultClient`
 // ... which logs outputs for the `onX()` handler functions
@@ -136,7 +129,7 @@ public class Client : Thread
     public void onChannelMessage(Message fullMessage, string channel, string msgBody)
     {
         /* Default implementation */
-        logger.log("Channel("~channel~"): "~msgBody);
+        DEBUG("Channel("~channel~"): "~msgBody);
     }
 
     /** 
@@ -150,7 +143,7 @@ public class Client : Thread
     public void onDirectMessage(Message fullMessage, string nickname, string msgBody)
     {
         /* Default implementation */
-        logger.log("DirectMessage("~nickname~"): "~msgBody);
+        DEBUG("DirectMessage("~nickname~"): "~msgBody);
     }
 
     /** 
@@ -162,7 +155,7 @@ public class Client : Thread
     public void onGenericCommand(Message message)
     {
         /* Default implementation */
-        logger.log("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
+        DEBUG("Generic("~message.getCommand()~", "~message.getFrom()~"): "~message.getParams());
     }
 
     // TODO: Hook certain ones default style with an implemenation
@@ -179,29 +172,29 @@ public class Client : Thread
         // ... state
 
         /* Default implementation */
-        logger.log("Response("~to!(string)(commandReply.getReplyType())~", "~commandReply.getFrom()~"): "~commandReply.toString());
+        DEBUG("Response("~to!(string)(commandReply.getReplyType())~", "~commandReply.getFrom()~"): "~commandReply.toString());
 
         if(commandReply.getReplyType() == ReplyType.RPL_ISUPPORT)
         {
             // TODO: Testing code was here
-            // logger.log();
-            // logger.log("<<<>>>");
+            // DEBUG();
+            // DEBUG("<<<>>>");
 
-            // logger.log("Take a look:\n\n"~commandReply.getParams());
+            // DEBUG("Take a look:\n\n"~commandReply.getParams());
 
-            // logger.log("And here is key-value pairs: ", commandReply.getKVPairs());
-            // logger.log("And here is array: ", commandReply.getPairs());
+            // DEBUG("And here is key-value pairs: ", commandReply.getKVPairs());
+            // DEBUG("And here is array: ", commandReply.getPairs());
 
             // // TODO: DLog bug, this prints nothing
-            // logger.log("And here is trailing: ", commandReply.getTrailing());
+            // DEBUG("And here is trailing: ", commandReply.getTrailing());
 
             // import std.stdio;
             // writeln("Trailer: "~commandReply.getTrailing());
 
             // writeln(cast(ubyte[])commandReply.getTrailing());
 
-            // logger.log("<<<>>>");
-            // logger.log();
+            // DEBUG("<<<>>>");
+            // DEBUG();
 
             import std.stdio;
             writeln("Support stuff: ", commandReply.getKVPairs());
@@ -213,7 +206,7 @@ public class Client : Thread
                 /* Update the db */
                 string value = receivedKV[key];
                 connInfo.updateDB(key, value);
-                logger.log("Updated key in db '"~key~"' with value '"~value~"'");
+                DEBUG("Updated key in db '"~key~"' with value '"~value~"'");
             }
 
         }
@@ -225,7 +218,7 @@ public class Client : Thread
     public void onConnectionClosed()
     {
         // TODO: Add log as default behaviour?
-        logger.log("Connection was closed, not doing anything");
+        DEBUG("Connection was closed, not doing anything");
     }
 
     /** 
@@ -773,7 +766,7 @@ public class Client : Thread
                 assert(ircEvent); //Should never fail, unless some BOZO regged multiple handles for 1 - wait idk does eventy do that even mmm
     
                 // NOTE: Enable this when debugging
-                // logger.log("IRCEvent(message): "~ircEvent.getMessage().toString());
+                // DEBUG("IRCEvent(message): "~ircEvent.getMessage().toString());
 
                 /* TODO: We should use a switch statement, imagine how nice */
                 Message ircMessage = ircEvent.getMessage();
@@ -849,7 +842,7 @@ public class Client : Thread
                 // string messageToSend = "PONG "~pongEvent.getID();
                 Message pongMessage = new Message("", "PONG", pongEvent.getID());
                 client.sendMessage(pongMessage);
-                logger.log("Ponged back with "~pongEvent.getID());
+                DEBUG("Ponged back with "~pongEvent.getID());
             }
         }
         engine.addSignalHandler(new PongSignal(this));
@@ -1034,7 +1027,7 @@ public class Client : Thread
     {
         /* Set the state of running to false */
         running = false;
-        logger.log("disconnect() begin");
+        DEBUG("disconnect() begin");
 
         /* Shutdown the socket */
 
@@ -1048,7 +1041,7 @@ public class Client : Thread
          */
         import std.socket : SocketShutdown;
         socket.shutdown(SocketShutdown.BOTH);
-        logger.log("disconnect() socket shutdown");
+        DEBUG("disconnect() socket shutdown");
 
         
     }
@@ -1062,20 +1055,20 @@ public class Client : Thread
     {
         /* Stop the receive queue manager and wait for it to stop */
         receiver.end();
-        logger.log("doThreadCleanup() recvQueue manager stopped");
+        DEBUG("doThreadCleanup() recvQueue manager stopped");
         receiver = null;
 
         /* Stop the send queue manager and wait for it to stop */
         sender.end();
-        logger.log("doThreadCleanup() sendQueue manager stopped");
+        DEBUG("doThreadCleanup() sendQueue manager stopped");
         sender = null;
 
         /* TODO: Stop eventy (FIXME: I don't know if this is implemented in Eventy yet, do this!) */
         engine.shutdown();
-        logger.log("doThreadCleanup() eventy stopped");
+        DEBUG("doThreadCleanup() eventy stopped");
         engine = null;
 
-        logger.log("doThreadCleanup() end");
+        DEBUG("doThreadCleanup() end");
     }
 
     /** 
@@ -1088,8 +1081,8 @@ public class Client : Thread
     private void processMessage(ubyte[] message)
     {
         // import std.stdio;
-        // logger.log("Message length: "~to!(string)(message.length));
-        // logger.log("InterpAsString: "~cast(string)message);
+        // DEBUG("Message length: "~to!(string)(message.length));
+        // DEBUG("InterpAsString: "~cast(string)message);
 
         receiveQ(message);
     }
